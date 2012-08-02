@@ -10,6 +10,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QProgressbar>
 #include <QtCore/QTranslator>
+#include "KeypadUnt.h"
 
 
 namespace Ui {
@@ -38,10 +39,15 @@ private:
     QTranslator* fTranslator;
     QString fLastLangCode;
     QSet<Qt::Key> fPressedKeys;
+    TKeyItem* fKeyItems[8][8];
 private:
     //void TryAcceptDrop( QFileInfo &info, int maxdepth, int &bypasscount, int &acceptcount );
     //void TryAcceptPages( QFileInfo &info, int maxdepth, int chapterindex, int &bypasscount, int &acceptcount );
     //void TryAcceptXmlFolder( QFileInfo &info, OpenBookWriter* writer, int baselen, int maxdepth, int &bypasscount, int &acceptcount );
+    void initKeypad();
+    void repaintKeypad();
+    void updateKeypadRegisters();
+
 protected:
     virtual bool eventFilter(QObject*, QEvent*);
     virtual void keyPressEvent(QKeyEvent *);
@@ -57,6 +63,7 @@ private slots:
     void onLanguageChineseClicked();
     //void onToolsOptionsClicked();
     void onHelpContentsClicked();
+    void onKeypadSizeChanged(int, int);
 public slots:
     void writeLog(QString content, TLogType logtype = ltMessage);
     void onReadyBuildBook();

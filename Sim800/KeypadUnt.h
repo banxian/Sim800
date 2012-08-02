@@ -27,19 +27,23 @@ protected:
 
 class TKeyItem {
 public:
-    explicit TKeyItem(int ID, QString& graphic, int matchedkeycode);
+    explicit TKeyItem(int ID, const QString& graphic, int matchedkeycode);
 private:
     int row;
     int column;
     bool fPressed;
     bool fHold;
-    QString& fGraphic;
+    QString fGraphic;
     int fMatchedKeycode;
     QRect fRect;
 public:
     void setRect(const QRect& rect);
     bool inRect(const QPoint& point);
     void paintSelf(QImage& image);
+    bool press(int keycode);
+    bool release(int keycode);
+    void hold();
+    bool pressed();
 };
 
 #endif // KEYPADUNT_H

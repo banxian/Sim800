@@ -80,6 +80,16 @@ bool TNekoDriver::RunDemoBin( const QString& filename )
     return true;
 }
 
+bool TNekoDriver::PauseEmulation()
+{
+    return false;
+}
+
+bool TNekoDriver::ResumeEmulation()
+{
+    return false;
+}
+
 EmulatorThread::EmulatorThread( char* brom, char* nor )
     : fBROMBuffer(brom)
     , fNorBuffer(nor)

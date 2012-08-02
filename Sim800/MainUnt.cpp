@@ -12,6 +12,9 @@
 #include <QtGUI/QDesktopServices>
 #include <QtCore/QSettings>
 #include <QtXml/QDomDocument>
+extern "C" {
+#include "ANSI/65c02.h"
+}
 
 
 TMainFrm::TMainFrm(QWidget *parent)
@@ -80,6 +83,11 @@ TMainFrm::TMainFrm(QWidget *parent)
     QList<QWidget*> widgets = qFindChildren<QWidget*>(this);
     foreach(QWidget *widget, widgets)
         widget->installEventFilter(this);
+
+    initKeypad();
+
+    // connect
+    QObject::connect(ui->keypadView, SIGNAL(resized(int, int)), this, SLOT(onKeypadSizeChanged(int, int)));
 }
 
 TMainFrm::~TMainFrm()
@@ -260,13 +268,46 @@ void TMainFrm::onLCDBufferChanged( QByteArray* buffer )
 void TMainFrm::keyPressEvent( QKeyEvent * ev )
 {
     fPressedKeys += (Qt::Key)ev->key();
-    qDebug("%d pressed", ev->key());
+    qDebug("0x%x pressed", ev->key());
+    bool hitted = false;
+    for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < 8; x++) {
+            TKeyItem* item = fKeyItems[y][x];
+            if (item) {
+                if (item->press(ev->key())) {
+                    hitted = true;
+                }
+            }
+        }
+    }
+    // pull up
+    if (hitted) {
+        repaintKeypad();
+        updateKeypadRegisters();
+    }
 }
 
 void TMainFrm::keyReleaseEvent( QKeyEvent * ev )
 {
     fPressedKeys -= (Qt::Key)ev->key();
-    qDebug("%d released", ev->key());
+    qDebug("0x%x released", ev->key());
+    bool hitted = false;
+    for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < 8; x++) {
+            TKeyItem* item = fKeyItems[y][x];
+            if (item) {
+                if (item->release(ev->key())) {
+                    hitted = true;
+
+                }
+            }
+        }
+    }
+    // pull down
+    if (hitted) {
+        repaintKeypad();
+        updateKeypadRegisters();
+    }
 }
 
 bool TMainFrm::eventFilter( QObject*, QEvent* ev )
@@ -276,6 +317,149 @@ bool TMainFrm::eventFilter( QObject*, QEvent* ev )
     }
     keyPressEvent((QKeyEvent*)ev);
     return true;
+}
+
+void TMainFrm::repaintKeypad()
+{
+    QImage image(ui->keypadView->size(), QImage::Format_RGB32);
+    for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < 8; x++) {
+            TKeyItem* item = fKeyItems[y][x];
+            if (item) {
+                item->paintSelf(image);
+            }
+        }
+    }
+    ui->keypadView->setPixmap(QPixmap::fromImage(image));
+}
+
+void TMainFrm::updateKeypadRegisters()
+{
+    byte port1control = mem[0x15];
+    byte controlbit = 1;
+    for (int y = 0; y < 8; y++) {
+        byte src, dest;
+        if ((port1control & controlbit) != 0) {
+            src = 9;
+            dest = 8;
+        } else {
+            src = 8;
+            dest = 9;
+        }
+        byte srcbit = 1;
+        for (int x = 0; x < 8; x++) {
+            TKeyItem* item = fKeyItems[y][x];
+            if (item) {
+                if (item->pressed() && (mem[src] & srcbit) != 0) {
+                    mem[dest] |= controlbit; // pull up
+                }
+                if (item->pressed() == false && (mem[src] & srcbit) == 0) {
+                    mem[dest] &= ~controlbit; // pull down
+                }
+            }
+            srcbit = srcbit << 1;
+        }
+        controlbit = controlbit << 1;
+    }
+}
+
+void TMainFrm::onKeypadSizeChanged(int w, int h)
+{
+    // reset keypad size
+    int itemwidth = w / 8;
+    int itemheight = h / 8;
+    for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < 8; x++) {
+            TKeyItem* item = fKeyItems[y][x];
+            if (item) {
+                item->setRect(QRect(x * itemwidth, y*itemheight, itemwidth, itemheight));
+            }
+        }
+    }
+    repaintKeypad();
+}
+
+void TMainFrm::initKeypad()
+{
+    TKeyItem* item[8][8] = {
+        NULL,       // P00, P10
+        NULL,       // P01, P10
+        NULL,       // P02, P10
+        NULL,       // P03, P10
+        NULL,       // P04, P10
+        NULL,       // P05, P10
+        NULL,       // P06, P10
+        NULL,       // P07, P10
+
+        NULL,       // P00, P11
+        NULL,       // P01, P11
+        NULL,       // P02, P11
+        NULL,       // P03, P11
+        NULL,       // P04, P11
+        NULL,       // P05, P11
+        NULL,       // P06, P11
+        NULL,       // P07, P11
+
+        new TKeyItem(16, "Help", Qt::Key_Control),  // P00, P12
+        new TKeyItem(17, "Shift", Qt::Key_Shift),   // P01, P12
+        new TKeyItem(18, "Caps", Qt::Key_Alt),      // P02, P12
+        new TKeyItem(19, "AC", Qt::Key_Tab),        // P03, P12
+        new TKeyItem(20, "0", Qt::Key_0),       // P04, P12
+        new TKeyItem(21, ".", Qt::Key_Period),       // P05, P12
+        new TKeyItem(22, "=", Qt::Key_Equal),       // P06, P12
+        new TKeyItem(23, "Left", Qt::Key_Left),       // P07, P12
+
+        new TKeyItem(24, "Z", Qt::Key_Z),       // P00, P13
+        new TKeyItem(25, "X", Qt::Key_X),       // P01, P13
+        new TKeyItem(26, "C", Qt::Key_C),       // P02, P13
+        new TKeyItem(27, "V", Qt::Key_V),       // P03, P13
+        new TKeyItem(28, "B", Qt::Key_B),       // P04, P13
+        new TKeyItem(29, "N", Qt::Key_N),       // P05, P13
+        new TKeyItem(30, "M", Qt::Key_M),       // P06, P13
+        new TKeyItem(31, "PgUp", Qt::Key_PageUp),       // P07, P13
+
+        new TKeyItem(24, "A", Qt::Key_A),       // P00, P14
+        new TKeyItem(25, "S", Qt::Key_S),       // P01, P14
+        new TKeyItem(26, "D", Qt::Key_D),       // P02, P14
+        new TKeyItem(27, "F", Qt::Key_F),       // P03, P14
+        new TKeyItem(28, "G", Qt::Key_G),       // P04, P14
+        new TKeyItem(29, "H", Qt::Key_H),       // P05, P14
+        new TKeyItem(30, "J", Qt::Key_J),       // P06, P14
+        new TKeyItem(31, "K", Qt::Key_K),       // P07, P14
+
+        new TKeyItem(24, "Q", Qt::Key_Q),       // P00, P15
+        new TKeyItem(25, "W", Qt::Key_W),       // P01, P15
+        new TKeyItem(26, "E", Qt::Key_E),       // P02, P15
+        new TKeyItem(27, "R", Qt::Key_R),       // P03, P15
+        new TKeyItem(28, "T", Qt::Key_T),       // P04, P15
+        new TKeyItem(29, "Y", Qt::Key_Y),       // P05, P15
+        new TKeyItem(30, "U", Qt::Key_U),       // P06, P15
+        new TKeyItem(31, "I", Qt::Key_I),       // P07, P15
+
+        new TKeyItem(24, "O", Qt::Key_O),       // P00, P16
+        new TKeyItem(25, "L", Qt::Key_L),       // P01, P16
+        new TKeyItem(26, "Up", Qt::Key_Up),       // P02, P16
+        new TKeyItem(27, "Down", Qt::Key_Down),       // P03, P16
+        new TKeyItem(28, "P", Qt::Key_P),       // P04, P16
+        new TKeyItem(29, "Enter", Qt::Key_Enter),       // P05, P16
+        new TKeyItem(30, "PgDn", Qt::Key_PageDown),       // P06, P16
+        new TKeyItem(31, "Right", Qt::Key_Right),       // P07, P16
+
+        NULL,       // P00, P17
+        NULL,       // P01, P17
+        new TKeyItem(26, "F1", Qt::Key_F1),       // P02, P17
+        new TKeyItem(27, "F2", Qt::Key_F2),       // P03, P17
+        new TKeyItem(28, "F3", Qt::Key_F3),       // P04, P17
+        new TKeyItem(29, "F4", Qt::Key_F4),       // P05, P17
+        NULL,       // P06, P17
+        NULL,       // P07, P17
+    };
+    for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < 8; x++) {
+            fKeyItems[y][x] = item[y][x];
+        }
+    }
+    onKeypadSizeChanged(ui->keypadView->width(), ui->keypadView->height());
 }
 
 QString LogTypeToString( TLogType logtype )

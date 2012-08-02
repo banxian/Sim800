@@ -37,6 +37,8 @@ public:
     bool StartEmulation();
     bool RunDemoBin(const QString& filename);
     bool StopEmulation();
+    bool PauseEmulation();
+    bool ResumeEmulation();
 
 public slots:
     void onLCDBufferChanged(QByteArray* buffer);

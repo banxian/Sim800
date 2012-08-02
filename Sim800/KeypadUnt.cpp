@@ -28,7 +28,7 @@ void TKeypadFrm::keyReleaseEvent( QKeyEvent* ev )
     qDebug("%d released", ev->key());
 }
 
-TKeyItem::TKeyItem( int ID, QString& graphic, int matchedkeycode )
+TKeyItem::TKeyItem( int ID, const QString& graphic, int matchedkeycode )
     : row(ID / 8)
     , column(ID % 8)
     , fPressed(false)
@@ -51,17 +51,59 @@ bool TKeyItem::inRect( const QPoint& point )
 
 void TKeyItem::paintSelf( QImage& image )
 {
+    if (fRect.isEmpty()) {
+        return;
+    }
     QPainter painter(&image);
     QBrush framebrush;
-    painter.setPen(QPen(QColor(0x14C906), 2, Qt::SolidLine));
-    QLinearGradient linearGradient(0, 0, 474, 36);
-    linearGradient.setColorAt(0.0, Qt::white);
-    linearGradient.setColorAt(0.2, Qt::lightGray);
-    linearGradient.setColorAt(0.6, Qt::lightGray);
-    linearGradient.setColorAt(1.0, Qt::darkGray);
-    painter.setBrush(linearGradient);
+    if (fHold) {
+        painter.setPen(QPen(QColor(0x14C906), 2, Qt::SolidLine));
+        framebrush.setColor(QColor(0x9AC986));
+    } else if (fPressed) {
+        painter.setPen(QPen(QColor(0x404906), 2, Qt::SolidLine));
+        framebrush.setColor(Qt::lightGray);
+    } else {
+        painter.setPen(QPen(QColor(0x80C946), 2, Qt::SolidLine));
+        framebrush.setColor(Qt::darkGray);
+    }
+    //QLinearGradient linearGradient(0, 0, 474, 36);
+    //linearGradient.setColorAt(0.0, Qt::white);
+    //linearGradient.setColorAt(0.2, Qt::lightGray);
+    //linearGradient.setColorAt(0.6, Qt::lightGray);
+    //linearGradient.setColorAt(1.0, Qt::darkGray);
+    //painter.setBrush(linearGradient);
+    painter.setBrush(framebrush);
     painter.setRenderHint(QPainter::Antialiasing);
     //painter.setOpacity(0.5);
     painter.drawRoundedRect(fRect, 4, 4, Qt::AbsoluteSize);
     painter.drawText(fRect, Qt::AlignCenter | Qt::AlignHCenter | Qt::TextWrapAnywhere, fGraphic);
+}
+
+bool TKeyItem::press( int keycode )
+{
+    if (keycode == fMatchedKeycode) {
+        fPressed = true;
+        return true;
+    }
+    return false;
+}
+
+bool TKeyItem::release( int keycode )
+{
+    if (keycode == fMatchedKeycode) {
+        fPressed = false;
+        return true;
+    }
+    return false;
+}
+
+bool TKeyItem::pressed()
+{
+    return fPressed;
+}
+
+void TKeyItem::hold()
+{
+    fPressed = true;
+    fHold = true;
 }

@@ -224,6 +224,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MyZoomWidget.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\NekoDriver.cpp"
 				>
 			</File>
@@ -260,6 +264,32 @@
 			<File
 				RelativePath=".\DirtyDefination.h"
 				>
+			</File>
+			<File
+				RelativePath=".\MyZoomWidget.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Moc&apos;ing MyZoomWidget.h..."
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_NODLL -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_UNICODE &quot;-I.\tmp&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtXml&quot; &quot;-I.&quot; &quot;-I.\..\FvQKOLLite&quot; &quot;-I.\LibMUIMaker&quot; &quot;-I.\tmp\moc\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\QtSql&quot; &quot;-I$(QTDIR)\include\ActiveQt&quot; &quot;-IG:\root\git\qt\qt\src\3rdparty&quot; &quot;-I.\tmp\$(ConfigurationName)\.&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
+						Outputs="&quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Moc&apos;ing MyZoomWidget.h..."
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DQT_NODLL -D_UNICODE &quot;-I.\tmp&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtXml&quot; &quot;-I.&quot; &quot;-I.\..\FvQKOLLite&quot; &quot;-I.\LibMUIMaker&quot; &quot;-I.\tmp\moc\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\QtSql&quot; &quot;-I$(QTDIR)\include\ActiveQt&quot; &quot;-IG:\root\git\qt\qtlite\src\3rdparty&quot; &quot;-I.\tmp\$(ConfigurationName)\.&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
+						Outputs="&quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\NekoDriver.h"
@@ -373,6 +403,18 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath=".\tmp\Debug\moc_MyZoomWidget.cpp"
+					>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
 					RelativePath=".\tmp\Debug\moc_NekoDriver.cpp"
 					>
 					<FileConfiguration
@@ -404,6 +446,18 @@
 				</File>
 				<File
 					RelativePath=".\tmp\Release\moc_MainUnt.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\tmp\Release\moc_MyZoomWidget.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1675,6 +1729,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\ClassDiagram1.cd"
+			>
+		</File>
 		<File
 			RelativePath=".\Sim800.rc"
 			>
