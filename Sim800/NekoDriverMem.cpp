@@ -13,11 +13,16 @@ BYTE __stdcall StartTimer0 (BYTE read);
 BYTE __stdcall StopTimer0 (BYTE read);
 BYTE __stdcall StartTimer1 (BYTE read);
 BYTE __stdcall StopTimer1 (BYTE read);
+BYTE __stdcall ReadPort0 (BYTE read);
+BYTE __stdcall ReadPort1 (BYTE read);
 
 BYTE __stdcall ReadBank (BYTE read);
 void __stdcall SwitchBank (BYTE write, BYTE value);
 void __stdcall WriteLCDStartAddr (BYTE write, BYTE value);
 void __stdcall WriteTimer01Control (BYTE write, BYTE value);
+void __stdcall WritePort0 (BYTE write, BYTE value);
+void __stdcall WritePort1 (BYTE write, BYTE value);
+void __stdcall ControlPort1 (BYTE write, BYTE value);
 
 iofunction1 ioread[0x40]  = {
     ReadBank,       // $00
@@ -28,8 +33,8 @@ iofunction1 ioread[0x40]  = {
     StartTimer0,    // $05
     StopTimer1,     // $06
     StartTimer1,    // $07
-    NullRead,       // $08
-    NullRead,       // $09
+    ReadPort0,      // $08
+    ReadPort1,      // $09
     NullRead,       // $0A
     NullRead,       // $0B
     NullRead,       // $0C
@@ -95,8 +100,8 @@ iofunction2 iowrite[0x40] = {
     NullWrite,      // $05
     WriteLCDStartAddr,  // $06
     NullWrite,      // $07
-    NullWrite,      // $08
-    NullWrite,      // $09
+    WritePort0,      // $08
+    WritePort1,      // $09
     NullWrite,      // $0A
     NullWrite,      // $0B
     WriteTimer01Control,    // $0C
@@ -108,7 +113,7 @@ iofunction2 iowrite[0x40] = {
     NullWrite,      // $12
     NullWrite,      // $13
     NullWrite,      // $14
-    NullWrite,      // $15
+    ControlPort1,      // $15
     NullWrite,      // $16
     NullWrite,      // $17
     NullWrite,      // $18
@@ -158,16 +163,6 @@ LPBYTE  mem          = NULL;
 TCHAR   ROMfile[MAX_PATH] = TEXT("65c02.rom");
 TCHAR   RAMfile[MAX_PATH] = TEXT("");
 
-
-BYTE __stdcall NullRead (BYTE address) {
-    qDebug("lee wanna read io, [%04x] -> %02x", address, mem[address]);
-    return mem[address];
-}
-
-void __stdcall NullWrite(BYTE address, BYTE value) {
-    qDebug("lee wanna write io, [%04x] (%02x) -> %02x", address, mem[address], value);
-    mem[address] = value;
-}
 
 void MemDestroy () {
     VirtualFree(mem,0,MEM_RELEASE);
@@ -237,6 +232,16 @@ void MemReset ()
     CpuInitialize(); // Read pc from reset vector
 }
 
+BYTE __stdcall NullRead (BYTE address) {
+    //qDebug("lee wanna read io, [%04x] -> %02x", address, mem[address]);
+    return mem[address];
+}
+
+void __stdcall NullWrite(BYTE address, BYTE value) {
+    //qDebug("lee wanna write io, [%04x] (%02x) -> %02x", address, mem[address], value);
+    mem[address] = value;
+}
+
 void __stdcall SwitchBank( BYTE write, BYTE value )
 {
     mem[write] = value;
@@ -247,7 +252,7 @@ void __stdcall SwitchBank( BYTE write, BYTE value )
 
 BYTE __stdcall ReadBank( BYTE read )
 {
-    byte r = mem[00];
+    byte r = mem[read];
     qDebug("lee wanna read bank. current bank 0x%02x", r);
     return r;
 }
@@ -259,14 +264,14 @@ BYTE __stdcall StartTimer0( BYTE read )
 {
     qDebug("lee wanna start timer0");
     timer0started = true;
-    return mem[02];
+    return mem[read];
 }
 
 BYTE __stdcall StopTimer0( BYTE read )
 {
     qDebug("lee wanna stop timer0");
-    byte r = mem[02];
-    mem[02] = 0;
+    byte r = mem[read];
+    mem[read] = 0;
     timer0started = false;
     return r;
 }
@@ -275,19 +280,19 @@ BYTE __stdcall StartTimer1( BYTE read )
 {
     qDebug("lee wanna start timer1");
     timer1started = true;
-    return mem[03];
+    return mem[read];
 }
 
 BYTE __stdcall StopTimer1( BYTE read )
 {
     qDebug("lee wanna stop timer1");
-    byte r = mem[03];
-    mem[03] = 0;
+    byte r = mem[read];
+    mem[read] = 0;
     timer1started = false;
     return r;
 }
 
-unsigned short lcdbufaddr;
+unsigned short lcdbuffaddr;
 
 void __stdcall WriteLCDStartAddr( BYTE write, BYTE value )
 {
@@ -295,7 +300,7 @@ void __stdcall WriteLCDStartAddr( BYTE write, BYTE value )
     t = t | (value << 4);
     qDebug("lee wanna change lcdbuf address to 0x%04x", t);
     mem[write] = value;
-    lcdbufaddr = t;
+    lcdbuffaddr = t;
 }
 
 void __stdcall WriteTimer01Control( BYTE write, BYTE value )
@@ -305,9 +310,111 @@ void __stdcall WriteTimer01Control( BYTE write, BYTE value )
     qDebug("lee wanna change lcdbuf address to 0x%04x", t);
     qDebug("lee also wanna change timer settins to 0x%02x.", (value & 0xC));
     mem[write] = value;
-    lcdbufaddr = t;
+    lcdbuffaddr = t;
 }
 
+unsigned char keypadmatrix[8][8] = {0,};
+
+void UpdateKeypadRegisters()
+{
+    // TODO: 2pass check
+    qDebug("old [0015]:%02x [0009]:%02x [0008]:%02x", mem[0x15], mem[0x9], mem[0x8]);
+    int up = 0, down = 0;
+    byte port1control = mem[0x15];
+    byte port0control = mem[0x0F] & 0xF0; // b4~b7
+    byte port1controlbit = 1;
+    byte tmpdest0 = 0, tmpdest1 = 0;
+    for (int y = 0; y < 8; y++) {
+        // y = Port10~Port17
+        byte src, dest;
+        bool ysend = ((port1control & port1controlbit) != 0);
+        if (ysend) {
+            src = 9;
+            dest = 8;
+        } else {
+            src = 8;
+            dest = 9;
+        }
+        byte srcbit = 1;
+        for (int x = 0; x < 8; x++) {
+            // x = Port00~Port07
+            byte port0controlbit;
+            if (x < 2) {
+                // b4 b5
+                port0controlbit = srcbit << 4;
+            } else if (x < 4) {
+                // b6
+                port0controlbit = 0x40;
+            } else {
+                // b7
+                port0controlbit = 0x80;
+            }
+            if (keypadmatrix[y][x] != 2) {
+                //if (ysend) {
+                //    if (keypadmatrix[y][x]) {
+                //        // one grid pushed
+                //        if (mem[src] & controlbit) {
+                //            // eg, y = 7, and [09] = 80
+                //            mem[dest] |= srcbit; // pull up
+                //            up++;
+                //        } else {
+                //            // eg, y = 7, and [09] = 40
+                //            // do nothing?
+                //        }
+                //    }
+                //}
+                if (keypadmatrix[y][x] && (mem[src] & port1controlbit) != 0) {
+                    mem[dest] |= srcbit; // pull up
+                    up++;
+                }
+                if (keypadmatrix[y][x] == false && (mem[src] & port1controlbit) == 0) {
+                    mem[dest] &= ~srcbit; // pull down
+                    down++;
+                }
+            }
+            srcbit = srcbit << 1;
+        }
+        port1controlbit = port1controlbit << 1;
+    }
+    if (up != 0 && down != 0) {
+        qDebug("new [0015]:%02x [0009]:%02x [0008]:%02x", mem[0x15], mem[0x9], mem[0x8]);
+    }
+}
+
+BYTE __stdcall ReadPort0( BYTE read )
+{
+    UpdateKeypadRegisters();
+    //qDebug("lee wanna read keypad port0, [%04x] -> %02x", read, mem[read]);
+    return mem[read];
+}
+
+BYTE __stdcall ReadPort1( BYTE read )
+{
+    UpdateKeypadRegisters();
+    //qDebug("lee wanna read keypad port1, [%04x] -> %02x", read, mem[read]);
+    return mem[read];
+}
+
+void __stdcall WritePort0( BYTE write, BYTE value )
+{
+    //qDebug("lee wanna write keypad port0, [%04x] (%02x) -> %02x", write, mem[write], value);
+    mem[write] = value;
+    UpdateKeypadRegisters();
+}
+
+void __stdcall WritePort1( BYTE write, BYTE value )
+{
+    //qDebug("lee wanna write keypad port1, [%04x] (%02x) -> %02x", write, mem[write], value);
+    mem[write] = value;
+    UpdateKeypadRegisters();
+}
+
+void __stdcall ControlPort1( BYTE write, BYTE value )
+{
+    //qDebug("lee wanna config keypad port1, [%04x] (%02x) -> %02x", write, mem[write], value);
+    mem[write] = value;
+    UpdateKeypadRegisters();
+}
 
 bool TNekoDriver::SwitchNorBank( int bank )
 {

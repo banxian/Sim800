@@ -46,6 +46,7 @@ private:
     //void TryAcceptXmlFolder( QFileInfo &info, OpenBookWriter* writer, int baselen, int maxdepth, int &bypasscount, int &acceptcount );
     void initKeypad();
     void repaintKeypad();
+    void updateKeypadMatrix();
     void updateKeypadRegisters();
 
 protected:
