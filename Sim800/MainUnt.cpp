@@ -328,7 +328,15 @@ void TMainFrm::repaintKeypad()
     for (int y = 0; y < 8; y++) {
         for (int x = 0; x < 8; x++) {
             TKeyItem* item = fKeyItems[y][x];
-            if (item) {
+            if (item && item->pressed() == false) {
+                item->paintSelf(image);
+            }
+        }
+    }
+    for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < 8; x++) {
+            TKeyItem* item = fKeyItems[y][x];
+            if (item && item->pressed()) {
                 item->paintSelf(image);
             }
         }
@@ -385,13 +393,13 @@ void TMainFrm::updateKeypadMatrix()
 void TMainFrm::onKeypadSizeChanged(int w, int h)
 {
     // reset keypad size
-    int itemwidth = w / 8;
-    int itemheight = h / 8;
+    int itemwidth = (w - 2) / 8;
+    int itemheight = (h - 2) / 8;
     for (int y = 0; y < 8; y++) {
         for (int x = 0; x < 8; x++) {
-            TKeyItem* item = fKeyItems[y][x];
+            TKeyItem* item = fKeyItems[7 - y][x];
             if (item) {
-                item->setRect(QRect(x * itemwidth, y*itemheight, itemwidth, itemheight));
+                item->setRect(QRect(x * itemwidth + 1, y * itemheight + 1, itemwidth, itemheight));
             }
         }
     }
@@ -421,8 +429,8 @@ void TMainFrm::initKeypad()
 
         new TKeyItem(16, "Help", Qt::Key_Control),  // P00, P12
         new TKeyItem(17, "Shift", Qt::Key_Shift),   // P01, P12
-        new TKeyItem(18, "Caps", Qt::Key_Alt),      // P02, P12
-        new TKeyItem(19, "AC", Qt::Key_Tab),        // P03, P12
+        new TKeyItem(18, "Caps", Qt::Key_CapsLock), // P02, P12
+        new TKeyItem(19, "AC", Qt::Key_Escape),     // P03, P12
         new TKeyItem(20, "0", Qt::Key_0),           // P04, P12
         new TKeyItem(21, ".", Qt::Key_Period),      // P05, P12
         new TKeyItem(22, "=", Qt::Key_Equal),       // P06, P12

@@ -318,67 +318,78 @@ unsigned char keypadmatrix[8][8] = {0,};
 void UpdateKeypadRegisters()
 {
     // TODO: 2pass check
-    qDebug("old [0015]:%02x [0009]:%02x [0008]:%02x", mem[0x15], mem[0x9], mem[0x8]);
-    int up = 0, down = 0;
+//    qDebug("old [0015]:%02x [0009]:%02x [0008]:%02x", mem[0x15], mem[0x9], mem[0x8]);
+    //int up = 0, down = 0;
     byte port1control = mem[0x15];
     byte port0control = mem[0x0F] & 0xF0; // b4~b7
-    byte port1controlbit = 1;
+    byte port1controlbit = 1; // aka, y control bit
     byte tmpdest0 = 0, tmpdest1 = 0;
+    byte port1data = mem[0x09], port0data = mem[0x08];
     for (int y = 0; y < 8; y++) {
         // y = Port10~Port17
-        byte src, dest;
         bool ysend = ((port1control & port1controlbit) != 0);
-        if (ysend) {
-            src = 9;
-            dest = 8;
-        } else {
-            src = 8;
-            dest = 9;
-        }
-        byte srcbit = 1;
+        byte xbit = 1;
         for (int x = 0; x < 8; x++) {
             // x = Port00~Port07
             byte port0controlbit;
             if (x < 2) {
-                // b4 b5
-                port0controlbit = srcbit << 4;
+                // 0, 1 = b4 b5
+                port0controlbit = xbit << 4;
             } else if (x < 4) {
-                // b6
+                // 2, 3 = b6
                 port0controlbit = 0x40;
             } else {
-                // b7
+                // 4, 5, 6, 7 = b7
                 port0controlbit = 0x80;
             }
             if (keypadmatrix[y][x] != 2) {
-                //if (ysend) {
-                //    if (keypadmatrix[y][x]) {
-                //        // one grid pushed
-                //        if (mem[src] & controlbit) {
-                //            // eg, y = 7, and [09] = 80
-                //            mem[dest] |= srcbit; // pull up
-                //            up++;
-                //        } else {
-                //            // eg, y = 7, and [09] = 40
-                //            // do nothing?
-                //        }
-                //    }
-                //}
-                if (keypadmatrix[y][x] && (mem[src] & port1controlbit) != 0) {
-                    mem[dest] |= srcbit; // pull up
-                    up++;
-                }
-                if (keypadmatrix[y][x] == false && (mem[src] & port1controlbit) == 0) {
-                    mem[dest] &= ~srcbit; // pull down
-                    down++;
+                if (ysend) {
+                    // port1y-> port0x
+                    // port1y is send but only set bit to high when port0 xbit is receive too
+                    if ((keypadmatrix[y][x]) && ((port1data & port1controlbit) != 0) && ((port0control & port0controlbit) == 0)) {
+                        tmpdest0 |= xbit;
+                    }
+                } else {
+                    // port0x -> port1y
+                    // port1y should be receive, only set bit to high when port0 xbit is send
+                    if ((keypadmatrix[y][x]) && ((port0data & xbit) != 0) && ((port0control & port0controlbit) != 0)) {
+                        tmpdest1 |= xbit;
+                    }
                 }
             }
-            srcbit = srcbit << 1;
+            xbit = xbit << 1;
         }
         port1controlbit = port1controlbit << 1;
     }
-    if (up != 0 && down != 0) {
-        qDebug("new [0015]:%02x [0009]:%02x [0008]:%02x", mem[0x15], mem[0x9], mem[0x8]);
+    if (port1control != 0xFF) {
+        // port1 should clean some bits
+        // using port1control as port1mask
+        // sometimes port10,11 should clean here 
+        port1data &= port1control; // pre set receive bits to 0
     }
+    if (port1control != 0xF0) {
+        // clean port0
+        // calculate port0 mask
+        // in most case port0 will be set to 0
+        byte port0mask = (port0control >> 4) & 0x3; // bit4->0 bit5->1
+        if (port0control & 0x40) {
+            // bit6->2,3
+            port0mask |= 0x0C; // 00001100
+        }
+        if (port0control & 0x80) {
+            // bit7->4,5,6,7
+            port0mask |= 0xF0; // 11110000
+        }
+        port0data &= port0mask;
+    }
+    port0data |= tmpdest0;
+    port1data |= tmpdest1;
+    if (mem[0x09] != port1data || mem[0x08] != port0data) {
+        qDebug("old [0015]:%02x [0009]:%02x [0008]:%02x", mem[0x15], mem[0x09], mem[0x08]);
+        qDebug("new [0015]:%02x [0009]:%02x [0008]:%02x", mem[0x15], port1data, port0data);
+    }
+    mem[0x09] = port1data;
+    mem[0x08] = port0data;
 }
 
 BYTE __stdcall ReadPort0( BYTE read )
