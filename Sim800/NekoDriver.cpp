@@ -94,9 +94,16 @@ EmulatorThread::EmulatorThread( char* brom, char* nor )
     : fBROMBuffer(brom)
     , fNorBuffer(nor)
     , fKeeping(true)
+    , fLCDBuffer(malloc(160*80/8))
 {
 
 }
+
+EmulatorThread::~EmulatorThread()
+{
+    free(fLCDBuffer);
+}
+
 
 extern WORD LogDisassembly (WORD offset, LPTSTR text);
 
@@ -164,12 +171,16 @@ void EmulatorThread::run()
         //        throttle++;
         //    }
         //}
-        if (fLCDBuffer.isEmpty()) {
-            fLCDBuffer = QByteArray((const char *)&mem[0x9C0], 160*80/8);
-            emit lcdBufferChanged(new QByteArray(fLCDBuffer));
-        } else if (memcmp(&mem[0x9C0], fLCDBuffer.data(), 160*80/8) != 0) {
-            memcpy(fLCDBuffer.data(), &mem[0x9C0], 160*80/8);
-            emit lcdBufferChanged(new QByteArray(fLCDBuffer));
+        //if (fLCDBuffer.isEmpty()) {
+        //    fLCDBuffer = QByteArray((const char *)&mem[0x9C0], 160*80/8);
+        //    emit lcdBufferChanged(new QByteArray(fLCDBuffer));
+        //} else if (memcmp(&mem[0x9C0], fLCDBuffer.data(), 160*80/8) != 0) {
+        //    memcpy(fLCDBuffer.data(), &mem[0x9C0], 160*80/8);
+        //    emit lcdBufferChanged(new QByteArray(fLCDBuffer));
+        //}
+        if (memcmp(&mem[0x9C0], fLCDBuffer, 160*80/8) != 0) {
+            memcpy(fLCDBuffer, &mem[0x9C0], 160*80/8);
+            emit lcdBufferChanged(new QByteArray((const char*)fLCDBuffer, 160*80/8));
         }
         //emit stepFinished(regs.pc);
         //qDebug("PC:0x%04x", regs.pc);

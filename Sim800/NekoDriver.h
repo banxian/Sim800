@@ -53,11 +53,12 @@ class EmulatorThread : public QThread
     Q_OBJECT
 public:
     explicit EmulatorThread(char* brom, char* nor);
+    ~EmulatorThread();
 protected:
     char* fBROMBuffer;
     char* fNorBuffer;
     bool fKeeping;
-    QByteArray fLCDBuffer;
+    void* fLCDBuffer;
 protected:
     void run();
 public:
