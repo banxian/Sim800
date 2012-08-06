@@ -10,7 +10,7 @@ TGlobalRecItem GlobalSetting;
 
 void LoadAppSettings( void )
 {
-    QSettings settings(QApplication::applicationDirPath() + "/ConfHonya.ini",
+    QSettings settings(QApplication::applicationDirPath() + "/ConfMachine.ini",
         QSettings::IniFormat);
     PathSetting.LastSourceFolder = settings.value("Path/LastSourceFolder", "").toString();
     PathSetting.LastStockBookFolder = settings.value("Path/LastStockBookFolder", "").toString();
@@ -38,11 +38,12 @@ void LoadAppSettings( void )
     GlobalSetting.OutputResolution = ResizeMode(settings.value("Global/OutputResolution", rmFullScreen).toInt());
     GlobalSetting.UseSurfaceBlur = settings.value("Global/UseSurfaceBlur", false).toBool();
     GlobalSetting.RemoveJPEGArtifacts = settings.value("Global/RemoveJPEGArtifacts", false).toBool();
+    GlobalSetting.SPDC1016Frequency = settings.value("Global/SPDC1016Frequency", 3686400).toUInt();
 }
 
 void SaveAppSettings( void )
 {
-    QSettings settings(QApplication::applicationDirPath() + "/ConfHonya.ini",
+    QSettings settings(QApplication::applicationDirPath() + "/ConfMachine.ini",
         QSettings::IniFormat);
     settings.beginGroup("Path");
     settings.setValue("LastSourceFolder", PathSetting.LastSourceFolder);
@@ -75,6 +76,7 @@ void SaveAppSettings( void )
     settings.setValue("OutputResolution", GlobalSetting.OutputResolution);
     settings.setValue("UseSurfaceBlur", GlobalSetting.UseSurfaceBlur);
     settings.setValue("RemoveJPEGArtifacts", GlobalSetting.RemoveJPEGArtifacts);
+    settings.setValue("SPDC1016Frequency", GlobalSetting.SPDC1016Frequency);
     settings.endGroup();
 }
 

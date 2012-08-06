@@ -29,8 +29,8 @@ class TKeyItem {
 public:
     explicit TKeyItem(int ID, const QString& graphic, int matchedkeycode);
 private:
-    int row;
-    int column;
+    int fRow;
+    int fColumn;
     bool fPressed;
     bool fHold;
     QString fGraphic;
@@ -43,7 +43,11 @@ public:
     bool press(int keycode);
     bool release(int keycode);
     void hold();
+    void press();
+    void release();
     bool pressed();
+    int row();
+    int column();
 };
 
 #endif // KEYPADUNT_H

@@ -59,6 +59,16 @@ protected:
     char* fNorBuffer;
     bool fKeeping;
     void* fLCDBuffer;
+private:
+    unsigned int lastTicket;
+    unsigned long long totalcycle;
+    //const unsigned spdc1016freq = 3686400;
+    bool checked;
+    unsigned batchlimiter;
+    long batchcount;
+    double sleepgap;
+    long sleepcount;
+
 protected:
     void run();
 public:

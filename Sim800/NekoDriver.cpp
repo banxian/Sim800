@@ -1,4 +1,5 @@
-#   include "NekoDriver.h"
+#include "NekoDriver.h"
+#include "DBCentre.h"
 extern "C" {
 #include "ANSI/65c02.h"
 }
@@ -95,6 +96,13 @@ EmulatorThread::EmulatorThread( char* brom, char* nor )
     , fNorBuffer(nor)
     , fKeeping(true)
     , fLCDBuffer(malloc(160*80/8))
+    , lastTicket(0)
+    , totalcycle(0)
+    , checked(false)
+    , batchlimiter(0)
+    , batchcount(UINT_MAX)
+    , sleepgap(10)
+    , sleepcount(0)
 {
 
 }
@@ -110,6 +118,14 @@ extern WORD LogDisassembly (WORD offset, LPTSTR text);
 extern bool timer0started;
 extern bool timer1started;
 
+//DWORD lastTicket = 0;
+//unsigned long long totalcycle = 0;
+//const unsigned spdc1016freq = 3686400;
+//bool checked = false;
+//unsigned batchlimiter = 0;
+//long batchcount = LONG_MAX;
+//double sleepgap = 10;
+//long sleepcount = 0;
 
 void EmulatorThread::run()
 {
@@ -117,23 +133,30 @@ void EmulatorThread::run()
     CpuInitialize();
     while(fKeeping) {
         //ContinueExecution();
-        DWORD processtime		= totcycles;// needed for comm routines
-        DWORD loop				= 4096; //speed * 300;// watchdog timer
-        DWORD elapsed			= 0;
-        DWORD CpuTicks          = 0;
-        DWORD j = 0;
+        //DWORD processtime		= totcycles;// needed for comm routines
+        //DWORD loop				= 4096; //speed * 300;// watchdog timer
+        //DWORD elapsed			= 0;
+        //DWORD CpuTicks          = 0;
+        //DWORD j = 0;
 
         //elapsed = GetTickCount()-stmsecs;
+        const unsigned spdc1016freq = GlobalSetting.SPDC1016Frequency;
 
-        while (loop/* && (totcycles < (elapsed * 100 * speed))*/) {
+        while (batchcount >= 0) {
             //qDebug("PC:0x%04x, opcode: 0x%06x", regs.pc, (*(LPDWORD)(mem+regs.pc)) & 0xFFFFFF);
             //LogDisassembly(regs.pc, NULL);
-            CpuTicks = CpuExecute();
+            DWORD CpuTicks = CpuExecute();
             totcycles += CpuTicks;
+            totalcycle += CpuTicks;
             executed++;
             // add checks for reset, IRQ, NMI, and other pin signals
             //elapsed = GetTickCount()-stmsecs;
-            loop--;
+            if (lastTicket == 0) {
+                lastTicket = GetTickCount();
+            }
+
+
+            //loop--;
             //// added for irq timing/
             //if (irqclk) {
             //    irqcnt += CpuTicks;
@@ -158,8 +181,56 @@ void EmulatorThread::run()
 
             /* Throttling routine (simple delay loop)  */
             //if (throttle) for (j=throttle*CpuTicks;j>1;j--);
+            if (totalcycle % spdc1016freq < 10 && totalcycle > spdc1016freq) {
+                if (checked == false) {
+                    checked = true;
+                    if (totalcycle < spdc1016freq * 2) {
+                        // first loop check!
+                        // spdc1016 executed one second in fullspeed virtual timeline
+                        unsigned long long realworldtime = GetTickCount() - lastTicket; // should less than 1000ms
+                        lastTicket = GetTickCount();
+                        //double virtual100ms = realworldtime / 100.0;
+                        if (realworldtime > 1000) {
+                            batchlimiter = spdc1016freq * 2;
+                        } else if (batchlimiter == 0) {
+                            // 1000 - realworldtime = overflow time, overflow time / 10 = sleepcount, freq / sleepcount = batchcount
+                            //batchlimiter = spdc1016freq / ((1000 - realworldtime) / 10);
+                            sleepcount = (1000 - realworldtime) / sleepgap;
+                            batchlimiter = spdc1016freq * sleepgap / (1000 - realworldtime);
+                        } else {
+                            // sleep(0) is less than 10ms, but we'd never go here
+                        }
+                        batchcount = batchlimiter;
+                    } else {
+                        //// check once more
+                        //unsigned long long realworldtime = GetTickCount() - lastTicket; // should less than 1000ms
+                        //lastTicket = GetTickCount();
+                        //if (realworldtime < 1000 && batchlimiter > 0) {
+                        //    // sleep(0) is less than 10ms
+                        //    // TODO: calculate real sleep gap
+                        //    double lastexrtatime = sleepgap * sleepcount; // for eg400ms, sleep 20*10ms
+                        //    long newextratime = (1000 - realworldtime); // for eg100ms, real sleepgap = (400 - 100) / 20
+                        //    sleepgap = (lastexrtatime - newextratime) / sleepcount;
+                        //    sleepcount = lastexrtatime / sleepgap;
+                        //    batchlimiter = spdc1016freq * 10 / lastexrtatime;
+                        //}
+                    }
+                }
+            }
+            if (totalcycle % spdc1016freq > 10 && totalcycle > spdc1016freq) {
+                checked = false;
+            }
+
+            if (batchlimiter != 0) {
+                batchcount -= CpuTicks;
+                //if (batchcount < 0) {
+                //    batchcount = batchlimiter;
+                //    Sleep(10);
+                //}
+            }
+
             //usleep(10);
-            Sleep(0);
+            //Sleep(0);
         }
         /* Throttling update routine   */
         //if (throttle) {
@@ -184,6 +255,12 @@ void EmulatorThread::run()
         }
         //emit stepFinished(regs.pc);
         //qDebug("PC:0x%04x", regs.pc);
+        Sleep(10);
+        if (batchlimiter > 0) {
+            batchcount = batchlimiter;
+        } else {
+            batchcount = spdc1016freq * 2; // dirty fix
+        }
     }
     //this->deleteLater();
 }

@@ -189,8 +189,8 @@
        <widget class="MyZoomWidget" name="keypadView">
         <property name="minimumSize">
          <size>
-          <width>240</width>
-          <height>160</height>
+          <width>320</width>
+          <height>140</height>
          </size>
         </property>
         <property name="text">

@@ -29,8 +29,8 @@ void TKeypadFrm::keyReleaseEvent( QKeyEvent* ev )
 }
 
 TKeyItem::TKeyItem( int ID, const QString& graphic, int matchedkeycode )
-    : row(ID / 8)
-    , column(ID % 8)
+    : fRow(ID / 10)
+    , fColumn(ID % 10)
     , fPressed(false)
     , fHold(false)
     , fGraphic(graphic)
@@ -88,6 +88,11 @@ bool TKeyItem::press( int keycode )
     return false;
 }
 
+void TKeyItem::press()
+{
+    fPressed = true;
+}
+
 bool TKeyItem::release( int keycode )
 {
     if (keycode == fMatchedKeycode) {
@@ -95,6 +100,11 @@ bool TKeyItem::release( int keycode )
         return true;
     }
     return false;
+}
+
+void TKeyItem::release()
+{
+    fPressed = false;
 }
 
 bool TKeyItem::pressed()
@@ -106,4 +116,14 @@ void TKeyItem::hold()
 {
     fPressed = true;
     fHold = true;
+}
+
+int TKeyItem::row()
+{
+    return fRow;
+}
+
+int TKeyItem::column()
+{
+    return fColumn;
 }

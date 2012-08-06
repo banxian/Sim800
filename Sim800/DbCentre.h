@@ -39,6 +39,7 @@ typedef struct tagGlobalRecItem {
     FilterMode EnhanceLevel;
     //MangaDoublePageMode SplitPage;
     PageSortingMethod PageSorting;
+    int SPDC1016Frequency;
 } TGlobalRecItem;
 
 //class CacheStore {

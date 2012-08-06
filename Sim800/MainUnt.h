@@ -65,6 +65,9 @@ private slots:
     //void onToolsOptionsClicked();
     void onHelpContentsClicked();
     void onKeypadSizeChanged(int, int);
+    void onMouseDown(int x, int y);
+    void onMouseUp(int x, int y);
+    
 public slots:
     void writeLog(QString content, TLogType logtype = ltMessage);
     void onReadyBuildBook();
