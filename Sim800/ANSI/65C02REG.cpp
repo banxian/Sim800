@@ -78,10 +78,8 @@ BOOL LoadReg() {
 	  iopage=0x8000;
 
   autoboot = 0;
-  serialport = 0;
   speed = 10;
   LOAD(TEXT("Configuration"),TEXT("Auto Boot"),&autoboot);
-  LOAD(TEXT("Configuration"),TEXT("Serial Port"),&serialport);
   LOAD(TEXT("Configuration"),TEXT("Emulation Speed"),&speed);
   LOAD(TEXT("Configuration"),TEXT("Throttling Enabled"),&throttle);
   LOAD(TEXT("Simulation"),TEXT("IRQ Clock"),&irqclk);
@@ -101,7 +99,6 @@ void SaveReg () {
    SAVE(TEXT("Configuration"),TEXT("Auto Boot"),autoboot);
    _stprintf(buffer,TEXT("0x%04X\0"),(iopage & 0xFF00));
    RegSaveString(TEXT("Configuration"),TEXT("IO Page"),buffer);
-   SAVE(TEXT("Configuration"),TEXT("Serial Port"),serialport);
    SAVE(TEXT("Configuration"),TEXT("Emulation Speed"),speed);
    SAVE(TEXT("Configuration"),TEXT("Throttling Enabled"),(throttle > 0));
    SAVE(TEXT("Simulation"),TEXT("IRQ Clock"),irqclk);

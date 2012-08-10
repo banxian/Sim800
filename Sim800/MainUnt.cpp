@@ -346,38 +346,6 @@ void TMainFrm::repaintKeypad()
     ui->keypadView->setPixmap(QPixmap::fromImage(image));
 }
 
-void TMainFrm::updateKeypadRegisters()
-{
-    theNekoDriver->PauseEmulation();
-    byte port1control = mem[0x15];
-    byte controlbit = 1;
-    for (int y = 0; y < 8; y++) {
-        byte src, dest;
-        if ((port1control & controlbit) != 0) {
-            src = 9;
-            dest = 8;
-        } else {
-            src = 8;
-            dest = 9;
-        }
-        byte srcbit = 1;
-        for (int x = 0; x < 8; x++) {
-            TKeyItem* item = fKeyItems[y][x];
-            if (item) {
-                if (item->pressed() && (mem[src] & srcbit) != 0) {
-                    mem[dest] |= controlbit; // pull up
-                }
-                if (item->pressed() == false && (mem[src] & srcbit) == 0) {
-                    mem[dest] &= ~controlbit; // pull down
-                }
-            }
-            srcbit = srcbit << 1;
-        }
-        controlbit = controlbit << 1;
-    }
-    theNekoDriver->ResumeEmulation();
-}
-
 void TMainFrm::updateKeypadMatrix()
 {
     for (int y = 0; y < 8; y++) {

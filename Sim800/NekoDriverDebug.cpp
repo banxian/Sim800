@@ -370,7 +370,7 @@ WORD LogDisassembly ( WORD offset, LPTSTR text) {
     TCHAR addresstext[40] = TEXT("");
     TCHAR bytestext[10]   = TEXT("");
     TCHAR fulltext[50]    = TEXT("");
-    WORD  inst            = *(mem+offset);
+    WORD  inst            = GetByte(offset);
 
     if (offset < iorange /*(offset & 0xFF00) == (iopage & 0xFF00)*/) {
         // Register address can't be executed
@@ -384,13 +384,13 @@ WORD LogDisassembly ( WORD offset, LPTSTR text) {
     // Build a string containing the target address or symbol
     if (addressmode[addrmode].format[0]) {
 
-        WORD address = *(LPWORD)(mem+((offset+1) & 0xffff));
+        WORD address = GetWord((offset+1) & 0xffff);
 
         if (bytes == 2)
             address &= 0xFF;
 
         if (addrmode == ADDR_IMM) {
-            WORD address = (*(LPWORD)(mem+((offset+1) & 0xffff)))& 0xFF;
+            WORD address = (GetWord((offset+1) & 0xffff))& 0xFF;
             wsprintf(addresstext,
                 addressmode[addrmode].format,
                 (unsigned)address);
@@ -409,7 +409,7 @@ WORD LogDisassembly ( WORD offset, LPTSTR text) {
         if (addrmode == ADDR_BBREL) {
             address &= 0xFF;
             WORD zpaddr = address;
-            address = *(LPWORD)(mem+((offset+2) & 0xffff));
+            address = GetWord((offset+2) & 0xffff);
             address &= 0xFF;
             address = (offset+3+(int)(signed char)address) & 0xffff;
 
@@ -440,7 +440,7 @@ WORD LogDisassembly ( WORD offset, LPTSTR text) {
         while (loop < bytes)
             wsprintf(bytestext+_tcslen(bytestext),
             TEXT("%02X"),
-            (unsigned)*(mem+offset+(loop++)));
+            GetWord(offset+(loop++)));
         while (_tcslen(bytestext) < 6)
             _tcscat(bytestext,TEXT(" "));
     }

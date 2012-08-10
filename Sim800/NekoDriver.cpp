@@ -18,7 +18,6 @@ TNekoDriver::TNekoDriver()
 
     // Do initialization that must be repeated for a restart
     restart = 0;
-    mode    = MODE_LOGO;
 
     if (!LoadReg()){
         SaveReg();
@@ -73,7 +72,7 @@ bool TNekoDriver::RunDemoBin( const QString& filename )
     } else {
         LoadDemoNor(filename);
     }
-    mem[0] = 1;
+    fixedram0000[0] = 1;
     SwitchNorBank(1);
     //fEmulatorThread->start(QThread::InheritPriority);
     StopEmulation();
@@ -173,10 +172,10 @@ void EmulatorThread::run()
             //    }
             //}
             if (timer0started) {
-                mem[02] = mem[02] + 1;
+                fixedram0000[02] = fixedram0000[02] + 1;
             }
             if (timer1started) {
-                mem[03] = mem[03] + 1;
+                fixedram0000[03] = fixedram0000[03] + 1;
             }
 
             /* Throttling routine (simple delay loop)  */
@@ -242,15 +241,8 @@ void EmulatorThread::run()
         //        throttle++;
         //    }
         //}
-        //if (fLCDBuffer.isEmpty()) {
-        //    fLCDBuffer = QByteArray((const char *)&mem[0x9C0], 160*80/8);
-        //    emit lcdBufferChanged(new QByteArray(fLCDBuffer));
-        //} else if (memcmp(&mem[0x9C0], fLCDBuffer.data(), 160*80/8) != 0) {
-        //    memcpy(fLCDBuffer.data(), &mem[0x9C0], 160*80/8);
-        //    emit lcdBufferChanged(new QByteArray(fLCDBuffer));
-        //}
-        if (memcmp(&mem[0x9C0], fLCDBuffer, 160*80/8) != 0) {
-            memcpy(fLCDBuffer, &mem[0x9C0], 160*80/8);
+        if (memcmp(&fixedram0000[0x9C0], fLCDBuffer, 160*80/8) != 0) {
+            memcpy(fLCDBuffer, &fixedram0000[0x9C0], 160*80/8);
             emit lcdBufferChanged(new QByteArray((const char*)fLCDBuffer, 160*80/8));
         }
         //emit stepFinished(regs.pc);

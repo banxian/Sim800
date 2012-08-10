@@ -27,13 +27,16 @@
                               | (flagz ? AF_ZERO     : 0);
 #define CMOS      { }
 #define CYC(a)   cycles += a;
-#define POP      (*(mem+((regs.sp >= 0x01FF) ? (regs.sp = 0x100) : ++regs.sp)))
-#define PUSH(a)  *(mem+regs.sp--) = (a);                                    \
+
+// only address less than 1FFF can access to fixed ram
+
+#define POP      (*(fixedram0000+((regs.sp >= 0x01FF) ? (regs.sp = 0x100) : ++regs.sp)))
+#define PUSH(a)  *(fixedram0000+regs.sp--) = (a);                                    \
                  if (regs.sp < 0x100)                                       \
                    regs.sp = 0x1FF;
 #define READ     ((addr < iorange)                                          \
                     ? ioread[addr & 0xFF]((BYTE)(addr & 0xff))            \
-                    : *(mem+addr))
+                    : *(pmemmap[addr >> 0xD] + (addr & 0x1FFF)))
 #define SETNZ(a) {                                                          \
                    flagn = ((a) & 0x80);                                    \
                    flagz = !(a & 0xFF);                                     \
@@ -42,10 +45,11 @@
 #define TOBCD(a) (((((a)/10) % 10) << 4) | ((a) % 10))
 #define TOBIN(a) (((a) >> 4)*10 + ((a) & 0x0F))
 #define WRITE(a) { if ((addr >= iorange))                                    \
-                     *(mem+addr) = (BYTE)(a);                               \
+                     *(pmemmap[addr >> 0xD] + (addr & 0x1FFF)) = (BYTE)(a);                               \
                    else                                                     \
                      iowrite[addr & 0xFF]((BYTE)(addr & 0xff),(BYTE)(a));   \
                  }
+// dangerous!! FFFE/FFFF may not in same stripe
 #define IRQ  {  if (wai) {regs.pc++; wai = 0;}				    \
 				if (!(regs.ps & AF_INTERRUPT)) { 				    \
 			   PUSH(regs.pc >> 8)                                     \
@@ -55,17 +59,17 @@
 			   		 regs.ps &= ~AF_BREAK;                                  \
                      PUSH(regs.ps)                                          \
 					 regs.ps |= AF_BREAK;                                   \
-  			   regs.pc = *(LPWORD)(mem+0xFFFE); CYC(7)                \
+  			   regs.pc = *(LPWORD)(pmemmap[7]+0x1FFE); CYC(7)                \
                      } 									    \
 			 }
-
+// TODO: avoid cross stripe using SHR |
 #define NMI  {   if (wai) {regs.pc++; wai = 0; }                           \
 			     PUSH(regs.pc >> 8)                                        \
                  PUSH(regs.pc & 0xFF)                                       \
 				 SEI                                                \
 				 EF_TO_AF                                           \
                  PUSH(regs.ps)                                              \
-				 regs.pc = *(LPWORD)(mem+0xFFFA);                   \
+				 regs.pc = *(LPWORD)(pmemmap[7]+0x1FFA);                   \
 				 nmi = 1; CYC(7)						    \
 			 }
 
@@ -78,29 +82,31 @@
 
 // BUG REPORT!!! IND ZP when set to $FF will get hi byte from $0100 vs. $0000 !!!!
 
-#define ABS      addr = *(LPWORD)(mem+regs.pc);  regs.pc += 2;
-#define ABSIINDX addr = *(LPWORD)(mem+(*(LPWORD)(mem+regs.pc))+(WORD)regs.x);  regs.pc += 2;
-#define ABSX     addr = (*(LPWORD)(mem+regs.pc))+(WORD)regs.x;  regs.pc += 2;
-#define ABSY     addr = (*(LPWORD)(mem+regs.pc))+(WORD)regs.y;  regs.pc += 2;
-#define IABS     addr = *(LPWORD)(mem+*(LPWORD)(mem+regs.pc));  regs.pc += 2;
+#define ABS      addr = GetWord(regs.pc);  regs.pc += 2;
+#define ABSIINDX addr = GetWord(GetWord(regs.pc)+(WORD)regs.x);  regs.pc += 2;
+#define ABSX     addr = GetWord(regs.pc)+(WORD)regs.x;  regs.pc += 2;
+#define ABSY     addr = GetWord(regs.pc)+(WORD)regs.y;  regs.pc += 2;
+#define IABS     addr = GetWord(GetWord(regs.pc));  regs.pc += 2;
 #define ACC      { }
 #define IMM      addr = regs.pc++;
 #define IMPLIED  { }
-#define REL      addr = (signed char)*(mem+regs.pc++);
+#define REL      addr = (signed char)GetByte(regs.pc++);
 #define STACK    { }
-#define ZPG      addr = *(mem+regs.pc++);
-#define INDX     addr = *(LPWORD)(mem+(((*(mem+regs.pc++))+regs.x) & 0xFF));
-#define ZPGX     addr = ((*(mem+regs.pc++))+regs.x) & 0xFF;
-#define ZPGY     addr = ((*(mem+regs.pc++))+regs.y) & 0xFF;
+// TODO: optimize Zeropage
+#define ZPG      addr = GetByte(regs.pc++);
+#define INDX     addr = GetWord((GetByte(regs.pc++)+regs.x) & 0xFF);
+#define ZPGX     addr = (GetByte(regs.pc++)+regs.x) & 0xFF;
+#define ZPGY     addr = (GetByte(regs.pc++)+regs.y) & 0xFF;
 // #define IZPG     addr = *(LPWORD)(mem+*(mem+regs.pc++));
-#define INDY     addr = (*(LPWORD)(mem+*(mem+regs.pc++)))+(WORD)regs.y;
+#define INDY     addr = GetWord(GetByte(regs.pc++))+(WORD)regs.y;
 
-#define IZPG     if (*(mem+regs.pc) == 0xFF) {								\
-					addr = *(mem+0xFF) + (*(mem)*256); 						\
+// optimized?
+#define IZPG     if (GetByte(regs.pc) == 0xFF) {								\
+					addr = *(fixedram0000+0xFF) + (*(fixedram0000)*256); 						\
 					regs.pc++;												\
 					}														\
 				 else														\
-	  				addr = *(LPWORD)(mem+*(mem+regs.pc++));
+	  				addr = GetWord(GetByte(regs.pc++));
 
 
 
@@ -179,13 +185,14 @@
 #define BNE      if (!flagz) { regs.pc += addr; CYC(1) }
 #define BPL      if (!flagn) { regs.pc += addr; CYC(1) }
 #define BRA      regs.pc += addr;
+// assume 1FFE/1FFF in same stripe
 #define BRK      PUSH(++regs.pc >> 8)                                       \
                  PUSH(regs.pc & 0xFF)                                       \
                  EF_TO_AF                                                   \
                  regs.ps |= AF_BREAK;                                       \
                  PUSH(regs.ps)                                              \
                  regs.ps |= AF_INTERRUPT;                                   \
-                 regs.pc = *(LPWORD)(mem+0xFFFE);
+                 regs.pc = *(LPWORD)(pmemmap[7]+0x1FFE);
 #define BVC      if (!flagv) { regs.pc += addr; CYC(1) }
 #define BVS      if ( flagv) { regs.pc += addr; CYC(1) }
 #define CLC      flagc = 0;
@@ -406,7 +413,7 @@ DWORD CpuExecute () {
 *
 ***/
 //  do  {
-	switch (*(mem+regs.pc++)) {
+	switch (GetByte(regs.pc++)) {
       case 0x00:       BRK           CYC(7)  break;
       case 0x01:       INDX ORA      CYC(6)  break;
       case 0x02:       INVALID2      CYC(2)  break;
@@ -682,7 +689,8 @@ void CpuInitialize () {
   regs.x  = 0;
   regs.y  = 0;
   regs.ps = 0x30;                       // set unused bit 5 to 1 and BRK=1
-  regs.pc = *(LPWORD)(mem+0xFFFC);
+  // assume 1FFC/1FFD in same stripe
+  regs.pc = *(LPWORD)(pmemmap[7]+0x1FFC);
   regs.sp = 0x01FF;
   irq	  = 1;
   nmi	  = 1;

@@ -547,6 +547,13 @@
 			<File
 				RelativePath=".\ANSI\65C02.cpp"
 				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\ANSI\65C02.h"
@@ -708,7 +715,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\PpsDES\24x24-gnome\document.png"
+				RelativePath=".\PpsDES\16x16-tango\document.png"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -728,7 +735,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\PpsDES\16x16-tango\document.png"
+				RelativePath=".\PpsDES\24x24-gnome\document.png"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -868,7 +875,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\PpsDES\24x24-tango\emblem-unreadable.png"
+				RelativePath=".\PpsDES\16x16-tango\emblem-unreadable.png"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -888,7 +895,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\PpsDES\16x16-tango\emblem-unreadable.png"
+				RelativePath=".\PpsDES\24x24-tango\emblem-unreadable.png"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1028,7 +1035,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\PpsDES\24x24-unofficetango\folder_tar.png"
+				RelativePath=".\PpsDES\24x24-gnome\folder_tar.png"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1048,7 +1055,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\PpsDES\24x24-gnome\folder_tar.png"
+				RelativePath=".\PpsDES\24x24-unofficetango\folder_tar.png"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"

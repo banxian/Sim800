@@ -47,7 +47,6 @@ private:
     void initKeypad();
     void repaintKeypad();
     void updateKeypadMatrix();
-    void updateKeypadRegisters();
 
 protected:
     virtual bool eventFilter(QObject*, QEvent*);

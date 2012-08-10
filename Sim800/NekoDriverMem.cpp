@@ -159,66 +159,29 @@ iofunction2 iowrite[0x40] = {
 };
 
 regsrec regs;
-LPBYTE  mem          = NULL;
+// LPBYTE  mem          = NULL;
+unsigned char fixedram0000[0x10002]; // just like simulator
+unsigned char* pmemmap[8]; // 0000~1FFF ... E000~FFFF
 TCHAR   ROMfile[MAX_PATH] = TEXT("65c02.rom");
 TCHAR   RAMfile[MAX_PATH] = TEXT("");
 
 
 void MemDestroy () {
-    VirtualFree(mem,0,MEM_RELEASE);
-    mem      = NULL;
+
 }
 
 void MemInitialize () {
-    mem = (LPBYTE)VirtualAlloc(NULL,0x10001,MEM_COMMIT,PAGE_READWRITE);
+    
+    memset(&fixedram0000[0], 0, 0x10002);
 
-    if (!mem)	{
-        MessageBox(GetDesktopWindow(),
-            TEXT("The Simulator was unable to allocate the memory it ")
-            TEXT("requires.  Further execution is not possible."),
-            TITLE,
-            MB_ICONSTOP | MB_SETFOREGROUND);
-        ExitProcess(1);
-    }
+    qDebug("RESET will jump to 0x0418 in norflash page1.");
 
-    //pre-fill rom area with 0xFF
-    DWORD address = (0xFFFF - iopage);
-    do *(mem + iopage + address) = (BYTE)(0xFF);
-    while (address--);
-
-    // READ THE FIRMWARE ROM INTO THE ROM IMAGE
-    TCHAR filename[MAX_PATH];
-    _tcscpy(filename,progdir);
-    _tcscat(filename,ROMfile);
-
-    HANDLE file = CreateFile(filename,
-        GENERIC_READ,
-        FILE_SHARE_READ,
-        (LPSECURITY_ATTRIBUTES)NULL,
-        OPEN_EXISTING,
-        FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN,
-        NULL);
-    if (file == INVALID_HANDLE_VALUE) {
-        //MessageBox(GetDesktopWindow(),
-        //    TEXT("Unable to open the required firmware ROM data file.")
-        //    TEXT("  Building an empty image in ROM filled with 0xFF's.")
-        //    TEXT("  RESET will jump to 0x0300, IRQ to 0x0200, &")
-        //    TEXT(" NMI to 0x0280.  A '????????.ROM' file is needed."),
-        //    TITLE,
-        //    MB_ICONSTOP | MB_SETFOREGROUND);
-        qDebug("RESET will jump to 0x0418 in norflash page1.");
-
-        *(mem + 0xFFFA) = (BYTE)(0x80);  // NMI Vector LowByte        0x0280
-        *(mem + 0xFFFB) = (BYTE)(0x02);  // NMI Vector HighByte
-        *(mem + 0xFFFC) = (BYTE)(0x18);  // Reset Vector LowByte      0x0300
-        *(mem + 0xFFFD) = (BYTE)(0x40);  // Reset Vector HighByte
-        *(mem + 0xFFFE) = (BYTE)(0x00);  // IRQ Vector LowByte        0x0200
-        *(mem + 0xFFFF) = (BYTE)(0x02);  // IRQ Vector HighByte
-    } else {
-        DWORD bytesread;
-        ReadFile(file,(mem+0x8000),0x8000,&bytesread,NULL);  //always read 32k
-    }
-    CloseHandle(file);    							   //memreset will fix ram
+    fixedram0000[0xFFFA] = (BYTE)(0x80);  // NMI Vector LowByte        0x0280
+    fixedram0000[0xFFFB] = (BYTE)(0x02);  // NMI Vector HighByte
+    fixedram0000[0xFFFC] = (BYTE)(0x18);  // Reset Vector LowByte      0x0300
+    fixedram0000[0xFFFD] = (BYTE)(0x40);  // Reset Vector HighByte
+    fixedram0000[0xFFFE] = (BYTE)(0x00);  // IRQ Vector LowByte        0x0200
+    fixedram0000[0xFFFF] = (BYTE)(0x02);  // IRQ Vector HighByte
 
     MemReset();
 }
@@ -226,25 +189,53 @@ void MemInitialize () {
 
 void MemReset ()
 {
-    ZeroMemory(mem,iopage);
+    pmemmap[0] = &fixedram0000[0];
+    pmemmap[1] = &fixedram0000[0x2000];
+    pmemmap[2] = &fixedram0000[0x4000];
+    pmemmap[3] = &fixedram0000[0x6000];
+    pmemmap[4] = &fixedram0000[0x8000];
+    pmemmap[5] = &fixedram0000[0xA000];
+    pmemmap[6] = &fixedram0000[0xC000];
+    pmemmap[7] = &fixedram0000[0xE000];
 
-    // INITIALIZE THE CPU
+    // Initialize the cpu
     CpuInitialize(); // Read pc from reset vector
+}
+
+unsigned char GetByte( unsigned short address )
+{
+    //unsigned int row = address / 0x2000; // SHR
+    //return *(pmemmap[row] + address % 0x2000);
+    unsigned int row = address >> 0xD; // 0000 0000 0000 0111 0~7
+    return *(pmemmap[row] + (address & 0x1FFF)); // 0001 1111 1111 1111
+}
+
+unsigned short GetWord( unsigned short address )
+{
+    unsigned char low = GetByte(address);
+    unsigned char high = GetByte(address == 0xFFFF?0:address + 1);
+    return ((high << 8) | low);
+}
+
+void SetByte( unsigned short address, unsigned char value )
+{
+    unsigned int row = address / 0x2000; // SHR
+    *(pmemmap[row] + address % 0x2000) = value;
 }
 
 BYTE __stdcall NullRead (BYTE address) {
     //qDebug("lee wanna read io, [%04x] -> %02x", address, mem[address]);
-    return mem[address];
+    return fixedram0000[address];
 }
 
 void __stdcall NullWrite(BYTE address, BYTE value) {
     //qDebug("lee wanna write io, [%04x] (%02x) -> %02x", address, mem[address], value);
-    mem[address] = value;
+    fixedram0000[address] = value;
 }
 
 void __stdcall SwitchBank( BYTE write, BYTE value )
 {
-    mem[write] = value;
+    fixedram0000[write] = value;
     qDebug("lee wanna switch to bank 0x%02x", value);
     theNekoDriver->SwitchNorBank(value);
 }
@@ -252,7 +243,7 @@ void __stdcall SwitchBank( BYTE write, BYTE value )
 
 BYTE __stdcall ReadBank( BYTE read )
 {
-    byte r = mem[read];
+    byte r = fixedram0000[read];
     qDebug("lee wanna read bank. current bank 0x%02x", r);
     return r;
 }
@@ -264,14 +255,14 @@ BYTE __stdcall StartTimer0( BYTE read )
 {
     qDebug("lee wanna start timer0");
     timer0started = true;
-    return mem[read];
+    return fixedram0000[read];
 }
 
 BYTE __stdcall StopTimer0( BYTE read )
 {
     qDebug("lee wanna stop timer0");
-    byte r = mem[read];
-    mem[read] = 0;
+    byte r = fixedram0000[read];
+    fixedram0000[read] = 0;
     timer0started = false;
     return r;
 }
@@ -280,14 +271,14 @@ BYTE __stdcall StartTimer1( BYTE read )
 {
     qDebug("lee wanna start timer1");
     timer1started = true;
-    return mem[read];
+    return fixedram0000[read];
 }
 
 BYTE __stdcall StopTimer1( BYTE read )
 {
     qDebug("lee wanna stop timer1");
-    byte r = mem[read];
-    mem[read] = 0;
+    byte r = fixedram0000[read];
+    fixedram0000[read] = 0;
     timer1started = false;
     return r;
 }
@@ -296,20 +287,20 @@ unsigned short lcdbuffaddr;
 
 void __stdcall WriteLCDStartAddr( BYTE write, BYTE value )
 {
-    unsigned int t = ((mem[0x0C] & 0x3) << 12);
+    unsigned int t = ((fixedram0000[0x0C] & 0x3) << 12);
     t = t | (value << 4);
     qDebug("lee wanna change lcdbuf address to 0x%04x", t);
-    mem[write] = value;
+    fixedram0000[write] = value;
     lcdbuffaddr = t;
 }
 
 void __stdcall WriteTimer01Control( BYTE write, BYTE value )
 {
     unsigned int t = ((value & 0x3) << 12);
-    t = t | (mem[0x06] << 4);
+    t = t | (fixedram0000[0x06] << 4);
     qDebug("lee wanna change lcdbuf address to 0x%04x", t);
     qDebug("lee also wanna change timer settins to 0x%02x.", (value & 0xC));
-    mem[write] = value;
+    fixedram0000[write] = value;
     lcdbuffaddr = t;
 }
 
@@ -318,13 +309,13 @@ unsigned char keypadmatrix[8][8] = {0,};
 void UpdateKeypadRegisters()
 {
     // TODO: 2pass check
-//    qDebug("old [0015]:%02x [0009]:%02x [0008]:%02x", mem[0x15], mem[0x9], mem[0x8]);
+    //qDebug("old [0015]:%02x [0009]:%02x [0008]:%02x", mem[0x15], mem[0x9], mem[0x8]);
     //int up = 0, down = 0;
-    byte port1control = mem[0x15];
-    byte port0control = mem[0x0F] & 0xF0; // b4~b7
+    byte port1control = fixedram0000[0x15];
+    byte port0control = fixedram0000[0x0F] & 0xF0; // b4~b7
     byte port1controlbit = 1; // aka, y control bit
     byte tmpdest0 = 0, tmpdest1 = 0;
-    byte port1data = mem[0x09], port0data = mem[0x08];
+    byte port1data = fixedram0000[0x09], port0data = fixedram0000[0x08];
     for (int y = 0; y < 8; y++) {
         // y = Port10~Port17
         bool ysend = ((port1control & port1controlbit) != 0);
@@ -384,52 +375,52 @@ void UpdateKeypadRegisters()
     }
     port0data |= tmpdest0;
     port1data |= tmpdest1;
-    if (mem[0x09] != port1data || mem[0x08] != port0data) {
-        qDebug("old [0015]:%02x [0009]:%02x [0008]:%02x", mem[0x15], mem[0x09], mem[0x08]);
-        qDebug("new [0015]:%02x [0009]:%02x [0008]:%02x", mem[0x15], port1data, port0data);
+    if (fixedram0000[0x09] != port1data || fixedram0000[0x08] != port0data) {
+        qDebug("old [0015]:%02x [0009]:%02x [0008]:%02x", fixedram0000[0x15], fixedram0000[0x09], fixedram0000[0x08]);
+        qDebug("new [0015]:%02x [0009]:%02x [0008]:%02x", fixedram0000[0x15], port1data, port0data);
     }
-    mem[0x09] = port1data;
-    mem[0x08] = port0data;
+    fixedram0000[0x09] = port1data;
+    fixedram0000[0x08] = port0data;
 }
 
 BYTE __stdcall ReadPort0( BYTE read )
 {
     UpdateKeypadRegisters();
     //qDebug("lee wanna read keypad port0, [%04x] -> %02x", read, mem[read]);
-    return mem[read];
+    return fixedram0000[read];
 }
 
 BYTE __stdcall ReadPort1( BYTE read )
 {
     UpdateKeypadRegisters();
     //qDebug("lee wanna read keypad port1, [%04x] -> %02x", read, mem[read]);
-    return mem[read];
+    return fixedram0000[read];
 }
 
 void __stdcall WritePort0( BYTE write, BYTE value )
 {
     //qDebug("lee wanna write keypad port0, [%04x] (%02x) -> %02x", write, mem[write], value);
-    mem[write] = value;
+    fixedram0000[write] = value;
     UpdateKeypadRegisters();
 }
 
 void __stdcall WritePort1( BYTE write, BYTE value )
 {
     //qDebug("lee wanna write keypad port1, [%04x] (%02x) -> %02x", write, mem[write], value);
-    mem[write] = value;
+    fixedram0000[write] = value;
     UpdateKeypadRegisters();
 }
 
 void __stdcall ControlPort1( BYTE write, BYTE value )
 {
     //qDebug("lee wanna config keypad port1, [%04x] (%02x) -> %02x", write, mem[write], value);
-    mem[write] = value;
+    fixedram0000[write] = value;
     UpdateKeypadRegisters();
 }
 
 bool TNekoDriver::SwitchNorBank( int bank )
 {
-    memcpy(&mem[0x4000], fNorBuffer.data() + bank * 0x8000, 0x8000);
+    memcpy(&fixedram0000[0x4000], fNorBuffer.data() + bank * 0x8000, 0x8000);
     return true;
 }
 

@@ -72,65 +72,57 @@ typedef struct _regsrec {
 } regsrec, *regsptr;
 
 extern DWORD      autoboot;
-extern TCHAR      DisplayBuffer[25][81];
-extern BOOL       Displayflag;
-extern HINSTANCE  instance;
-extern HWND       framewindow;
 extern iofunction1 ioread[0x40];
 extern iofunction2 iowrite[0x40];
-extern LPBYTE     mem;
+// extern LPBYTE     mem;
+extern unsigned char fixedram0000[0x10002]; // just like simulator
+extern unsigned char* pmemmap[8]; // 0000~1FFF ... E000~FFFF
 extern WORD       iopage;
 extern WORD       iorange;
-extern int        mode;
 extern TCHAR      progdir[MAX_PATH];
 extern TCHAR      ROMfile[MAX_PATH];
 extern TCHAR      RAMfile[MAX_PATH];
 extern regsrec    regs;
 extern BOOL       restart;
-extern DWORD      serialport;
 extern DWORD      speed;
 extern DWORD	  totcycles;
 extern DWORD      stmsecs;
 extern DWORD      executed;
 extern int        benchmark;
 extern DWORD      throttle;
-extern BOOL       TermColor;
 extern BOOL       irq;
 extern BOOL       nmi;
 extern BOOL       wai;
 extern BOOL       stp;
 extern DWORD      irqclk;       /*  used for auto-IRQ  */
 extern DWORD      nmiclk;       /*  used for auto-NMI  */
-extern int		  Capture;
-extern TCHAR      Capfile[MAX_PATH];
-extern FILE		  *Cfile;
-extern BYTE pra;
-extern BYTE prb;
-extern BYTE ira;
-extern BYTE irb;
-extern BYTE lira;
-extern BYTE lirb;
-extern BYTE ddra;
-extern BYTE ddrb;
-extern BYTE ca1;
-extern BYTE ca2;
-extern BYTE cb1;
-extern BYTE cb2;
-extern BYTE t1cl;
-extern BYTE t1ch;
-extern BYTE t1ll;
-extern BYTE t1lh;
-extern BYTE t2ll;
-extern BYTE t2cl;
-extern BYTE t2ch;
-extern BYTE sr;
-extern BYTE acr;
-extern BYTE pcr;
-extern BYTE ifr;
-extern BYTE ier;
-extern BYTE t1ctl;
-extern BYTE t2ctl;
-extern BYTE pb6;
+// extern BYTE pra;
+// extern BYTE prb;
+// extern BYTE ira;
+// extern BYTE irb;
+// extern BYTE lira;
+// extern BYTE lirb;
+// extern BYTE ddra;
+// extern BYTE ddrb;
+// extern BYTE ca1;
+// extern BYTE ca2;
+// extern BYTE cb1;
+// extern BYTE cb2;
+// extern BYTE t1cl;
+// extern BYTE t1ch;
+// extern BYTE t1ll;
+// extern BYTE t1lh;
+// extern BYTE t2ll;
+// extern BYTE t2cl;
+// extern BYTE t2ch;
+// extern BYTE sr;
+// extern BYTE acr;
+// extern BYTE pcr;
+// extern BYTE ifr;
+// extern BYTE ier;
+// extern BYTE t1ctl;
+// extern BYTE t2ctl;
+// extern BYTE pb6;
 //extern BYTE pb7;
 
 
@@ -189,3 +181,6 @@ BYTE __stdcall w65c22read (BYTE,BYTE);
 BYTE __stdcall w65c22loop (BYTE,BYTE);
 
 BYTE __stdcall CommCommandRD (BYTE,BYTE);
+
+unsigned char GetByte( unsigned short address );
+unsigned short GetWord( unsigned short address );
