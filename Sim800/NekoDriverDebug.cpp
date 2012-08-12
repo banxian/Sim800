@@ -56,10 +56,7 @@ typedef struct _instrec {
     int   addrmode;
 } instrec, *instptr;
 
-typedef struct _symbolrec {
-    WORD  value;
-    TCHAR name[14];
-} symbolrec, *symbolptr;
+
 
 addrrec addressmode[19]  = { {TEXT("")         ,1},        // (implied)
 {TEXT("")         ,1},        // INVALID1
@@ -340,26 +337,7 @@ instrec instruction[257] = { {TEXT("BRK"),ADDR_ABS},              // 00h
 {TEXT("   "),18} };           // 100h
 
 
-DWORD  profiledata[256];
-int    watch[WATCHES];
 
-HFONT     debugfont     = (HFONT)0;
-WORD      lastpc        = 0;
-WORD      memorydump    = 0;
-BOOL      profiling     = 0;
-int       stepcount     = 0;
-int       stepuntil     = -1;
-symbolptr symboltable   = NULL;
-int       symbolnum     = 0;
-WORD      topoffset     = 0;
-FILE     *tracefile     = NULL;
-BOOL      usingbp       = 0;
-BOOL      usingmemdump  = 0;
-BOOL      usingwatches  = 0;
-BOOL      viewingoutput = 0;
-DWORD     ecycles       = 0;
-
-WORD GetAddress (LPCTSTR symbol);
 LPCTSTR GetSymbol (WORD address, int bytes);
 void GetTargets (int *intermediate, int *final, BOOL *ind);
 
@@ -463,38 +441,10 @@ WORD LogDisassembly ( WORD offset, LPTSTR text) {
 }
 
 
-
-void FreeSymbolTable () {
-    if (symboltable)
-        VirtualFree(symboltable,0,MEM_RELEASE);
-    symbolnum   = 0;
-    symboltable = NULL;
-}
-
 LPCTSTR GetSymbol (WORD address, int bytes) {
 
     // Perform a binary search through the symbol table looking for a value
     // matching this address
-
-    if (symboltable) 	{
-
-        int lowlimit  = -1;
-        int highlimit = symbolnum;
-        int curr      = symbolnum >> 1;
-        do {
-            int diff = ((int)address)-((int)symboltable[curr].value);
-            if (diff < 0) {
-                highlimit = curr;
-                curr = lowlimit+((curr-lowlimit) >> 1);
-            }
-            else if (diff > 0) {
-                lowlimit = curr;
-                curr = curr+((highlimit+1-curr) >> 1);
-            }
-            else
-                return symboltable[curr].name;
-        } while ((curr > lowlimit) && (curr < highlimit));
-    }
 
     // If there is no symbol for this address, then just return a string
     // containing the address number
@@ -512,105 +462,3 @@ LPCTSTR GetSymbol (WORD address, int bytes) {
 // ----- ALL GLOBALLY ACCESSIBLE FUNCTIONS ARE BELOW THIS LINE -----
 //
 
-void DebugInitialize () {
-
-    // Clear the breakpoint and watch tables
-    //ZeroMemory(breakpoint,BREAKPOINTS*sizeof(bprec));
-    {
-        int loop = 0;
-        while (loop < WATCHES)
-            watch[loop++] = -1;
-    }
-
-    // Read in the symbol table
-    {
-        TCHAR filename[MAX_PATH];
-        TCHAR symfilename[MAX_PATH];
-        _tcscpy(filename,progdir);
-        _tcscpy(symfilename,ROMfile);
-        int loop = _tcslen(symfilename);
-        while (loop--)
-            if (symfilename[loop] == TEXT('.')) {
-                symfilename[loop] = 0;
-                break;
-            }
-            _tcscat(filename,symfilename);
-            _tcscat(filename,TEXT(".sym"));
-
-            int   symbolalloc = 0;
-            FILE *infile      = _tfopen(filename, TEXT("rt"));
-            WORD  lastvalue   = 0;
-            if (infile) {
-                while (!feof(infile)) {
-
-                    // Read in the next line, and make sure it is sorted correctly in
-                    // value order
-                    DWORD value     = 0;
-                    char  name[14]  = "";
-                    char  line[256];
-                    fscanf(infile,"%x %13s",&value,name);
-                    fgets(line,255,infile);
-                    if (value)
-                        if (value < lastvalue) {
-                            MessageBox(GetDesktopWindow(),
-                                TEXT("The symbol file is not sorted correctly.  ")
-                                TEXT("Symbols will not be loaded."),
-                                TITLE,
-                                MB_ICONEXCLAMATION | MB_SETFOREGROUND);
-                            FreeSymbolTable();
-                            return;
-                        }
-                        else {
-
-                            // if our current symbol table is not big enough to hold this
-                            // additional symbol, then allocate a bigger table and copy the
-                            // current data across
-                            if ((!symboltable) || (symbolalloc <= symbolnum)) {
-                                symbolalloc += 8192/sizeof(symbolrec);
-                                symbolptr newtable = (symbolptr)VirtualAlloc(NULL,
-                                    symbolalloc*sizeof(symbolrec),
-                                    MEM_COMMIT,
-                                    PAGE_READWRITE);
-                                if (newtable) {
-                                    if (symboltable) {
-                                        CopyMemory(newtable,symboltable,symbolnum*sizeof(symbolrec));
-                                        VirtualFree(symboltable,0,MEM_RELEASE);
-                                    }
-                                    symboltable = newtable;
-                                }
-                                else {
-                                    MessageBox(GetDesktopWindow(),
-                                        TEXT("There is not enough memory available to load ")
-                                        TEXT("the symbol file."),
-                                        TITLE,
-                                        MB_ICONEXCLAMATION | MB_SETFOREGROUND);
-                                    FreeSymbolTable();
-                                }
-                            }
-
-                            // Save the new symbol in the symbol table
-                            if (symboltable) {
-                                symboltable[symbolnum].value = (WORD)(value & 0xFFFF);
-#ifdef UNICODE
-                                mbstowcs(symboltable[symbolnum].name,name,12);
-#else
-                                strncpy(symboltable[symbolnum].name,name,12);
-#endif
-                                symboltable[symbolnum].name[13] = 0;
-                                symbolnum++;
-                            }
-
-                            lastvalue = (WORD)value;
-                        }
-
-                }
-                fclose(infile);
-            }
-    }
-
-    // Create a font for the debugging screen
-    //debugfont = CreateFont(15,0,0,0,FW_MEDIUM,0,0,0,OEM_CHARSET,
-    //    OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,
-    //    DEFAULT_QUALITY,FIXED_PITCH | 4 | FF_MODERN,
-    //    TEXT("Courier New"));
-}

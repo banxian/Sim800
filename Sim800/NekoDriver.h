@@ -17,12 +17,17 @@ class TNekoDriver: public QObject {
     Q_OBJECT
 public:
     TNekoDriver();
+    ~TNekoDriver();
 private:
     QString fProjectViewNameFilter;
     EmulatorThread* fEmulatorThread;
-    QByteArray fNorBuffer;
+    char* fNorBuffer; // for performance
+    char* fBROMBuffer;
 private:
+    bool LoadBROM(const QString& filename);
+    bool LoadFullNorFlash(const QString& filename);
     bool LoadDemoNor(const QString& filename);
+    void Switch4000toBFFF(unsigned char bank);
     //static bool NicetoScaleOnFly( QSize &orgsize, bool ispng, bool isjpeg );
     //static bool NiceToRotate( int width, int height, int destwidth, int destheight );
     //static bool PrepareScaledQPicture( QImage& qimage, int destwidth, int destheight, ScaleFilter filter, int& scaletime );
@@ -34,6 +39,7 @@ public:
     bool IsProjectEmpty();
     bool IsProjectModified();
     bool SwitchNorBank(int bank);
+    void SwitchBank(int bank);
     bool StartEmulation();
     bool RunDemoBin(const QString& filename);
     bool StopEmulation();

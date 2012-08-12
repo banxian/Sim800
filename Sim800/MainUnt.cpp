@@ -221,6 +221,7 @@ void TMainFrm::onEmulationStartClicked()
     //theNekoDriver->StartEmulation();
     //theNekoDriver->StopEmulation();
     theNekoDriver->RunDemoBin("");
+    //theNekoDriver->LoadFullNorFlash();
 }
 
 void TMainFrm::onEmulationRestartClicked()

@@ -13,6 +13,8 @@ extern void ContinueExecution();
 
 TNekoDriver::TNekoDriver()
     : fEmulatorThread(NULL)
+    , fNorBuffer(NULL)
+    , fBROMBuffer(NULL)
 {
     GetProgramDirectory();
 
@@ -32,6 +34,20 @@ TNekoDriver::TNekoDriver()
 
 //     fEmulatorThread->start();
 }
+
+
+TNekoDriver::~TNekoDriver()
+{
+    if (fNorBuffer) {
+        free(fNorBuffer);
+        fNorBuffer = NULL;
+    }
+    if (fBROMBuffer) {
+        free(fBROMBuffer);
+        fBROMBuffer = NULL;
+    }
+}
+
 
 void TNekoDriver::onLCDBufferChanged( QByteArray* buffer )
 {
@@ -68,12 +84,16 @@ bool TNekoDriver::StopEmulation()
 bool TNekoDriver::RunDemoBin( const QString& filename )
 {
     if (filename.isEmpty()) {
-        LoadDemoNor(QApplication::applicationDirPath() + "/mario.bin");
+        //LoadDemoNor(QApplication::applicationDirPath() + "/mario.bin");
+        LoadBROM(QApplication::applicationDirPath() + "/obj.bin");
+        LoadFullNorFlash(QApplication::applicationDirPath() + "/cc800.fls");
+        fixedram0000[0] = 2;
+        SwitchNorBank(2);
     } else {
         LoadDemoNor(filename);
+        fixedram0000[0] = 1;
+        SwitchNorBank(1);
     }
-    fixedram0000[0] = 1;
-    SwitchNorBank(1);
     //fEmulatorThread->start(QThread::InheritPriority);
     StopEmulation();
     StartEmulation();
@@ -89,6 +109,8 @@ bool TNekoDriver::ResumeEmulation()
 {
     return false;
 }
+
+
 
 EmulatorThread::EmulatorThread( char* brom, char* nor )
     : fBROMBuffer(brom)

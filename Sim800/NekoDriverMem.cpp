@@ -23,6 +23,9 @@ void __stdcall WriteTimer01Control (BYTE write, BYTE value);
 void __stdcall WritePort0 (BYTE write, BYTE value);
 void __stdcall WritePort1 (BYTE write, BYTE value);
 void __stdcall ControlPort1 (BYTE write, BYTE value);
+void __stdcall WriteZeroPageBankswitch (BYTE write, BYTE value); // $0F
+void __stdcall WriteROABBS (BYTE write, BYTE value); // $0A
+
 
 iofunction1 ioread[0x40]  = {
     ReadBank,       // $00
@@ -98,16 +101,16 @@ iofunction2 iowrite[0x40] = {
     NullWrite,      // $03
     NullWrite,      // $04
     NullWrite,      // $05
-    WriteLCDStartAddr,  // $06
+    WriteLCDStartAddr,          // $06
     NullWrite,      // $07
-    WritePort0,      // $08
-    WritePort1,      // $09
+    WritePort0,                 // $08
+    WritePort1,                 // $09
     NullWrite,      // $0A
     NullWrite,      // $0B
-    WriteTimer01Control,    // $0C
+    WriteTimer01Control,        // $0C
     NullWrite,      // $0D
     NullWrite,      // $0E
-    NullWrite,      // $0F
+    WriteZeroPageBankswitch,    // $0F
     NullWrite,      // $10
     NullWrite,      // $11
     NullWrite,      // $12
@@ -162,6 +165,12 @@ regsrec regs;
 // LPBYTE  mem          = NULL;
 unsigned char fixedram0000[0x10002]; // just like simulator
 unsigned char* pmemmap[8]; // 0000~1FFF ... E000~FFFF
+unsigned char* may4000addr;
+unsigned char* norbankheader[0x10];
+unsigned char* volume0array[0x100];
+unsigned char* volume1array[0x100];
+unsigned char* bbsbankheader[0x10];
+
 TCHAR   ROMfile[MAX_PATH] = TEXT("65c02.rom");
 TCHAR   RAMfile[MAX_PATH] = TEXT("");
 
@@ -304,143 +313,318 @@ void __stdcall WriteTimer01Control( BYTE write, BYTE value )
     lcdbuffaddr = t;
 }
 
-unsigned char keypadmatrix[8][8] = {0,};
-
-void UpdateKeypadRegisters()
+void __stdcall WriteROABBS( BYTE write, BYTE value )
 {
-    // TODO: 2pass check
-    //qDebug("old [0015]:%02x [0009]:%02x [0008]:%02x", mem[0x15], mem[0x9], mem[0x8]);
-    //int up = 0, down = 0;
-    byte port1control = fixedram0000[0x15];
-    byte port0control = fixedram0000[0x0F] & 0xF0; // b4~b7
-    byte port1controlbit = 1; // aka, y control bit
-    byte tmpdest0 = 0, tmpdest1 = 0;
-    byte port1data = fixedram0000[0x09], port0data = fixedram0000[0x08];
-    for (int y = 0; y < 8; y++) {
-        // y = Port10~Port17
-        bool ysend = ((port1control & port1controlbit) != 0);
-        byte xbit = 1;
-        for (int x = 0; x < 8; x++) {
-            // x = Port00~Port07
-            byte port0controlbit;
-            if (x < 2) {
-                // 0, 1 = b4 b5
-                port0controlbit = xbit << 4;
-            } else if (x < 4) {
-                // 2, 3 = b6
-                port0controlbit = 0x40;
+
+}
+
+unsigned char zp40cache[0x40];
+
+unsigned char* GetZeroPagePointer(unsigned char bank) {
+    //.text:0040BFD0 bank            = byte ptr  4
+    //.text:0040BFD0
+    //.text:0040BFD0                 mov     al, [esp+bank]
+    //.text:0040BFD4                 cmp     al, 4
+    //.text:0040BFD6                 jnb     short loc_40BFE5 ; if (bank < 4) {
+    //.text:0040BFD8                 xor     eax, eax        ; bank == 0,1,2,3
+    //.text:0040BFD8                                         ; set bank = 0
+    //.text:0040BFDA                 and     eax, 0FFFFh     ; WORD(bank)
+    //.text:0040BFDF                 add     eax, offset gFixedRAM0 ; result = &gFixedRAM0[WORD(bank)];
+    //.text:0040BFE4                 retn                    ; }
+    //.text:0040BFE5 ; ---------------------------------------------------------------------------
+    //.text:0040BFE5
+    //.text:0040BFE5 loc_40BFE5:                             ; CODE XREF: GetZeroPagePointer+6j
+    //.text:0040BFE5                 movzx   ax, al          ; 4,5,6,7
+    //.text:0040BFE9                 add     eax, 4          ; bank+=4
+    //.text:0040BFEC                 shl     eax, 6          ; bank *= 40;
+    //.text:0040BFEF                 and     eax, 0FFFFh     ; WORD(bank)
+    //.text:0040BFF4                 add     eax, offset gFixedRAM0
+    //.text:0040BFF9                 retn
+    unsigned char* result;
+
+    if (bank >= 4) {
+        // 4,5,6,7
+        // 4 -> 200 5-> 240
+        result = &fixedram0000[(bank + 4) << 6];
+    } else {
+        // 0,1,2,3
+        result = &fixedram0000[0];
+    }
+    return result;
+}
+
+void __stdcall WriteZeroPageBankswitch (BYTE write, BYTE value)
+{
+    //char *oldzpbank; // eax@1
+    //unsigned __int8 newzpbank; // dl@1
+    //char issamebank; // zf@1
+    //signed int k; // ecx@3
+    //char *pfixedram040_ya2; // esi@3
+    //char *zpptr; // eax@6
+    //char *pfixedram040; // ecx@6
+    //unsigned int i; // esi@6
+    //char *pfixedram040_ya; // ecx@11
+    //signed int j; // esi@11
+
+    //LOBYTE(oldzpbank) = mayPrevDestAddrValue & 7; // zpbank is only 3bit
+    //newzpbank = tmpAXYValue & 7;
+    //issamebank = (mayPrevDestAddrValue & 7) == (tmpAXYValue & 7);
+    //mayPrevDestAddrValue &= 7u;                   // remove high P0x Direction
+    //tmpAXYValue &= 7u;                            // remove high P0x Direction
+    //if ( !issamebank )
+    //{
+    //    if ( (_BYTE)oldzpbank )
+    //    {
+    //        // oldzpbank != 0
+    //        zpptr = GetZeroPagePointer((unsigned __int8)oldzpbank);
+    //        pfixedram040 = gFixedRAM0_b40;
+    //        i = 0x40u;
+    //        do
+    //        {
+    //            // copy from fixed 40 to dest
+    //            *zpptr++ = *pfixedram040++;
+    //            --i;
+    //        }
+    //        while ( i );                              // for 0 to 40
+    //        if ( tmpAXYValue )
+    //            // newzpbank != 0
+    //            oldzpbank = GetZeroPagePointer(tmpAXYValue);
+    //        else
+    //            // newzpbank == 0
+    //            oldzpbank = (char *)&gzp40Cache;
+    //        pfixedram040_ya = gFixedRAM0_b40;
+    //        j = 0x40u;
+    //        do
+    //        {
+    //            // copy from cache or other bank to fixed 40
+    //            *pfixedram040_ya++ = *oldzpbank++;
+    //            --j;
+    //        }
+    //        while ( j );                              // for 0 to 40
+    //    }
+    //    else
+    //    {
+    //        // oldzpbank == 0
+    //        memcpy(&gzp40Cache, gFixedRAM0_b40, 0x40u);// backup fixed 40~80 to cache
+    //        pfixedram040_ya2 = gFixedRAM0_b40;
+    //        oldzpbank = GetZeroPagePointer(newzpbank);
+    //        k = 0x40u;
+    //        do
+    //        {
+    //            // copy from other bank to fixed 40
+    //            *pfixedram040_ya2++ = *oldzpbank++;
+    //            --k;
+    //        }
+    //        while ( k );
+    //    }
+    //}
+    //return (char)oldzpbank;
+    unsigned char oldzpbank = fixedram0000[0x0F] & 7;
+    unsigned char newzpbank = value & 7;
+    if (oldzpbank != newzpbank) {
+        if (oldzpbank != 0) {
+            // dangerous if exchange 00 <-> 40
+            // oldaddr maybe 0 or 200~300
+            unsigned char* oldzpptr = GetZeroPagePointer(oldzpbank);
+            memcpy(oldzpptr, &fixedram0000[0x40], 0x40);
+            if (newzpbank != 0) {
+                unsigned char* newzpptr = GetZeroPagePointer(newzpbank);
+                memcpy(&fixedram0000[0x40], newzpptr, 0x40);
             } else {
-                // 4, 5, 6, 7 = b7
-                port0controlbit = 0x80;
+                memcpy(&fixedram0000[0x40], &zp40cache[0], 0x40); // copy backup to 40
             }
-            if (keypadmatrix[y][x] != 2) {
-                if (ysend) {
-                    // port1y-> port0x
-                    // port1y is send but only set bit to high when port0 xbit is receive too
-                    if ((keypadmatrix[y][x]) && ((port1data & port1controlbit) != 0) && ((port0control & port0controlbit) == 0)) {
-                        tmpdest0 |= xbit;
-                    }
-                } else {
-                    // port0x -> port1y
-                    // port1y should be receive, only set bit to high when port0 xbit is send
-                    if ((keypadmatrix[y][x]) && ((port0data & xbit) != 0) && ((port0control & port0controlbit) != 0)) {
-                        tmpdest1 |= xbit;
-                    }
-                }
-            }
-            xbit = xbit << 1;
+        } else {
+            // oldzpbank == 0
+            memcpy(&zp40cache[0], &fixedram0000[0x40], 0x40); // backup fixed 40~80 to cache
+            unsigned char* newzpptr = GetZeroPagePointer(newzpbank);
+            memcpy(&fixedram0000[0x40], newzpptr, 0x40); // copy newbank to 40
         }
-        port1controlbit = port1controlbit << 1;
     }
-    if (port1control != 0xFF) {
-        // port1 should clean some bits
-        // using port1control as port1mask
-        // sometimes port10,11 should clean here 
-        port1data &= port1control; // pre set receive bits to 0
-    }
-    if (port1control != 0xF0) {
-        // clean port0
-        // calculate port0 mask
-        // in most case port0 will be set to 0
-        byte port0mask = (port0control >> 4) & 0x3; // bit4->0 bit5->1
-        if (port0control & 0x40) {
-            // bit6->2,3
-            port0mask |= 0x0C; // 00001100
-        }
-        if (port0control & 0x80) {
-            // bit7->4,5,6,7
-            port0mask |= 0xF0; // 11110000
-        }
-        port0data &= port0mask;
-    }
-    port0data |= tmpdest0;
-    port1data |= tmpdest1;
-    if (fixedram0000[0x09] != port1data || fixedram0000[0x08] != port0data) {
-        qDebug("old [0015]:%02x [0009]:%02x [0008]:%02x", fixedram0000[0x15], fixedram0000[0x09], fixedram0000[0x08]);
-        qDebug("new [0015]:%02x [0009]:%02x [0008]:%02x", fixedram0000[0x15], port1data, port0data);
-    }
-    fixedram0000[0x09] = port1data;
-    fixedram0000[0x08] = port0data;
-}
-
-BYTE __stdcall ReadPort0( BYTE read )
-{
-    UpdateKeypadRegisters();
-    //qDebug("lee wanna read keypad port0, [%04x] -> %02x", read, mem[read]);
-    return fixedram0000[read];
-}
-
-BYTE __stdcall ReadPort1( BYTE read )
-{
-    UpdateKeypadRegisters();
-    //qDebug("lee wanna read keypad port1, [%04x] -> %02x", read, mem[read]);
-    return fixedram0000[read];
-}
-
-void __stdcall WritePort0( BYTE write, BYTE value )
-{
-    //qDebug("lee wanna write keypad port0, [%04x] (%02x) -> %02x", write, mem[write], value);
-    fixedram0000[write] = value;
-    UpdateKeypadRegisters();
-}
-
-void __stdcall WritePort1( BYTE write, BYTE value )
-{
-    //qDebug("lee wanna write keypad port1, [%04x] (%02x) -> %02x", write, mem[write], value);
-    fixedram0000[write] = value;
-    UpdateKeypadRegisters();
-}
-
-void __stdcall ControlPort1( BYTE write, BYTE value )
-{
-    //qDebug("lee wanna config keypad port1, [%04x] (%02x) -> %02x", write, mem[write], value);
-    fixedram0000[write] = value;
-    UpdateKeypadRegisters();
 }
 
 bool TNekoDriver::SwitchNorBank( int bank )
 {
-    memcpy(&fixedram0000[0x4000], fNorBuffer.data() + bank * 0x8000, 0x8000);
+    //memcpy(&fixedram0000[0x4000], &fNorBuffer[bank * 0x8000], 0x8000);
+    pmemmap[2] = (unsigned char*)&fNorBuffer[bank * 0x8000]; // 4000
+    pmemmap[3] = (unsigned char*)&fNorBuffer[bank * 0x8000 + 0x2000]; // 6000
+    pmemmap[4] = (unsigned char*)&fNorBuffer[bank * 0x8000 + 0x4000]; // 8000
+    pmemmap[5] = (unsigned char*)&fNorBuffer[bank * 0x8000 + 0x6000]; // A000
     return true;
+}
+
+void TNekoDriver::SwitchBank( int bank )
+{
+    //char result; // al@1
+    //int rambank; // eax@6
+
+    //result = tmpAXYValue;                         // tmpAXYValue = new value wanna write into [00]
+    //if ( mayPrevDestAddrValue != tmpAXYValue )
+    //{
+    //    // old[00] != new value
+    //    if ( gFixedRAM0[(unsigned __int8)io0A_bios_bsw_roa] & 0x80 )
+    //    {
+    //        // ROA == 1
+    //        // RAM (norflash?!)
+    //        rambank = tmpAXYValue & 0xF;              // RAM only have 0~F page
+    //        if ( rambank < 0 )
+    //            rambank = ((rambank - 1) | 0xFFFFFFF0) + 1;
+    //        tmpAXYValue = rambank;
+    //        may4000ptr = (DWORD)(&g_pNorBankHeader)[(unsigned __int8)rambank];
+    //        result = Switch4000_BFFF(rambank);
+    //    }
+    //    else
+    //    {
+    //        // ROA == 0
+    //        // BROM
+    //        if ( gFixedRAM0[(unsigned __int8)io0D_lcd_segment_volumeID] & 1 )
+    //        {
+    //            // VolumeID == 1
+    //            may4000ptr = gVolume1Array[tmpAXYValue];
+    //            result = Switch4000_BFFF(tmpAXYValue);
+    //        }
+    //        else
+    //        {
+    //            // VolumeID == 0
+    //            may4000ptr = gVolume0Array[tmpAXYValue];
+    //            result = Switch4000_BFFF(tmpAXYValue);
+    //        }
+    //    }
+    //}
+    //return result;
+    if (fixedram0000[0x0A] & 0x80) {
+        // ROA == 1
+        // RAM (norflash?!)
+        char rambank = bank & 0xF; // nor only have 0~F page
+        may4000addr = norbankheader[rambank];
+        Switch4000toBFFF(rambank);
+    } else {
+        // ROA == 0
+        // BROM
+        if (fixedram0000[0x0D] & 1) {
+            // VolumeID == 1, 3
+            may4000addr = volume1array[bank];
+            Switch4000toBFFF(bank);
+        } else {
+            // VolumeID == 0, 2
+            may4000addr = volume0array[bank];
+            Switch4000toBFFF(bank);
+        }
+    }
+}
+
+void TNekoDriver::Switch4000toBFFF( unsigned char bank )
+{
+    //void *addr6000; // ecx@4
+    //DWORD result; // eax@7
+
+    //if ( bank || gFixedRAM0[(unsigned __int8)io0A_bios_bsw_roa] & 0x80 )
+    //{
+    //    // bank != 0 || ROA == RAM
+    //    g__pRAM4000 = (void *)may4000ptr;
+    //    addr6000 = (void *)(may4000ptr + 0x2000);
+    //}
+    //else
+    //{
+    //    // bank == 0 && ROA == ROM
+    //    if ( gFixedRAM0[(unsigned __int8)io0D_lcd_segment_volumeID] & 1 )
+    //    {
+    //        // Volume1
+    //        g__pRAM4000 = g_pNorBankHeader;
+    //        addr6000 = g_pNorBankHeader + 2048;       // 43BF28 + 2000 = 43DF28 (800*4)
+    //    }
+    //    else
+    //    {
+    //        // Volume0
+    //        // 6000~7FFF is mirror of 4000~5FFF
+    //        addr6000 = &gFixedRAM4000;
+    //        g__pRAM4000 = &gFixedRAM4000;
+    //    }
+    //}
+    //result = may4000ptr + 0x6000;
+    //g__pRAM6000 = addr6000;
+    //g__pRAM8000 = may4000ptr + 0x4000;
+    //g__pRAMA000 = may4000ptr + 0x6000;
+
+    if (bank != 0 || fixedram0000[0x0A] & 0x80) {
+        // bank != 0 || ROA == RAM
+        pmemmap[2] = may4000addr;
+        pmemmap[3] = may4000addr + 0x2000;
+    } else {
+        // bank == 0 && ROA == ROM
+        if (fixedram0000[0x0D] & 0x1) {
+            // Volume1,3
+            // 4000~7FFF is 0 page of Nor.
+            // 8000~BFFF is relative to may4000ptr
+            pmemmap[2] = norbankheader[0];
+            pmemmap[3] = norbankheader[0] + 0x2000;
+        } else {
+            // Volume0,2
+            // 4000~5FFF is RAM
+            // 6000~7FFF is mirror of 4000~5FFF
+            pmemmap[2] = &fixedram0000[0x4000];
+            pmemmap[3] = &fixedram0000[0x4000];
+        }
+    }
+    pmemmap[4] = may4000addr + 0x4000;
+    pmemmap[5] = may4000addr + 0x6000;
 }
 
 bool TNekoDriver::LoadDemoNor(const QString& filename)
 {
     QFile mariofile(filename);
     mariofile.open(QFile::ReadOnly);
-    if (fNorBuffer.isEmpty()){
-        fNorBuffer.resize(16 * 0x8000); // 32K * 16
+    if (fNorBuffer == NULL){
+        fNorBuffer = (char*)malloc(16 * 0x8000); // 32K * 16
+        for (int i = 0; i < 16; i++) {
+            norbankheader[i] = (unsigned char*)fNorBuffer + i * 0x8000;
+        }
     }
     int page = 1;
     while (mariofile.atEnd() == false) {
-        mariofile.read(fNorBuffer.data() + 0x8000 * page + 0x4000, 0x4000);
-        mariofile.read(fNorBuffer.data() + 0x8000 * page, 0x4000);
+        mariofile.read(fNorBuffer + 0x8000 * page + 0x4000, 0x4000);
+        mariofile.read(fNorBuffer + 0x8000 * page, 0x4000);
         page++;
     }
-    //mariofile.read(fNorBuffer.data() + 0x8000 + 0x4000, 0x4000);
-    //mariofile.read(fNorBuffer.data() + 0x8000, 0x4000);
-    //mariofile.read(fNorBuffer.data() + 0x8000 + 0xC000, 0x4000);
-    //mariofile.read(fNorBuffer.data() + 0x8000 + 0x8000, 0x4000);
+
     mariofile.close();
+    return true;
+}
+
+bool TNekoDriver::LoadBROM( const QString& filename )
+{
+    QFile romfile(filename);
+    romfile.open(QFile::ReadOnly);
+    if (fBROMBuffer == NULL){
+        fBROMBuffer = (char*)malloc(512 * 0x8000); // 32K * 256 * 2
+        for (int i = 0; i < 256; i++) {
+            volume0array[i] = (unsigned char*)fBROMBuffer + i * 0x8000;
+            volume1array[i] = volume0array[i] + 256 * 0x8000;
+        }
+    }
+    int page = 0;
+    while (romfile.atEnd() == false) {
+        romfile.read(fBROMBuffer + 0x8000 * page + 0x4000, 0x4000);
+        romfile.read(fBROMBuffer + 0x8000 * page, 0x4000);
+        page++;
+    }
+    return true;
+}
+
+bool TNekoDriver::LoadFullNorFlash( const QString& filename )
+{
+    QFile norfile(filename);
+    norfile.open(QFile::ReadOnly);
+    if (fNorBuffer == NULL){
+        fNorBuffer = (char*)malloc(16 * 0x8000); // 32K * 16
+        for (int i = 0; i < 16; i++) {
+            norbankheader[i] = (unsigned char*)fNorBuffer + i * 0x8000;
+        }
+    }
+    int page = 0;
+    while (norfile.atEnd() == false) {
+        norfile.read(fNorBuffer + 0x8000 * page + 0x4000, 0x4000);
+        norfile.read(fNorBuffer + 0x8000 * page, 0x4000);
+        page++;
+    }
     return true;
 }

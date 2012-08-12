@@ -38,19 +38,10 @@
 									// added instruction throttling to keep cycle timing more accurate
 									// removed BUILDNUMBER from the ini config file structure
 
-#define  TITLE             TEXT("65C02 Simulator")
-#define  VERSION           TEXT(" v2.10 (Apr 20, 2005)")
-#define  MODE_LOGO         0
-#define  MODE_PAUSED       1
-#define  MODE_RUNNING      2
-#define  MODE_DEBUG        3
-#define  MODE_STEPPING     4
 
 #define  SPEED_NORMAL      10
 #define  SPEED_MAX         250
 
-#define  VIEWPORTX         5
-#define  VIEWPORTY         5
 
 #define  MAX(a,b)          (((a) > (b)) ? (a) : (b))
 #define  MIN(a,b)          (((a) < (b)) ? (a) : (b))
@@ -74,9 +65,16 @@ typedef struct _regsrec {
 extern DWORD      autoboot;
 extern iofunction1 ioread[0x40];
 extern iofunction2 iowrite[0x40];
+
 // extern LPBYTE     mem;
 extern unsigned char fixedram0000[0x10002]; // just like simulator
 extern unsigned char* pmemmap[8]; // 0000~1FFF ... E000~FFFF
+extern unsigned char* may4000addr; // TODO: move into NekoDriver.h
+extern unsigned char* norbankheader[0x10];
+extern unsigned char* volume0array[0x100];
+extern unsigned char* volume1array[0x100];
+extern unsigned char* bbsbankheader[0x10];
+
 extern WORD       iopage;
 extern WORD       iorange;
 extern TCHAR      progdir[MAX_PATH];
@@ -96,34 +94,7 @@ extern BOOL       wai;
 extern BOOL       stp;
 extern DWORD      irqclk;       /*  used for auto-IRQ  */
 extern DWORD      nmiclk;       /*  used for auto-NMI  */
-// extern BYTE pra;
-// extern BYTE prb;
-// extern BYTE ira;
-// extern BYTE irb;
-// extern BYTE lira;
-// extern BYTE lirb;
-// extern BYTE ddra;
-// extern BYTE ddrb;
-// extern BYTE ca1;
-// extern BYTE ca2;
-// extern BYTE cb1;
-// extern BYTE cb2;
-// extern BYTE t1cl;
-// extern BYTE t1ch;
-// extern BYTE t1ll;
-// extern BYTE t1lh;
-// extern BYTE t2ll;
-// extern BYTE t2cl;
-// extern BYTE t2ch;
-// extern BYTE sr;
-// extern BYTE acr;
-// extern BYTE pcr;
-// extern BYTE ifr;
-// extern BYTE ier;
-// extern BYTE t1ctl;
-// extern BYTE t2ctl;
-// extern BYTE pb6;
-//extern BYTE pb7;
+
 
 
 void    CommDestroy ();
@@ -132,22 +103,9 @@ void    CommSetSerialPort (HWND,DWORD);
 void    CommUpdate (DWORD);
 DWORD   CpuExecute ();
 void    CpuInitialize ();
-void    DebugBegin ();
 void    DebugContinueStepping ();
 void    DebugDestroy ();
-void    DebugDisplay (BOOL);
-void    DebugEnd ();
 void    DebugInitialize ();
-void    DebugProcessChar (TCHAR);
-void    DebugProcessCommand (int);
-void    FrameCreateWindow ();
-HDC     FrameGetDC ();
-void    FrameRefreshStatus ();
-void    FrameRegisterClass ();
-void    FrameReleaseDC (HDC);
-void    DrawStatusArea(HDC,int);
-void    DrawIOArea(HDC,int);
-void    KeybQueueKeypress (int,BOOL);
 void    MemDestroy ();
 void    MemInitialize ();
 void    MemReset ();
@@ -155,32 +113,11 @@ BOOL    LoadReg();
 void    SaveReg();
 void    TermInitialize ();
 void    TerminalDisplay (BOOL drawbackground);
-void    ClearCounters(void);
 void	w65c22init(int);
 void	w65c22upd(DWORD);
 void    w65c22pins(WORD);
 
 
-BYTE __stdcall CommCommandRD (BYTE,BYTE);
-BYTE __stdcall CommCommandWR (BYTE,BYTE);
-BYTE __stdcall CommControlRD (BYTE,BYTE);
-BYTE __stdcall CommControlWR (BYTE,BYTE);
-BYTE __stdcall CommReceive (BYTE,BYTE);
-BYTE __stdcall CommStatus (BYTE,BYTE);
-BYTE __stdcall CommTransmit (BYTE,BYTE);
-BYTE __stdcall KeybReadData (BYTE,BYTE);
-BYTE __stdcall KeybReadFlag (BYTE,BYTE);
-BYTE __stdcall TerminalOutputWR (BYTE,BYTE);
-BYTE __stdcall TerminalOutputRD (BYTE,BYTE);
-BYTE __stdcall LTPDataPort (BYTE,BYTE);
-BYTE __stdcall LTPStatusPort (BYTE,BYTE);
-BYTE __stdcall LTPCommandPort (BYTE,BYTE);
-BYTE __stdcall SpkrToggle (BYTE,BYTE);
-BYTE __stdcall w65c22write (BYTE,BYTE);
-BYTE __stdcall w65c22read (BYTE,BYTE);
-BYTE __stdcall w65c22loop (BYTE,BYTE);
-
-BYTE __stdcall CommCommandRD (BYTE,BYTE);
 
 unsigned char GetByte( unsigned short address );
 unsigned short GetWord( unsigned short address );
