@@ -27,7 +27,6 @@ private:
     bool LoadBROM(const QString& filename);
     bool LoadFullNorFlash(const QString& filename);
     bool LoadDemoNor(const QString& filename);
-    void Switch4000toBFFF(unsigned char bank);
     //static bool NicetoScaleOnFly( QSize &orgsize, bool ispng, bool isjpeg );
     //static bool NiceToRotate( int width, int height, int destwidth, int destheight );
     //static bool PrepareScaledQPicture( QImage& qimage, int destwidth, int destheight, ScaleFilter filter, int& scaletime );
@@ -38,8 +37,9 @@ private:
 public:
     bool IsProjectEmpty();
     bool IsProjectModified();
-    bool SwitchNorBank(int bank);
-    void SwitchBank(int bank);
+    void SwitchNorBank(int bank);
+    void Switch4000toBFFF(unsigned char bank);
+    void InitInternalAddrs();
     bool StartEmulation();
     bool RunDemoBin(const QString& filename);
     bool StopEmulation();

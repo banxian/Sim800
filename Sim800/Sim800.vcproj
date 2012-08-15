@@ -254,6 +254,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CC800IOName.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Common.h"
 				>
 			</File>

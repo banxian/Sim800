@@ -3,6 +3,7 @@
 extern "C" {
 #include "ANSI/65c02.h"
 }
+#include "CC800IOName.h"
 
 
 // Storage
@@ -24,6 +25,17 @@ TNekoDriver::TNekoDriver()
     if (!LoadReg()){
         SaveReg();
     }
+    fBROMBuffer = (char*)malloc(512 * 0x8000); // 32K * 256 * 2
+    for (int i = 0; i < 256; i++) {
+        volume0array[i] = (unsigned char*)fBROMBuffer + i * 0x8000;
+        volume1array[i] = volume0array[i] + 256 * 0x8000;
+    }
+
+    fNorBuffer = (char*)malloc(16 * 0x8000); // 32K * 16
+    for (int i = 0; i < 16; i++) {
+        norbankheader[i] = (unsigned char*)fNorBuffer + i * 0x8000;
+    }
+
     //         DebugInitialize();
     MemInitialize();
     //         TermInitialize();
@@ -87,12 +99,14 @@ bool TNekoDriver::RunDemoBin( const QString& filename )
         //LoadDemoNor(QApplication::applicationDirPath() + "/mario.bin");
         LoadBROM(QApplication::applicationDirPath() + "/obj.bin");
         LoadFullNorFlash(QApplication::applicationDirPath() + "/cc800.fls");
-        fixedram0000[0] = 2;
-        SwitchNorBank(2);
+        //fixedram0000[io00_bank_switch] = 2;
+        //SwitchNorBank(2);
+        //*(unsigned short*)&(pmemmap[mapE000][0x1FFC]) = 0x4018; // mario.bin
     } else {
         LoadDemoNor(filename);
-        fixedram0000[0] = 1;
+        fixedram0000[io00_bank_switch] = 1;
         SwitchNorBank(1);
+        *(unsigned short*)&(pmemmap[mapE000][0x1FFC]) = 0x4018; // mario.bin
     }
     //fEmulatorThread->start(QThread::InheritPriority);
     StopEmulation();
@@ -152,6 +166,7 @@ void EmulatorThread::run()
 {
     // Load PC from Reset Vector
     CpuInitialize();
+    unsigned int nmistart = GetTickCount();
     while(fKeeping) {
         //ContinueExecution();
         //DWORD processtime		= totcycles;// needed for comm routines
@@ -165,7 +180,14 @@ void EmulatorThread::run()
 
         while (batchcount >= 0) {
             //qDebug("PC:0x%04x, opcode: 0x%06x", regs.pc, (*(LPDWORD)(mem+regs.pc)) & 0xFFFFFF);
-            //LogDisassembly(regs.pc, NULL);
+            LogDisassembly(regs.pc, NULL);
+
+            if (GetTickCount() - nmistart >= 500){
+                // 2Hz NMI
+                nmistart += 500;
+                nmi = 0; // next CpuExecute will execute two instructions
+            }
+
             DWORD CpuTicks = CpuExecute();
             totcycles += CpuTicks;
             totalcycle += CpuTicks;
@@ -194,10 +216,10 @@ void EmulatorThread::run()
             //    }
             //}
             if (timer0started) {
-                fixedram0000[02] = fixedram0000[02] + 1;
+                fixedram0000[io02_timer0_val] = fixedram0000[io02_timer0_val] + 1;
             }
             if (timer1started) {
-                fixedram0000[03] = fixedram0000[03] + 1;
+                fixedram0000[io03_timer1_val] = fixedram0000[io03_timer1_val] + 1;
             }
 
             /* Throttling routine (simple delay loop)  */

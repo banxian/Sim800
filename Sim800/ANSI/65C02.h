@@ -69,7 +69,7 @@ extern iofunction2 iowrite[0x40];
 // extern LPBYTE     mem;
 extern unsigned char fixedram0000[0x10002]; // just like simulator
 extern unsigned char* pmemmap[8]; // 0000~1FFF ... E000~FFFF
-extern unsigned char* may4000addr; // TODO: move into NekoDriver.h
+extern unsigned char* may4000ptr; // TODO: move into NekoDriver.h
 extern unsigned char* norbankheader[0x10];
 extern unsigned char* volume0array[0x100];
 extern unsigned char* volume1array[0x100];
@@ -97,15 +97,8 @@ extern DWORD      nmiclk;       /*  used for auto-NMI  */
 
 
 
-void    CommDestroy ();
-void    CommReset ();
-void    CommSetSerialPort (HWND,DWORD);
-void    CommUpdate (DWORD);
 DWORD   CpuExecute ();
 void    CpuInitialize ();
-void    DebugContinueStepping ();
-void    DebugDestroy ();
-void    DebugInitialize ();
 void    MemDestroy ();
 void    MemInitialize ();
 void    MemReset ();
