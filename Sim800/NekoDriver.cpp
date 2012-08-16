@@ -9,22 +9,14 @@ extern "C" {
 // Storage
 PNekoDriver theNekoDriver;
 
-extern void GetProgramDirectory();
-extern void ContinueExecution();
-
 TNekoDriver::TNekoDriver()
     : fEmulatorThread(NULL)
     , fNorBuffer(NULL)
     , fBROMBuffer(NULL)
 {
-    GetProgramDirectory();
-
     // Do initialization that must be repeated for a restart
     restart = 0;
 
-    if (!LoadReg()){
-        SaveReg();
-    }
     fBROMBuffer = (char*)malloc(512 * 0x8000); // 32K * 256 * 2
     for (int i = 0; i < 256; i++) {
         volume0array[i] = (unsigned char*)fBROMBuffer + i * 0x8000;
@@ -152,6 +144,7 @@ extern WORD LogDisassembly (WORD offset, LPTSTR text);
 
 extern bool timer0started;
 extern bool timer1started;
+extern unsigned short gThreadFlags;
 
 //DWORD lastTicket = 0;
 //unsigned long long totalcycle = 0;
@@ -162,11 +155,21 @@ extern bool timer1started;
 //double sleepgap = 10;
 //long sleepcount = 0;
 
+// WQXSIM
+extern bool timer0waveoutstart;
+extern int prevtimer0value;
+int gDeadlockCounter = 0;
+extern bool lcdoffshift0flag;
+
+void Turnoff2HzNMIMaskAddIRQFlag();
+void CheckTimebaseAndEnableIRQnEXIE1();
+
 void EmulatorThread::run()
 {
     // Load PC from Reset Vector
     CpuInitialize();
     unsigned int nmistart = GetTickCount();
+    gThreadFlags &= 0xFFFEu; // Remove 0x01 from gThreadFlags (stack related)
     while(fKeeping) {
         //ContinueExecution();
         //DWORD processtime		= totcycles;// needed for comm routines
@@ -186,6 +189,59 @@ void EmulatorThread::run()
                 // 2Hz NMI
                 nmistart += 500;
                 nmi = 0; // next CpuExecute will execute two instructions
+                gThreadFlags |= 8; // NMIFlag
+            }
+            if ((regs.ps & 0x4) == 0 && (gThreadFlags & 0x10)) {
+                gThreadFlags &= 0xFFEFu; // remove 0x10
+                irq = 0; // B flag will remove in CpuExecute (AF_BREAK)
+            }
+
+            bool watchdogoverflowed = gDeadlockCounter++ == 5999;
+            if (watchdogoverflowed) {
+                gDeadlockCounter = 0;
+                if ((gThreadFlags & 0x80) == 0) {
+                    // CheckTimerbaseAndEnableIRQnEXIE1
+                    CheckTimebaseAndEnableIRQnEXIE1();
+                    if (timer0started) {
+                        // mayDestAddr == 5 in ReadRegister
+                        // mayBaseTable have 0x100 elements?
+                        //increment = mayBasetable[mayDestAddr];  // mayBaseTable[5] == 3
+                        //t0overflow = (unsigned int)(increment + mayPreviousTimer0Value) < 0xFF;
+                        //mayPreviousTimer0Value += increment;
+                        //if ( !t0overflow )
+                        //{
+                        //    mayPreviousTimer0Value = 0;
+                        //    Turnoff2HzNMIMaskAddIRQFlag();
+                        //}
+                        int increment = 3;
+                        bool t0overflow = (prevtimer0value + increment) < 0xFF;
+                        prevtimer0value += increment;
+                        if (!t0overflow) {
+                            prevtimer0value = 0;
+                            // Turnoff2HzNMIMaskAddIRQFlag
+                            Turnoff2HzNMIMaskAddIRQFlag();
+                        }
+                    }
+                } else {
+                    // RESET
+                    fixedram0000[io01_int_enable] |= 0x1; // TIMER A INTERRUPT ENABLE
+                    fixedram0000[io02_timer0_val] |= 0x1; // [io01+1] Timer0 bit1 = 1
+                    gThreadFlags &= 0xFF7F;      // remove 0x80 | 0x10
+                    regs.pc = *(unsigned short*)&pmemmap[mapE000][0x1FFC];
+                }
+            } else {
+                if (timer0started) {
+                    // mayDestAddr == 5 in ReadRegister
+                    // mayBaseTable have 0x100 elements?
+                    int increment = 3;
+                    bool t0overflow = (prevtimer0value + increment) < 0xFF;
+                    prevtimer0value += increment;
+                    if (!t0overflow) {
+                        prevtimer0value = 0;
+                        // Turnoff2HzNMIMaskAddIRQFlag
+                        Turnoff2HzNMIMaskAddIRQFlag();
+                    }
+                }
             }
 
             DWORD CpuTicks = CpuExecute();
@@ -197,8 +253,7 @@ void EmulatorThread::run()
             if (lastTicket == 0) {
                 lastTicket = GetTickCount();
             }
-
-
+            
             //loop--;
             //// added for irq timing/
             //if (irqclk) {
@@ -215,12 +270,12 @@ void EmulatorThread::run()
             //        nmicnt = nmicnt - nmiclk;
             //    }
             //}
-            if (timer0started) {
-                fixedram0000[io02_timer0_val] = fixedram0000[io02_timer0_val] + 1;
-            }
-            if (timer1started) {
-                fixedram0000[io03_timer1_val] = fixedram0000[io03_timer1_val] + 1;
-            }
+            //if (timer0started) {
+            //    fixedram0000[io02_timer0_val] = fixedram0000[io02_timer0_val] + 1;
+            //}
+            //if (timer1started) {
+            //    fixedram0000[io03_timer1_val] = fixedram0000[io03_timer1_val] + 1;
+            //}
 
             /* Throttling routine (simple delay loop)  */
             //if (throttle) for (j=throttle*CpuTicks;j>1;j--);
@@ -304,4 +359,52 @@ void EmulatorThread::run()
 void EmulatorThread::StopKeeping()
 {
     fKeeping = false;
+}
+
+void CheckLCDOffShift0AndEnableWatchDog()
+{
+    //if ( gLcdoffShift0Flag )
+    //{
+    //    if ( BYTE2(keypadmatrix2) || BYTE3(keypadmatrix2) )
+    //    {
+    //        EnableWatchDogFlag();                     // 0x80
+    //        gLcdoffShift0Flag = 0;
+    //    }
+    //}
+    //else
+    //{
+    //    // Set lcdoffshift0flag only when keypadmatrix3 == 0xFB
+    //    if ( BYTE3(keypadmatrix2) == 0xFBu )
+    //        gLcdoffShift0Flag = 1;
+    //}
+    if (lcdoffshift0flag) {
+
+    } else {
+
+    }
+}
+
+void CheckTimebaseAndEnableIRQnEXIE1()
+{
+    //if ( gFixedRAM0_04_general_ctrl & 0xF )
+    //{
+    //    // TimeBase Clock Select bit0~3
+    //    LOBYTE(gThreadFlags) = gThreadFlags | 0x10; // add 0x10 to gThreadFlags
+    //    gFixedRAM0[(unsigned __int8)io01_int_ctrl] |= 8u;// EXTERNAL INTERRUPT SELECT1
+    //}
+    if (fixedram0000[io04_general_ctrl] & 0x0F) {
+        gThreadFlags |= 0x10;
+        irq = 0; // TODO: move to NMI check
+        fixedram0000[io01_int_enable] |= 0x8; // EXTERNAL INTERRUPT SELECT1
+    }
+}
+
+void Turnoff2HzNMIMaskAddIRQFlag()
+{
+    if ( fixedram0000[io04_general_ctrl] & 0xF )
+    {
+        gThreadFlags |= 0x10u; // Add 0x10 Flag to gThreadFlag
+        irq = 0; // TODO: move to 
+        fixedram0000[io01_int_enable] |= 0x10u; // 2Hz NMI Mask off
+    }
 }

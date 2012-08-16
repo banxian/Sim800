@@ -5,10 +5,7 @@ extern "C" {
 
 DWORD     autoboot          = 0;
 HINSTANCE instance          = (HINSTANCE)0;
-TCHAR     progdir[MAX_PATH] = TEXT("");
 BOOL      restart           = 0;
-DWORD     speed             = 10;
-WORD      iopage            = 0x8000;
 WORD      iorange           = 0x0040;
 
 DWORD     totcycles			= 0;
@@ -23,16 +20,15 @@ DWORD     irqclk            = 0;
 DWORD     irqcnt            = 0;
 DWORD     nmiclk            = 0;
 DWORD     nmicnt            = 0;
-int 	  Capture			= 0;
 DWORD     throttle          = 0;
 
 
 
-void ClearCounters() {
-    stmsecs = GetTickCount();
-    totcycles = 0;
-    executed = 0;
-}
+//void ClearCounters() {
+//    stmsecs = GetTickCount();
+//    totcycles = 0;
+//    executed = 0;
+//}
 
 
 // extern WORD LogDisassembly (WORD offset, LPTSTR text);
@@ -115,15 +111,4 @@ void ClearCounters() {
 // }
 
 
-void GetProgramDirectory () {
-    GetModuleFileName((HINSTANCE)0,progdir,MAX_PATH);
-    progdir[MAX_PATH-1] = 0;
-    int loop = _tcslen(progdir);
-    while (loop--) {
-        if ((progdir[loop] == TEXT('\\')) ||
-            (progdir[loop] == TEXT(':'))) {
-                progdir[loop+1] = 0;
-                break;
-        }
-    }
-}
+

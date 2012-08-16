@@ -12,6 +12,8 @@
 #define io05_clock_ctrl     0x05
 #define io06_stop_timer1    0x06
 #define io06_lcd_config     0x06
+#define io07_port_config    0x07
+#define io07_start_timer1   0x07
 #define io08_port0_data     0x08
 #define io09_port1_data     0x09
 #define io0A_bios_bsw       0x0A
@@ -35,6 +37,8 @@
 #define io1B_pwm_data       0x1B
 #define io1C_batt_detect    0x1C
 #define io1E_batt_detect    0x1E
+#define io20_JG             0x20
+#define io23_unknow         0x23
 
 #define io_ROA_bit          0x80 // RAM/ROM (io_bios_bsw)
 

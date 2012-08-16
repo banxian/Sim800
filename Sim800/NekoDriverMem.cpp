@@ -10,34 +10,38 @@ extern "C" {
 BYTE __stdcall NullRead (BYTE read);
 void __stdcall NullWrite (BYTE write, BYTE value);
 
-BYTE __stdcall StartTimer0 (BYTE read); // $05
-BYTE __stdcall StopTimer0 (BYTE read); // $04
-BYTE __stdcall StartTimer1 (BYTE read); // $07
-BYTE __stdcall StopTimer1 (BYTE read); // $06
+BYTE __stdcall Read04StopTimer0 (BYTE read); // $04
+BYTE __stdcall Read05StartTimer0 (BYTE read); // $05
+BYTE __stdcall Read07StartTimer1 (BYTE read); // $07
+BYTE __stdcall Read06StopTimer1 (BYTE read); // $06
 BYTE __stdcall ReadPort0 (BYTE read); // $08
 BYTE __stdcall ReadPort1 (BYTE read); // $09
 
-BYTE __stdcall ReadBank (BYTE read); // $00
-void __stdcall SwitchBank (BYTE write, BYTE value); // $00
-void __stdcall WriteLCDStartAddr (BYTE write, BYTE value); // $06
+BYTE __stdcall Read00BankSwitch (BYTE read); // $00
+void __stdcall Write00BankSwitch (BYTE write, BYTE value); // $00
+void __stdcall Write02Timer0Value(BYTE write, BYTE value); // $02
+void __stdcall Write05ClockCtrl(BYTE write, BYTE value); // $05
+void __stdcall Write06LCDStartAddr (BYTE write, BYTE value); // $06
 void __stdcall WriteTimer01Control (BYTE write, BYTE value);
-void __stdcall WritePort0 (BYTE write, BYTE value); // $08
-void __stdcall WritePort1 (BYTE write, BYTE value); // $09
+void __stdcall Write08Port0 (BYTE write, BYTE value); // $08
+void __stdcall Write09Port1 (BYTE write, BYTE value); // $09
 void __stdcall ControlPort1 (BYTE write, BYTE value); // $15
 void __stdcall WriteZeroPageBankswitch (BYTE write, BYTE value); // $0F
 void __stdcall WriteROABBS (BYTE write, BYTE value); // $0A
-void __stdcall WriteVolumeIDLCDSegCtrl(BYTE write, BYTE value); // $0D
+void __stdcall Write0DVolumeIDLCDSegCtrl(BYTE write, BYTE value); // $0D
+void __stdcall Write20JG(BYTE write, BYTE value); // $20
+void __stdcall Write23Unknow(BYTE write, BYTE value); // $20
 
 
 iofunction1 ioread[0x40]  = {
-    ReadBank,       // $00
+    Read00BankSwitch,       // $00
     NullRead,       // $01
     NullRead,       // $02
     NullRead,       // $03
-    StopTimer0,     // $04
-    StartTimer0,    // $05
-    StopTimer1,     // $06
-    StartTimer1,    // $07
+    Read04StopTimer0,     // $04
+    Read05StartTimer0,    // $05
+    Read06StopTimer1,     // $06
+    Read07StartTimer1,    // $07
     ReadPort0,      // $08
     ReadPort1,      // $09
     NullRead,       // $0A
@@ -97,20 +101,20 @@ iofunction1 ioread[0x40]  = {
 };
 
 iofunction2 iowrite[0x40] = {
-    SwitchBank,     // $00
+    Write00BankSwitch,          // $00
     NullWrite,      // $01
-    NullWrite,      // $02
+    Write02Timer0Value,         // $02
     NullWrite,      // $03
     NullWrite,      // $04
-    NullWrite,      // $05
-    WriteLCDStartAddr,          // $06
+    Write05ClockCtrl,           // $05
+    Write06LCDStartAddr,        // $06
     NullWrite,      // $07
-    WritePort0,                 // $08
-    WritePort1,                 // $09
+    Write08Port0,               // $08
+    Write09Port1,               // $09
     WriteROABBS,                // $0A
     NullWrite,      // $0B
     WriteTimer01Control,        // $0C
-    WriteVolumeIDLCDSegCtrl,    // $0D
+    Write0DVolumeIDLCDSegCtrl,  // $0D
     NullWrite,      // $0E
     WriteZeroPageBankswitch,    // $0F
     NullWrite,      // $10
@@ -129,7 +133,7 @@ iofunction2 iowrite[0x40] = {
     NullWrite,      // $1D
     NullWrite,      // $1E
     NullWrite,      // $1F
-    NullWrite,      // $20
+    Write20JG,      // $20
     NullWrite,      // $21
     NullWrite,      // $22
     NullWrite,      // $23
@@ -173,8 +177,13 @@ unsigned char* volume0array[0x100];
 unsigned char* volume1array[0x100];
 unsigned char* bbsbankheader[0x10];
 
-TCHAR   ROMfile[MAX_PATH] = TEXT("65c02.rom");
-TCHAR   RAMfile[MAX_PATH] = TEXT("");
+
+// WQXSIM
+extern bool timer0waveoutstart;
+extern int prevtimer0value;
+extern unsigned short gThreadFlags;
+extern unsigned char* gGeneralCtrlPtr;
+extern unsigned short mayGenralnClockCtrlValue;
 
 void FillC000BIOSBank(unsigned char** array);
 void InitRAM0IO();
@@ -251,6 +260,7 @@ void InitRAM0IO()
     fixedram0000[io01_int_enable] = 0; // Disable all int
     fixedram0000[io04_general_ctrl] = 0;
     fixedram0000[io05_clock_ctrl] = 0;
+    gThreadFlags = 0;
     fixedram0000[io08_port0_data] = 0;
     fixedram0000[io00_bank_switch] = 0;
     fixedram0000[io09_port1_data] = 0;
@@ -278,12 +288,12 @@ void SetByte( unsigned short address, unsigned char value )
 }
 
 BYTE __stdcall NullRead (BYTE address) {
-    //qDebug("lee wanna read io, [%04x] -> %02x", address, mem[address]);
+    //qDebug("ggv wanna read io, [%04x] -> %02x", address, mem[address]);
     return fixedram0000[address];
 }
 
 void __stdcall NullWrite(BYTE address, BYTE value) {
-    //qDebug("lee wanna write io, [%04x] (%02x) -> %02x", address, mem[address], value);
+    //qDebug("ggv wanna write io, [%04x] (%02x) -> %02x", address, mem[address], value);
     fixedram0000[address] = value;
 }
 
@@ -295,11 +305,17 @@ void TNekoDriver::InitInternalAddrs()
     may4000ptr = volume0array[0];
     pmemmap[mapE000] = volume0array[0] + 0x2000; // lea     ecx, [eax+2000h]
     Switch4000toBFFF(0);
-    fixedram0000[io06_lcd_config] = 0x28; // ([0C] & 3) * 1000 || [06] * 10 = LCDAddr
+
+    mayGenralnClockCtrlValue = 0;
+    //regs.sp = 0x100;
+
+    // bit5 TIMER0 SOURCE CLOCK SELECT BIT1/TIMER CLOCK SELECT BIT2
+    // bit3 TIMER1 SOURCE CLOCK SELECT BIT1/TIMER CLOCK SELECT BIT0
+    fixedram0000[io0C_timer01_ctrl] = 0x28; // ([0C] & 3) * 1000 || [06] * 10 = LCDAddr
 }
 
 
-void __stdcall SwitchBank( BYTE write, BYTE bank )
+void __stdcall Write00BankSwitch( BYTE write, BYTE bank )
 {
     //char result; // al@1
     //int rambank; // eax@6
@@ -338,7 +354,7 @@ void __stdcall SwitchBank( BYTE write, BYTE bank )
     //    }
     //}
     //return result;
-    qDebug("lee wanna switch to bank 0x%02x", bank);
+    qDebug("ggv wanna switch to bank 0x%02x", bank);
     //theNekoDriver->SwitchNorBank(value);
     if (fixedram0000[io0A_roa] & 0x80) {
         // ROA == 1
@@ -364,10 +380,10 @@ void __stdcall SwitchBank( BYTE write, BYTE bank )
     (void) write;
 }
 
-BYTE __stdcall ReadBank( BYTE )
+BYTE __stdcall Read00BankSwitch( BYTE )
 {
     byte r = fixedram0000[io00_bank_switch];
-    qDebug("lee wanna read bank. current bank 0x%02x", r);
+    qDebug("ggv wanna read bank. current bank 0x%02x", r);
     return r;
 }
 
@@ -495,7 +511,7 @@ void __stdcall WriteROABBS( BYTE write, BYTE value )
     (void)write;
 }
 
-void __stdcall WriteVolumeIDLCDSegCtrl(BYTE write, BYTE value)
+void __stdcall Write0DVolumeIDLCDSegCtrl(BYTE write, BYTE value)
 {
     //char result; // al@1
     //signed int fullbank; // eax@3

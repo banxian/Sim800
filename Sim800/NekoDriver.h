@@ -77,6 +77,7 @@ private:
 
 protected:
     void run();
+
 public:
     void StopKeeping();
 signals:

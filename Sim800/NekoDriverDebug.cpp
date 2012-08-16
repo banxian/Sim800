@@ -346,7 +346,7 @@ WORD LogDisassembly ( WORD offset, LPTSTR text )
     //char fulltext[50]    = "";
     WORD  inst            = GetByte(offset);
 
-    if (offset < iorange /*(offset & 0xFF00) == (iopage & 0xFF00)*/) {
+    if (offset < iorange) {
         // Register address can't be executed
         inst = 0x100;
     }
@@ -374,11 +374,6 @@ WORD LogDisassembly ( WORD offset, LPTSTR text )
             sprintf(addresstext,
                 addressmode[addrmode].format,
                 (LPSTR)GetSymbol(address,bytes));
-            //if ((addrmode == ADDR_REL) && (offset == regs.pc) && CheckJump(address))
-            //    if (address > offset)
-            //        _tcscat(addresstext,TEXT(" \x19")); // up
-            //    else
-            //        _tcscat(addresstext,TEXT(" \x18")); // down
         }
         if (addrmode == ADDR_BBREL) {
             address &= 0xFF;
@@ -393,18 +388,13 @@ WORD LogDisassembly ( WORD offset, LPTSTR text )
                 addressmode[addrmode].format,
                 zptxt,
                 (LPSTR)GetSymbol(address,3));
-
-            //if ((addrmode == ADDR_BBREL) && (offset == regs.pc) && CheckJump(address))
-            //    if (address > offset)
-            //        _tcscat(addresstext,TEXT(" \x19"));
-            //    else
-            //        _tcscat(addresstext,TEXT(" \x18"));
         }
 
-        if (addresstext[0] == 0) //else
+        if (addresstext[0] == 0) {//else
             sprintf(addresstext,
             addressmode[addrmode].format,
             (LPSTR)GetSymbol(address,bytes));
+        }
     }
 
     // Build a string containing the actual bytes that make up this
@@ -474,7 +464,7 @@ const char* GetSymbol (WORD address, int bytes) {
 
 const char *byte_to_binary ( unsigned char c )
 {
-    static char b[9];
+    static char b[9]; // TODO: threadsafe
 
     int i = 0;
     for (unsigned char z = 128; z > 0; z >>= 1) {
