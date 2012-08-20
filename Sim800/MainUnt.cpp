@@ -381,20 +381,20 @@ void TMainFrm::initKeypad()
     TKeyItem* item[8][8] = {
         NULL,       // P00, P10
         NULL,       // P01, P10
-        NULL,       // P02, P10
+        new TKeyItem(18, "ON", Qt::Key_F12),        // P02, P10
         NULL,       // P03, P10
         NULL,       // P04, P10
         NULL,       // P05, P10
         NULL,       // P06, P10
         NULL,       // P07, P10
 
-        NULL,       // P00, P11
-        NULL,       // P01, P11
-        NULL,       // P02, P11
-        NULL,       // P03, P11
-        NULL,       // P04, P11
-        NULL,       // P05, P11
-        NULL,       // P06, P11
+        new TKeyItem(0, "F5", Qt::Key_F5),          // P00, P11
+        new TKeyItem(1, "F6", Qt::Key_F6),          // P01, P11
+        new TKeyItem(2, "F7", Qt::Key_F7),          // P02, P11
+        new TKeyItem(3, "F8", Qt::Key_F8),          // P03, P11
+        new TKeyItem(4, "F9", Qt::Key_F9),          // P04, P11
+        new TKeyItem(5, "F10", Qt::Key_F10),        // P05, P11
+        new TKeyItem(6, "F11", Qt::Key_F11),        // P06, P11
         NULL,       // P07, P11
 
         new TKeyItem(50, "Help", Qt::Key_Control),  // P00, P12

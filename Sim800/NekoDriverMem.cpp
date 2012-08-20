@@ -488,7 +488,7 @@ void __stdcall WriteROABBS( BYTE write, BYTE value )
         unsigned char bank;
         if (value & 0x80) {
             // ROA == 1
-            // RAM
+            // RAM (norflash)
             bank = fixedram0000[io00_bank_switch] & 0xF; // bank = 0~F
             may4000ptr = norbankheader[bank];
         } else {

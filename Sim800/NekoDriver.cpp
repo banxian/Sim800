@@ -163,11 +163,13 @@ extern bool lcdoffshift0flag;
 
 void Turnoff2HzNMIMaskAddIRQFlag();
 void CheckTimebaseAndEnableIRQnEXIE1();
+void EnableWatchDogFlag();
 
 void EmulatorThread::run()
 {
     // Load PC from Reset Vector
     CpuInitialize();
+    //stp = 1; // test
     unsigned int nmistart = GetTickCount();
     gThreadFlags &= 0xFFFEu; // Remove 0x01 from gThreadFlags (stack related)
     while(fKeeping) {
@@ -183,21 +185,22 @@ void EmulatorThread::run()
 
         while (batchcount >= 0) {
             //qDebug("PC:0x%04x, opcode: 0x%06x", regs.pc, (*(LPDWORD)(mem+regs.pc)) & 0xFFFFFF);
-            LogDisassembly(regs.pc, NULL);
+            //LogDisassembly(regs.pc, NULL);
 
             if (GetTickCount() - nmistart >= 500){
                 // 2Hz NMI
                 nmistart += 500;
                 nmi = 0; // next CpuExecute will execute two instructions
-                gThreadFlags |= 8; // NMIFlag
+                gThreadFlags |= 8; // Add NMIFlag
             }
             if ((regs.ps & 0x4) == 0 && (gThreadFlags & 0x10)) {
                 gThreadFlags &= 0xFFEFu; // remove 0x10
                 irq = 0; // B flag will remove in CpuExecute (AF_BREAK)
             }
 
-            bool watchdogoverflowed = gDeadlockCounter++ == 5999;
-            if (watchdogoverflowed) {
+            gDeadlockCounter++;
+            if (gDeadlockCounter == 6000) {
+                // overflowed
                 gDeadlockCounter = 0;
                 if ((gThreadFlags & 0x80) == 0) {
                     // CheckTimerbaseAndEnableIRQnEXIE1
@@ -214,11 +217,9 @@ void EmulatorThread::run()
                         //    Turnoff2HzNMIMaskAddIRQFlag();
                         //}
                         int increment = 3;
-                        bool t0overflow = (prevtimer0value + increment) < 0xFF;
                         prevtimer0value += increment;
-                        if (!t0overflow) {
+                        if (prevtimer0value >= 0xFFu) {
                             prevtimer0value = 0;
-                            // Turnoff2HzNMIMaskAddIRQFlag
                             Turnoff2HzNMIMaskAddIRQFlag();
                         }
                     }
@@ -234,11 +235,9 @@ void EmulatorThread::run()
                     // mayDestAddr == 5 in ReadRegister
                     // mayBaseTable have 0x100 elements?
                     int increment = 3;
-                    bool t0overflow = (prevtimer0value + increment) < 0xFF;
                     prevtimer0value += increment;
-                    if (!t0overflow) {
+                    if (prevtimer0value >= 0xFFu) {
                         prevtimer0value = 0;
-                        // Turnoff2HzNMIMaskAddIRQFlag
                         Turnoff2HzNMIMaskAddIRQFlag();
                     }
                 }
@@ -363,18 +362,21 @@ void EmulatorThread::StopKeeping()
 
 void CheckLCDOffShift0AndEnableWatchDog()
 {
+    //// may check hotkey press
     //if ( gLcdoffShift0Flag )
     //{
-    //    if ( BYTE2(keypadmatrix2) || BYTE3(keypadmatrix2) )
+    //    if ( keypadmatrix1[6] || keypadmatrix1[7] )
     //    {
-    //        EnableWatchDogFlag();                     // 0x80
+    //        // Line6 Dict Card
+    //        // Line7 on/off
+    //        EnableWatchDogFlag();               // 0x80
     //        gLcdoffShift0Flag = 0;
     //    }
     //}
     //else
     //{
     //    // Set lcdoffshift0flag only when keypadmatrix3 == 0xFB
-    //    if ( BYTE3(keypadmatrix2) == 0xFBu )
+    //    if ( keypadmatrix1[7] == 0xFBu )
     //        gLcdoffShift0Flag = 1;
     //}
     if (lcdoffshift0flag) {
@@ -393,7 +395,7 @@ void CheckTimebaseAndEnableIRQnEXIE1()
     //    gFixedRAM0[(unsigned __int8)io01_int_ctrl] |= 8u;// EXTERNAL INTERRUPT SELECT1
     //}
     if (fixedram0000[io04_general_ctrl] & 0x0F) {
-        gThreadFlags |= 0x10;
+        gThreadFlags |= 0x10; // Add IRQ flag
         irq = 0; // TODO: move to NMI check
         fixedram0000[io01_int_enable] |= 0x8; // EXTERNAL INTERRUPT SELECT1
     }
@@ -407,4 +409,9 @@ void Turnoff2HzNMIMaskAddIRQFlag()
         irq = 0; // TODO: move to 
         fixedram0000[io01_int_enable] |= 0x10u; // 2Hz NMI Mask off
     }
+}
+
+void EnableWatchDogFlag()
+{
+    gThreadFlags |= 0x80;
 }
