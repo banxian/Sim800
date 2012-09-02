@@ -141,6 +141,7 @@ EmulatorThread::~EmulatorThread()
 
 
 extern WORD LogDisassembly (WORD offset, LPTSTR text);
+extern void AppendLog(const char* text);
 
 extern bool timer0started;
 extern bool timer1started;
@@ -160,10 +161,12 @@ extern bool timer0waveoutstart;
 extern int prevtimer0value;
 int gDeadlockCounter = 0;
 extern bool lcdoffshift0flag;
+bool matrixupdated = false;
 
 void Turnoff2HzNMIMaskAddIRQFlag();
 void CheckTimebaseAndEnableIRQnEXIE1();
 void EnableWatchDogFlag();
+void CheckLCDOffShift0AndEnableWatchDog();
 
 void EmulatorThread::run()
 {
@@ -183,19 +186,52 @@ void EmulatorThread::run()
         //elapsed = GetTickCount()-stmsecs;
         const unsigned spdc1016freq = GlobalSetting.SPDC1016Frequency;
 
-        while (batchcount >= 0) {
+        while (batchcount >= 0 && fKeeping) {
             //qDebug("PC:0x%04x, opcode: 0x%06x", regs.pc, (*(LPDWORD)(mem+regs.pc)) & 0xFFFFFF);
-            //LogDisassembly(regs.pc, NULL);
-
-            if (GetTickCount() - nmistart >= 500){
-                // 2Hz NMI
-                nmistart += 500;
-                nmi = 0; // next CpuExecute will execute two instructions
-                gThreadFlags |= 8; // Add NMIFlag
+            LogDisassembly(regs.pc, NULL);
+            if (matrixupdated) {
+                matrixupdated = false;
+                AppendLog("keypadmatrix updated.");
             }
-            if ((regs.ps & 0x4) == 0 && (gThreadFlags & 0x10)) {
-                gThreadFlags &= 0xFFEFu; // remove 0x10
+
+            unsigned int dummynow = GetTickCount();
+            if (dummynow - nmistart >= 500){
+                // 2Hz NMI
+                // TODO: use batchcount as NMI
+#ifdef _DEBUG
+                //if (dummynow - nmistart >= 1000) {
+                //    // Debugger
+                //    nmistart = dummynow - 3000; // delay 3s
+                //} else {
+                //    nmistart = dummynow; // prevent multi NMI
+                //}
+                nmistart = dummynow;
+#else
+                nmistart += 500;
+#endif
+                //nmi = 0; // next CpuExecute will execute two instructions
+                gThreadFlags |= 0x08; // Add NMIFlag
+            }
+
+            if ((gThreadFlags & 0x08) != 0) {
+                gThreadFlags &= 0xFFF7u; // remove 0x08 NMI Flag
+                nmi = 0; // next CpuExecute will execute two instructions
+                qDebug("ggv wanna NMI.");
+            }
+            if (((regs.ps & 0x4) == 0) && ((gThreadFlags & 0x10) != 0)) {
+                gThreadFlags &= 0xFFEFu; // remove 0x10 IRQ Flag
                 irq = 0; // B flag will remove in CpuExecute (AF_BREAK)
+                qDebug("ggv wanna IRQ.");
+            }
+
+            DWORD CpuTicks = CpuExecute();
+            totcycles += CpuTicks;
+            totalcycle += CpuTicks;
+            executed++;
+            // add checks for reset, IRQ, NMI, and other pin signals
+            //elapsed = GetTickCount()-stmsecs;
+            if (lastTicket == 0) {
+                lastTicket = GetTickCount();
             }
 
             gDeadlockCounter++;
@@ -241,16 +277,6 @@ void EmulatorThread::run()
                         Turnoff2HzNMIMaskAddIRQFlag();
                     }
                 }
-            }
-
-            DWORD CpuTicks = CpuExecute();
-            totcycles += CpuTicks;
-            totalcycle += CpuTicks;
-            executed++;
-            // add checks for reset, IRQ, NMI, and other pin signals
-            //elapsed = GetTickCount()-stmsecs;
-            if (lastTicket == 0) {
-                lastTicket = GetTickCount();
             }
             
             //loop--;
@@ -379,10 +405,24 @@ void CheckLCDOffShift0AndEnableWatchDog()
     //    if ( keypadmatrix1[7] == 0xFBu )
     //        gLcdoffShift0Flag = 1;
     //}
+    matrixupdated = true;
     if (lcdoffshift0flag) {
-
+        // we don't have invert bit for row6,7
+        //bool row67down = false;
+        for (int y = 0; y < 2; y++) {
+            for (int x = 0; x < 8; x++) {
+                if (keypadmatrix[y][x] == 1) {
+                    //row6,7down = true;
+                    EnableWatchDogFlag();
+                    lcdoffshift0flag = false;
+                    return;
+                }
+            }
+        }
     } else {
-
+        if (keypadmatrix[0][2] == 1) {
+            lcdoffshift0flag = true; // this flag is used for UI?
+        }
     }
 }
 
@@ -396,7 +436,7 @@ void CheckTimebaseAndEnableIRQnEXIE1()
     //}
     if (fixedram0000[io04_general_ctrl] & 0x0F) {
         gThreadFlags |= 0x10; // Add IRQ flag
-        irq = 0; // TODO: move to NMI check
+        //irq = 0; // TODO: move to NMI check
         fixedram0000[io01_int_enable] |= 0x8; // EXTERNAL INTERRUPT SELECT1
     }
 }
@@ -406,7 +446,7 @@ void Turnoff2HzNMIMaskAddIRQFlag()
     if ( fixedram0000[io04_general_ctrl] & 0xF )
     {
         gThreadFlags |= 0x10u; // Add 0x10 Flag to gThreadFlag
-        irq = 0; // TODO: move to 
+        //irq = 0; // TODO: move to 
         fixedram0000[io01_int_enable] |= 0x10u; // 2Hz NMI Mask off
     }
 }

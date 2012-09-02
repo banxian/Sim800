@@ -347,6 +347,9 @@ void TMainFrm::repaintKeypad()
     ui->keypadView->setPixmap(QPixmap::fromImage(image));
 }
 
+extern void CheckLCDOffShift0AndEnableWatchDog();
+extern void AppendLog(const char* text);
+
 void TMainFrm::updateKeypadMatrix()
 {
     for (int y = 0; y < 8; y++) {
@@ -357,6 +360,9 @@ void TMainFrm::updateKeypadMatrix()
             }
         }
     }
+    // TODO: Check
+    CheckLCDOffShift0AndEnableWatchDog();
+    //AppendLog("keypadmatrix updated.");
 }
 
 void TMainFrm::onKeypadSizeChanged(int w, int h)

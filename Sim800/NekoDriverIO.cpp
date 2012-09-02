@@ -245,9 +245,26 @@ void UpdateKeypadRegisters()
                 port0controlbit = 0x40;
             } else {
                 // 4, 5, 6, 7 = b7
-                port0controlbit = 0x80;
+                port0controlbit = 0x80u;
             }
-            if (keypadmatrix[y][x] != 2) {
+            if (y < 2 && (port1data == 0x02 || port1data == 0x01)) {
+                // Emulator rulz, only for port1 is single 0x02 0x01
+                // TODO: invert when y < 2 (row 6,7)
+                // 0,2 is both high
+                if (ysend) {
+                    // port1y-> port0x
+                    // port1y is send but only set bit to high when port0 xbit is receive too
+                    if ((keypadmatrix[y][x] != 1) && ((port1data & port1controlbit) != 0) && ((port0control & port0controlbit) == 0)) {
+                        tmpdest0 |= xbit;
+                    }
+                } else {
+                    // port0x -> port1y
+                    // port1y should be receive, only set bit to high when port0 xbit is send
+                    if ((keypadmatrix[y][x] != 1) && ((port0data & xbit) != 0) && ((port0control & port0controlbit) != 0)) {
+                        tmpdest1 |= xbit;
+                    }
+                }
+            } else if (keypadmatrix[y][x] != 2) {
                 if (ysend) {
                     // port1y-> port0x
                     // port1y is send but only set bit to high when port0 xbit is receive too
@@ -266,13 +283,13 @@ void UpdateKeypadRegisters()
         }
         port1controlbit = port1controlbit << 1;
     }
-    if (port1control != 0xFF) {
+    if (port1control != 0xFFu) {
         // port1 should clean some bits
         // using port1control as port1mask
         // sometimes port10,11 should clean here 
         port1data &= port1control; // pre set receive bits to 0
     }
-    if (port1control != 0xF0) {
+    if (port1control != 0xF0u) {
         // clean port0
         // calculate port0 mask
         // in most case port0 will be set to 0
@@ -281,9 +298,9 @@ void UpdateKeypadRegisters()
             // bit6->2,3
             port0mask |= 0x0C; // 00001100
         }
-        if (port0control & 0x80) {
+        if (port0control & 0x80u) {
             // bit7->4,5,6,7
-            port0mask |= 0xF0; // 11110000
+            port0mask |= 0xF0u; // 11110000
         }
         port0data &= port0mask;
     }
@@ -317,6 +334,40 @@ void __stdcall Write08Port0( BYTE write, BYTE value )
 {
     //qDebug("ggv wanna write keypad port0, [%04x] (%02x) -> %02x", write, mem[write], value);
     fixedram0000[io08_port0_data] = value;
+    // cosply simulator
+    //// dest memory is already set to tmpAXYValue before writeio08
+    //// simulator only support 09 output, 08 receive
+    //newvalue = tmpAXYValue;
+    //// P00~P07
+    //// bit0~bit7
+    //io0b = io0B_port3;
+    //io0bvalue1 = gFixedRAM0[io0B_port3] | 1;    // set bit0 (LCD DOT OUT DIRECTION BIT1)  of lcd config
+    //ishotkey = keypadmatrix1[6] == tmpAXYValue; // ram[io08] value is same to one of Hotkey in row6
+    //gFixedRAM0[io0B_port3] = io0bvalue1;        // Add LCDIR1 |= 0x1;
+    //if ( ishotkey || !newvalue || keypadmatrix1[7] == 0xFB )
+    //    // newvalue fit to some hotkey in row6
+    //    // or newvalue is 0 (all colume is 0)
+    //    // or row7 == FB (ON/OFF)
+    //    gFixedRAM0[io0b] = io0bvalue1 & 0xFE;   // Remove LCDIR1
+    byte xbit = 1;
+    byte row6data = 0, row7data = 0;
+    for (int x = 0; x < 8; x++) {
+        if ((keypadmatrix[1][x] != 1)) {
+            row6data |= xbit;
+        }
+        if ((keypadmatrix[0][x] != 1)) {
+            row7data |= xbit;
+        }
+        xbit = xbit << 1;
+    }
+    if (row6data == value || value == 0 || row7data == 0xFBu) {
+        // newvalue fit to some hotkey in row6
+        // or newvalue is 0 (all colume is 0)
+        // or row7 == FB (ON/OFF)
+        fixedram0000[io0B_lcd_ctrl] &= 0xFEu; // Remove LCDIR1
+    } else {
+        fixedram0000[io0B_lcd_ctrl] |= 0x01; // Add LCDIR1 |= 0x1
+    }
     UpdateKeypadRegisters();
     (void)write;
 }
@@ -325,7 +376,87 @@ void __stdcall Write09Port1( BYTE write, BYTE value )
 {
     //qDebug("ggv wanna write keypad port1, [%04x] (%02x) -> %02x", write, mem[write], value);
     fixedram0000[io09_port1_data] = value;
-    UpdateKeypadRegisters();
+    // cosply simulator
+    byte xbit = 1;
+    byte row6data = 0, row7data = 0;
+    for (int x = 0; x < 8; x++) {
+        if ((keypadmatrix[1][x] != 1)) {
+            row6data |= xbit;
+        }
+        if ((keypadmatrix[0][x] != 1)) {
+            row7data |= xbit;
+        }
+        xbit = xbit << 1;
+    }
+    byte port0bit01 = fixedram0000[io08_port0_data] & 3;
+    if (value == 0) {
+        //case 0u:
+        //    // none of P10~P17 is set.
+        //    io0b_2 = io0B_port3;
+        //    port0bit01_ = gFixedRAM0[io08_port0_real] & 3;// 00 01 10 11
+        //    row6iszero = keypadmatrix1[6] == 0;     // no hotkey
+        //    row7data = keypadmatrix1[7];        // ON/OFF
+        //    gFixedRAM0[io0B_port3] = port0bit01_;// remove b2~b7
+        //    if ( !row6iszero || row7data )
+        //        // have hotkey, or have on/off
+        //        gFixedRAM0[io0b_2] = port0bit01_ ^ 3;// 00 -> 11 01 -> 10 10 -> 01 11 -> 00
+        //    if ( row7data == 0xFD )
+        //        // row7 is record/play
+        //        gFixedRAM0[io0b_2] &= 0xFEu;    // Remove LCDIR1
+        //    break;
+        fixedram0000[io0B_lcd_ctrl] = port0bit01; // remove b2~b7
+        if ((row6data != 0xFFu) || (row7data != 0xFFu)) {
+            // hotkey or on/off
+            fixedram0000[io0B_lcd_ctrl] = port0bit01 ^ 0x3; // remove b2~b7, reverse b0,b1
+        }
+        if (row7data == 0xFDu) {
+            // record/play
+            fixedram0000[io0B_lcd_ctrl] &= 0xFEu;
+        }
+    }
+    if ((value == 0xFDu) || (value == 0xFEu)) {
+        //case 0xFDu:
+        //case 0xFEu:
+        //    // ~P16 ~P17
+        //    io0b_1 = io0B_port3;
+        //    port0bit01 = gFixedRAM0[io08_port0_real] & 3;// 00 01 10 11
+        //    issame = keypadmatrix1[7] == tmpAXYValue;
+        //    gFixedRAM0[io0B_port3] = port0bit01;// remove b2~b7
+        //    if ( issame )
+        //        // row7 is same as [09]
+        //        gFixedRAM0[io0b_1] = port0bit01 ^ 3;// remove b2~b7, reverse b0,b1
+        //    break;
+        fixedram0000[io0B_lcd_ctrl] = port0bit01; // remove b2~b7
+        if (row7data == value) {
+            // row7 is same as [09]
+            fixedram0000[io0B_lcd_ctrl] = port0bit01 ^ 0x3; // remove b2~b7, reverse b0,b1
+        }
+    }
+    if (value == 0x03) {
+        //case 3u:
+        //    // both P11 P10, used for p00~p07 send and all 1, p10-p11 send and all 1
+        //    io0b = io0B_port3;
+        //    io08valuebit01 = gFixedRAM0[io08_port0_real] & 3;
+        //    gFixedRAM0[io0B_port3] = io08valuebit01;// remove b2~b7
+        //    if ( row7data_ == 0xFB )
+        //        gFixedRAM0[io0b] = io08valuebit01 ^ 3;// remove b2~b7, reverse b0,b1
+        //    goto LABEL_19;
+        fixedram0000[io0B_lcd_ctrl] = port0bit01; // remove b2~b7
+        if (row7data == 0xFB) {
+            // on/off
+            fixedram0000[io0B_lcd_ctrl] = port0bit01 ^ 0x3; // remove b2~b7, reverse b0,b1
+        }
+    }
+    // FIXME: 02, 01 Emulator rulz
+    if (value == 0x02) {
+        fixedram0000[io08_port0_data] = row6data;
+    }
+    if (value == 0x01) {
+        fixedram0000[io08_port0_data] = row7data;
+    }
+    if (((value != 0xFDu) && (value != 0xFEu) && (value != 0x00) && (value != 0x02) && (value != 0x01) && (value != 0x03)) || ((value == 0x03) && (fixedram0000[io15_port1_dir] == 0xFCu))) {
+        UpdateKeypadRegisters();
+    }
     (void)write;
 }
 

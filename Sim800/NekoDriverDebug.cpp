@@ -476,6 +476,15 @@ const char *byte_to_binary ( unsigned char c )
     return b;
 }
 
+void AppendLog(const char* text)
+{
+    if (logpos > 102400*50 - 50) {
+        fwrite(logbuff, logpos, 1, logfile);
+        fflush(logfile);
+        logpos = 0;
+    }
+    logpos += sprintf(&logbuff[logpos], "%s\n", text);
+}
 //
 // ----- ALL GLOBALLY ACCESSIBLE FUNCTIONS ARE BELOW THIS LINE -----
 //

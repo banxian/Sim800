@@ -27,7 +27,7 @@ void __stdcall Write08Port0 (BYTE write, BYTE value); // $08
 void __stdcall Write09Port1 (BYTE write, BYTE value); // $09
 void __stdcall ControlPort1 (BYTE write, BYTE value); // $15
 void __stdcall WriteZeroPageBankswitch (BYTE write, BYTE value); // $0F
-void __stdcall WriteROABBS (BYTE write, BYTE value); // $0A
+void __stdcall Write0AROABBS (BYTE write, BYTE value); // $0A
 void __stdcall Write0DVolumeIDLCDSegCtrl(BYTE write, BYTE value); // $0D
 void __stdcall Write20JG(BYTE write, BYTE value); // $20
 void __stdcall Write23Unknow(BYTE write, BYTE value); // $20
@@ -111,7 +111,7 @@ iofunction2 iowrite[0x40] = {
     NullWrite,      // $07
     Write08Port0,               // $08
     Write09Port1,               // $09
-    WriteROABBS,                // $0A
+    Write0AROABBS,                // $0A
     NullWrite,      // $0B
     WriteTimer01Control,        // $0C
     Write0DVolumeIDLCDSegCtrl,  // $0D
@@ -354,6 +354,9 @@ void __stdcall Write00BankSwitch( BYTE write, BYTE bank )
     //    }
     //}
     //return result;
+    //if (fixedram0000[io00_bank_switch] == bank) {
+    //    return;
+    //}
     qDebug("ggv wanna switch to bank 0x%02x", bank);
     //theNekoDriver->SwitchNorBank(value);
     if (fixedram0000[io0A_roa] & 0x80) {
@@ -442,15 +445,11 @@ void FillC000BIOSBank(unsigned char** array) {
     }
 }
 
-void __stdcall WriteROABBS( BYTE write, BYTE value )
+void __stdcall Write0AROABBS( BYTE write, BYTE value )
 {
-    //int bbs; // eax@1
-    //byte bank; // al@3
+    //char bank; // al@3
     //DWORD addr4000; // edx@3
 
-    //// Switch bank of 4000~BFFF
-    //// bank read from 00
-    //LOBYTE(bbs) = tmpAXYValue;                    // bbs = ram[0A] & F
     //if ( tmpAXYValue != mayPrevDestAddrValue )
     //{
     //    // Update memory pointers only on value changed
@@ -458,31 +457,30 @@ void __stdcall WriteROABBS( BYTE write, BYTE value )
     //    {
     //        // 0A[7] == 1
     //        // RAM
-    //        *(_WORD *)&bank = (unsigned __int8)gFixedRAM0[(unsigned __int8)io00_bank_switch] % 16;// bank = 0~F
-    //        addr4000 = (DWORD)(&g_pNorBankHeader)[bank];
+    //        bank = (unsigned __int8)gFixedRAM0[io00_bank_switch] % 16;// bank = 0~F
+    //        addr4000 = (DWORD)(&g_pNorBankHeader)[(unsigned __int8)bank];
     //    }
     //    else
     //    {
     //        // 0A[7] == 0
     //        // Nor flash or BROM?
-    //        bank = gFixedRAM0[(unsigned __int8)io00_bank_switch];
-    //        if ( gFixedRAM0[(unsigned __int8)io0D_lcd_segment_volumeID] & 1 )
+    //        bank = gFixedRAM0[io00_bank_switch];// bank read from 00
+    //        if ( gFixedRAM0[io0D_lcd_segment_volumeID] & 1 )
     //            // b0 VSL0 == 1 (Volume select bit0)
-    //            // VolumeID[0~1] = 1
+    //            // Volume1,3
     //            // LPDWORD Volume1Array[0x100];
-    //            addr4000 = gVolume1Array[(unsigned __int8)gFixedRAM0[(unsigned __int8)io00_bank_switch]];
+    //            addr4000 = *(&gVolume1Array + (unsigned __int8)gFixedRAM0[io00_bank_switch]);
     //        else
     //            // b0 VSL0 == 0 (Volume select bit0)
-    //            // VolumeID[0~1] = 0
+    //            // Volume0,2
     //            // LPDWORD Volume0Array[0x100];
-    //            addr4000 = gVolume0Array[(unsigned __int8)gFixedRAM0[(unsigned __int8)io00_bank_switch]];
+    //            addr4000 = *(&gVolume0Array + (unsigned __int8)gFixedRAM0[io00_bank_switch]);
     //    }
     //    may4000ptr = addr4000;
-    //    Switch4000_BFFF(bank);                      // Fill lpRAM[2..5]
-    //    bbs = tmpAXYValue & 0xF;                    // bit0~bit3 = BBS0~BBS3
-    //    g__pRAMC000 = gBBSBankHeader[bbs];          // bios bank switch (C000~DFFF)
+    //    Switch4000_BFFF(bank);                  // Fill lpRAM[2..5]
+    //    g__pRAMC000 = gBBSBankHeader[tmpAXYValue & 0xF];// bit0~bit3 = BBS0~BBS3
+    //    // bios bank switch (C000~DFFF)
     //}
-    //return bbs;
     if (value != fixedram0000[io0A_roa]) {
         // Update memory pointers only on value changed
         unsigned char bank;
