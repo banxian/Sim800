@@ -38,7 +38,7 @@ public:
     bool IsProjectEmpty();
     bool IsProjectModified();
     void SwitchNorBank(int bank);
-    void Switch4000toBFFF(unsigned char bank);
+    void Switch4000toBFFF(unsigned char bank); // used 0A/0D value
     void InitInternalAddrs();
     bool StartEmulation();
     bool RunDemoBin(const QString& filename);

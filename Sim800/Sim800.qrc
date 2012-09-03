@@ -53,4 +53,36 @@
         <file>PpsDES/24x24-unofficetango/folder_tar.png</file>
         <file>PpsDES/24x24-unofficetango/gnome-mime-application-msword.png</file>
     </qresource>
+    <qresource prefix="/LCDStripe">
+        <file>PpsDES/lcdstripe/WQX_ALARM.png</file>
+        <file>PpsDES/lcdstripe/WQX_BATTERY.png</file>
+        <file>PpsDES/lcdstripe/WQX_CAPS.png</file>
+        <file>PpsDES/lcdstripe/WQX_DOWN.png</file>
+        <file>PpsDES/lcdstripe/WQX_ENG.png</file>
+        <file>PpsDES/lcdstripe/WQX_FLASH.png</file>
+        <file>PpsDES/lcdstripe/WQX_HBAR.png</file>
+        <file>PpsDES/lcdstripe/WQX_KEYCLICK.png</file>
+        <file>PpsDES/lcdstripe/WQX_LEFT.png</file>
+        <file>PpsDES/lcdstripe/WQX_LINE.png</file>
+        <file>PpsDES/lcdstripe/WQX_MICROPHONE.png</file>
+        <file>PpsDES/lcdstripe/WQX_MINUS.png</file>
+        <file>PpsDES/lcdstripe/WQX_NUM.png</file>
+        <file>PpsDES/lcdstripe/WQX_PGDOWN.png</file>
+        <file>PpsDES/lcdstripe/WQX_PGLEFT.png</file>
+        <file>PpsDES/lcdstripe/WQX_PGUP.png</file>
+        <file>PpsDES/lcdstripe/WQX_POINT.png</file>
+        <file>PpsDES/lcdstripe/WQX_RIGHT.png</file>
+        <file>PpsDES/lcdstripe/WQX_SECRET.png</file>
+        <file>PpsDES/lcdstripe/WQX_SEMICOLON.png</file>
+        <file>PpsDES/lcdstripe/WQX_SEVEN_H.png</file>
+        <file>PpsDES/lcdstripe/WQX_SEVEN_V.png</file>
+        <file>PpsDES/lcdstripe/WQX_SHARPBELL.png</file>
+        <file>PpsDES/lcdstripe/WQX_SOUND.png</file>
+        <file>PpsDES/lcdstripe/WQX_SPEAKER.png</file>
+        <file>PpsDES/lcdstripe/WQX_STAR.png</file>
+        <file>PpsDES/lcdstripe/WQX_TAPE.png</file>
+        <file>PpsDES/lcdstripe/WQX_UP.png</file>
+        <file>PpsDES/lcdstripe/WQX_VBAR.png</file>
+        <file>PpsDES/lcdstripe/WQX_VFRAME.png</file>
+    </qresource>
 </RCC>

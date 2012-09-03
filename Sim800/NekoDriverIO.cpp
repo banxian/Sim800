@@ -360,6 +360,13 @@ void __stdcall Write08Port0( BYTE write, BYTE value )
         }
         xbit = xbit << 1;
     }
+    // workaround?
+    if (row6data == 0xFF) {
+        row6data = 0;
+    }
+    if (row7data == 0xFF) {
+        row7data = 0;
+    }
     if (row6data == value || value == 0 || row7data == 0xFBu) {
         // newvalue fit to some hotkey in row6
         // or newvalue is 0 (all colume is 0)
@@ -387,6 +394,13 @@ void __stdcall Write09Port1( BYTE write, BYTE value )
             row7data |= xbit;
         }
         xbit = xbit << 1;
+    }
+    // workaround
+    if (row6data == 0xFF) {
+        row6data = 0;
+    }
+    if (row7data == 0xFF) {
+        row7data = 0;
     }
     byte port0bit01 = fixedram0000[io08_port0_data] & 3;
     if (value == 0) {

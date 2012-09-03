@@ -162,6 +162,7 @@ extern int prevtimer0value;
 int gDeadlockCounter = 0;
 extern bool lcdoffshift0flag;
 bool matrixupdated = false;
+long nmicount = 0;
 
 void Turnoff2HzNMIMaskAddIRQFlag();
 void CheckTimebaseAndEnableIRQnEXIE1();
@@ -188,14 +189,15 @@ void EmulatorThread::run()
 
         while (batchcount >= 0 && fKeeping) {
             //qDebug("PC:0x%04x, opcode: 0x%06x", regs.pc, (*(LPDWORD)(mem+regs.pc)) & 0xFFFFFF);
-            LogDisassembly(regs.pc, NULL);
+            //LogDisassembly(regs.pc, NULL);
             if (matrixupdated) {
                 matrixupdated = false;
                 AppendLog("keypadmatrix updated.");
             }
 
             unsigned int dummynow = GetTickCount();
-            if (dummynow - nmistart >= 500){
+            nmicount++;
+            if (/*nmicount % 400000 == 0/**/dummynow - nmistart >= 500){
                 // 2Hz NMI
                 // TODO: use batchcount as NMI
 #ifdef _DEBUG
@@ -211,17 +213,20 @@ void EmulatorThread::run()
 #endif
                 //nmi = 0; // next CpuExecute will execute two instructions
                 gThreadFlags |= 0x08; // Add NMIFlag
+                //nmicount = 0; // for merge
             }
 
+            // NMI > IRQ
             if ((gThreadFlags & 0x08) != 0) {
                 gThreadFlags &= 0xFFF7u; // remove 0x08 NMI Flag
                 nmi = 0; // next CpuExecute will execute two instructions
                 qDebug("ggv wanna NMI.");
-            }
-            if (((regs.ps & 0x4) == 0) && ((gThreadFlags & 0x10) != 0)) {
+                gDeadlockCounter--; // wrong behavior of wqxsim
+            } else if (((regs.ps & 0x4) == 0) && ((gThreadFlags & 0x10) != 0)) {
                 gThreadFlags &= 0xFFEFu; // remove 0x10 IRQ Flag
                 irq = 0; // B flag will remove in CpuExecute (AF_BREAK)
                 qDebug("ggv wanna IRQ.");
+                gDeadlockCounter--; // wrong behavior of wqxsim
             }
 
             DWORD CpuTicks = CpuExecute();
@@ -238,7 +243,7 @@ void EmulatorThread::run()
             if (gDeadlockCounter == 6000) {
                 // overflowed
                 gDeadlockCounter = 0;
-                if ((gThreadFlags & 0x80) == 0) {
+                if ((gThreadFlags & 0x80u) == 0) {
                     // CheckTimerbaseAndEnableIRQnEXIE1
                     CheckTimebaseAndEnableIRQnEXIE1();
                     if (timer0started) {
@@ -367,6 +372,7 @@ void EmulatorThread::run()
         //}
         if (memcmp(&fixedram0000[0x9C0], fLCDBuffer, 160*80/8) != 0) {
             memcpy(fLCDBuffer, &fixedram0000[0x9C0], 160*80/8);
+            qDebug("lcdBufferChanged");
             emit lcdBufferChanged(new QByteArray((const char*)fLCDBuffer, 160*80/8));
         }
         //emit stepFinished(regs.pc);

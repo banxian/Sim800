@@ -21,6 +21,7 @@ TMainFrm::TMainFrm(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::TMainFrm)
     , fDiscardRenameCheck(false)
+    , fLCDStripes(NULL)
 {
     ui->setupUi(this);
     LoadAppSettings();
@@ -85,6 +86,7 @@ TMainFrm::TMainFrm(QWidget *parent)
         widget->installEventFilter(this);
 
     initKeypad();
+    initLcdStripe();
 
     // connect
     QObject::connect(ui->keypadView, SIGNAL(resized(int, int)), this, SLOT(onKeypadSizeChanged(int, int)));
@@ -115,6 +117,7 @@ TMainFrm::~TMainFrm()
 
     SaveAppSettings();
     theNekoDriver->StopEmulation();
+    delete fLCDStripes;
     delete theNekoDriver;
     delete ui;
 }
@@ -263,6 +266,18 @@ void TMainFrm::onLCDBufferChanged( QByteArray* buffer )
     via.convertToFormat(QImage::Format_Indexed8);
     via.setColorTable(limelcdtable);
     via = via.scaled(320, 160);
+    // via is still mono
+    via = via.copy(-46, -2, 386, 164);
+    QPainter painter(&via);
+    painter.fillRect(46, 0, 2, 164, Qt::color0);
+    for (int i = 0; i < 80; i++)
+    {
+        TLCDStripe* item = &fLCDStripes[i];
+        char pixel = buffer->at((160/8) * i);
+        if (pixel < 0) {
+            painter.drawImage(item->left, item->top, item->bitmap);
+        }
+    }
     ui->lcdView->setPixmap(QPixmap::fromImage(via));
     ui->lcdView->repaint();
     delete buffer;
@@ -501,6 +516,335 @@ void TMainFrm::onMouseUp( int x1, int y1 )
     if (hitted) {
         repaintKeypad();
         updateKeypadMatrix();
+    }
+}
+
+void TMainFrm::initLcdStripe()
+{
+    QImage PageUp = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_PGUP.png");
+    QImage Star = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_STAR.png");
+    QImage Num = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_NUM.png");
+    QImage Eng = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_ENG.png");
+    QImage Caps = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_CAPS.png");
+    QImage Shift = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_SHIFT.png");
+    QImage Sound = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_SOUND.png");
+    QImage Flash = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_FLASH.png");
+    QImage SharpBell = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_SHARPBELL.png");
+    QImage KeyClick = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_KEYCLICK.png");
+    QImage Alaarm = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_ALARM.png");
+    QImage Speaker = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_SPEAKER.png");
+    QImage Tape = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_TAPE.png");
+    QImage Minus = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_MINUS.png");
+    QImage Battery = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_BATTERY.png");
+    QImage Secret = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_SECRET.png");
+    QImage PageLeft = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_PGLEFT.png");
+    QImage PageRight = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_PGRIGHT.png");
+    QImage PageDown = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_PGDOWN.png");
+    QImage Left = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_LEFT.png");
+    QImage HonzFrame = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_HFRAME.png");
+    QImage Microphone = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_MICROPHONE.png");
+    QImage HonzBar = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_HBAR.png");
+    QImage Right = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_RIGHT.png");
+    QImage SevenVert1 = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_SEVEN_V.png");
+    QImage SevenVert2 = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_SEVEN_V.png");
+    QImage SevenVert3 = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_SEVEN_V.png");
+    QImage SevenVert4 = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_SEVEN_V.png");
+    QImage SevenHonz1 = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_SEVEN_H.png");
+    QImage SevenHonz2 = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_SEVEN_H.png");
+    QImage SevenHonz3 = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_SEVEN_H.png");
+    QImage VertFrame = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_VFRAME.png");
+    QImage Up = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_UP.png");
+    QImage Down = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_DOWN.png");
+    QImage Line = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_LINE.png");
+    QImage VertBar = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_VBAR.png");
+    QImage SemiColon = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_SEMICOLON.png");
+    QImage Point = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_POINT.png");
+
+    fLCDStripes = new TLCDStripe[80];
+
+    fLCDStripes[0].bitmap = SevenVert3;
+    fLCDStripes[0].left = 4;
+    fLCDStripes[0].top = 3;
+    fLCDStripes[1].bitmap = SevenHonz1;
+    fLCDStripes[1].left = 4;
+    fLCDStripes[1].top = 3;
+    fLCDStripes[2].bitmap = SevenVert1;
+    fLCDStripes[2].left = 4;
+    fLCDStripes[2].top = 3;
+    fLCDStripes[3].bitmap = SevenHonz2;
+    fLCDStripes[3].left = 4;
+    fLCDStripes[3].top = 3;
+    fLCDStripes[4].bitmap = Line;
+    fLCDStripes[4].left = 369;
+    fLCDStripes[4].top = 9;
+    fLCDStripes[5].bitmap = SevenVert3;
+    fLCDStripes[5].left = 14;
+    fLCDStripes[5].top = 3;
+    fLCDStripes[6].bitmap = SevenHonz1;
+    fLCDStripes[6].left = 14;
+    fLCDStripes[6].top = 3;
+    fLCDStripes[7].bitmap = SevenVert1;
+    fLCDStripes[7].left = 14;
+    fLCDStripes[7].top = 3;
+    fLCDStripes[8].bitmap = SevenHonz2;
+    fLCDStripes[8].left = 14;
+    fLCDStripes[8].top = 3;
+    fLCDStripes[9].bitmap = SemiColon;
+    fLCDStripes[9].left = 23;
+    fLCDStripes[9].top = 5;
+    fLCDStripes[10].bitmap = SevenVert3;
+    fLCDStripes[10].left = 27;
+    fLCDStripes[10].top = 3;
+    fLCDStripes[11].bitmap = SevenHonz1;
+    fLCDStripes[11].left = 27;
+    fLCDStripes[11].top = 3;
+    fLCDStripes[12].bitmap = Line;
+    fLCDStripes[12].left = 369;
+    fLCDStripes[12].top = 23;
+    fLCDStripes[13].left = 27;
+    fLCDStripes[13].bitmap = SevenVert1;
+    fLCDStripes[14].bitmap = SevenHonz2;
+    fLCDStripes[15].bitmap = SevenVert3;
+    fLCDStripes[16].bitmap = SevenHonz1;
+    fLCDStripes[17].bitmap = SevenVert1;
+    fLCDStripes[18].bitmap = SevenHonz2;
+    fLCDStripes[19].bitmap = SevenVert2;
+    fLCDStripes[21].bitmap = SevenHonz3;
+    fLCDStripes[22].bitmap = SevenVert4;
+    fLCDStripes[23].bitmap = Point;
+    fLCDStripes[24].bitmap = SevenVert2;
+    fLCDStripes[25].bitmap = SevenHonz3;
+    fLCDStripes[13].top = 3;
+    fLCDStripes[14].left = 27;
+    fLCDStripes[14].top = 3;
+    fLCDStripes[15].left = 37;
+    fLCDStripes[15].top = 3;
+    fLCDStripes[16].left = 37;
+    fLCDStripes[16].top = 3;
+    fLCDStripes[17].left = 37;
+    fLCDStripes[17].top = 3;
+    fLCDStripes[18].left = 37;
+    fLCDStripes[18].top = 3;
+    fLCDStripes[19].left = 37;
+    fLCDStripes[19].top = 3;
+    fLCDStripes[20].bitmap = Line;
+    fLCDStripes[20].left = 369;
+    fLCDStripes[20].top = 41;
+    fLCDStripes[21].left = 37;
+    fLCDStripes[21].top = 3;
+    fLCDStripes[22].left = 37;
+    fLCDStripes[22].top = 3;
+    fLCDStripes[23].left = 35;
+    fLCDStripes[23].top = 19;
+    fLCDStripes[24].left = 27;
+    fLCDStripes[24].top = 3;
+    fLCDStripes[25].left = 27;
+    fLCDStripes[25].top = 3;
+    fLCDStripes[26].bitmap = SevenVert4;
+    fLCDStripes[26].left = 27;
+    fLCDStripes[26].top = 3;
+    fLCDStripes[27].bitmap = Point;
+    fLCDStripes[29].bitmap = SevenVert2;
+    fLCDStripes[30].bitmap = SevenHonz3;
+    fLCDStripes[29].top = 3;
+    fLCDStripes[30].top = 3;
+    fLCDStripes[31].bitmap = SevenVert4;
+    fLCDStripes[31].top = 3;
+    fLCDStripes[33].top = 3;
+    fLCDStripes[34].top = 3;
+    fLCDStripes[35].top = 3;
+    fLCDStripes[32].bitmap = Point;
+    fLCDStripes[37].bitmap = Star;
+    fLCDStripes[33].bitmap = SevenVert2;
+    fLCDStripes[37].top = 23;
+    fLCDStripes[38].top = 23;
+    fLCDStripes[34].bitmap = SevenHonz3;
+    fLCDStripes[38].bitmap = PageUp;
+    fLCDStripes[39].bitmap = Num;
+    fLCDStripes[27].left = 23;
+    fLCDStripes[27].top = 19;
+    fLCDStripes[28].bitmap = Line;
+    fLCDStripes[28].left = 369;
+    fLCDStripes[28].top = 55;
+    fLCDStripes[29].left = 14;
+    fLCDStripes[30].left = 14;
+    fLCDStripes[31].left = 14;
+    fLCDStripes[32].left = 12;
+    fLCDStripes[32].top = 19;
+    fLCDStripes[33].left = 4;
+    fLCDStripes[34].left = 4;
+    fLCDStripes[35].bitmap = SevenVert4;
+    fLCDStripes[35].left = 4;
+    fLCDStripes[36].bitmap = Line;
+    fLCDStripes[36].left = 369;
+    fLCDStripes[36].top = 73;
+    fLCDStripes[37].left = 29;
+    fLCDStripes[38].left = 17;
+    fLCDStripes[39].left = 15;
+    fLCDStripes[39].top = 34;
+    fLCDStripes[40].bitmap = Eng;
+    fLCDStripes[41].bitmap = Caps;
+    fLCDStripes[43].top = 32;
+    fLCDStripes[46].bitmap = Flash;
+    fLCDStripes[47].bitmap = Sound;
+    fLCDStripes[48].bitmap = KeyClick;
+    fLCDStripes[49].bitmap = Alaarm;
+    fLCDStripes[40].left = 15;
+    fLCDStripes[50].bitmap = Speaker;
+    fLCDStripes[51].bitmap = SharpBell;
+    fLCDStripes[41].left = 15;
+    fLCDStripes[42].bitmap = Shift;
+    fLCDStripes[42].left = 15;
+    fLCDStripes[51].left = 15;
+    fLCDStripes[40].top = 43;
+    fLCDStripes[41].top = 52;
+    fLCDStripes[42].top = 62;
+    fLCDStripes[43].bitmap = VertBar;
+    fLCDStripes[43].left = 6;
+    fLCDStripes[44].bitmap = Line;
+    fLCDStripes[44].left = 369;
+    fLCDStripes[44].top = 87;
+    fLCDStripes[45].bitmap = VertBar;
+    fLCDStripes[45].left = 6;
+    fLCDStripes[45].top = 44;
+    fLCDStripes[46].left = 30;
+    fLCDStripes[46].top = 72;
+    fLCDStripes[47].left = 15;
+    fLCDStripes[47].top = 72;
+    fLCDStripes[48].left = 32;
+    fLCDStripes[48].top = 85;
+    fLCDStripes[49].left = 15;
+    fLCDStripes[49].top = 96;
+    fLCDStripes[50].left = 30;
+    fLCDStripes[50].top = 96;
+    fLCDStripes[51].top = 85;
+    fLCDStripes[52].bitmap = Line;
+    fLCDStripes[52].left = 369;
+    fLCDStripes[52].top = 105;
+    fLCDStripes[53].bitmap = Microphone;
+    fLCDStripes[53].left = 30;
+    fLCDStripes[53].top = 107;
+    fLCDStripes[54].bitmap = Tape;
+    fLCDStripes[55].bitmap = Minus;
+    fLCDStripes[58].bitmap = Battery;
+    fLCDStripes[59].bitmap = Secret;
+    fLCDStripes[61].bitmap = PageLeft;
+    fLCDStripes[62].bitmap = PageRight;
+    fLCDStripes[63].bitmap = Left;
+    fLCDStripes[64].bitmap = PageDown;
+    fLCDStripes[65].bitmap = VertFrame;
+    fLCDStripes[66].bitmap = Down;
+    fLCDStripes[54].left = 15;
+    fLCDStripes[54].top = 107;
+    fLCDStripes[55].left = 15;
+    fLCDStripes[55].top = 116;
+    fLCDStripes[56].bitmap = VertBar;
+    fLCDStripes[56].left = 6;
+    fLCDStripes[56].top = 56;
+    fLCDStripes[57].bitmap = VertBar;
+    fLCDStripes[57].left = 6;
+    fLCDStripes[57].top = 92;
+    fLCDStripes[58].left = 15;
+    fLCDStripes[58].top = 121;
+    fLCDStripes[59].left = 30;
+    fLCDStripes[59].top = 121;
+    fLCDStripes[60].bitmap = Line;
+    fLCDStripes[60].left = 369;
+    fLCDStripes[60].top = 119;
+    fLCDStripes[61].left = 15;
+    fLCDStripes[61].top = 130;
+    fLCDStripes[62].left = 32;
+    fLCDStripes[62].top = 130;
+    fLCDStripes[63].left = 35;
+    fLCDStripes[63].top = 142;
+    fLCDStripes[64].left = 17;
+    fLCDStripes[64].top = 140;
+    fLCDStripes[65].left = 4;
+    fLCDStripes[65].top = 23;
+    fLCDStripes[66].left = 5;
+    fLCDStripes[66].top = 141;
+    fLCDStripes[67].bitmap = HonzBar;
+    fLCDStripes[67].left = 13;
+    fLCDStripes[69].bitmap = HonzBar;
+    fLCDStripes[70].bitmap = Right;
+    fLCDStripes[71].bitmap = HonzBar;
+    fLCDStripes[73].bitmap = VertBar;
+    fLCDStripes[75].bitmap = VertBar;
+    fLCDStripes[76].bitmap = VertBar;
+    fLCDStripes[77].bitmap = VertBar;
+    fLCDStripes[78].bitmap = VertBar;
+    fLCDStripes[72].bitmap = HonzFrame;
+    fLCDStripes[79].bitmap = Up;
+    fLCDStripes[67].top = 152;
+    fLCDStripes[68].bitmap = Line;
+    fLCDStripes[68].left = 369;
+    fLCDStripes[68].top = 137;
+    fLCDStripes[69].left = 23;
+    fLCDStripes[69].top = 152;
+    fLCDStripes[70].left = 369;
+    fLCDStripes[70].top = 142;
+    fLCDStripes[71].left = 33;
+    fLCDStripes[71].top = 152;
+    fLCDStripes[72].left = 5;
+    fLCDStripes[72].top = 151;
+    fLCDStripes[73].left = 6;
+    fLCDStripes[73].top = 128;
+    fLCDStripes[74].bitmap = Line;
+    fLCDStripes[74].left = 369;
+    fLCDStripes[74].top = 151;
+    fLCDStripes[75].left = 6;
+    fLCDStripes[75].top = 116;
+    fLCDStripes[76].left = 6;
+    fLCDStripes[76].top = 104;
+    fLCDStripes[77].left = 6;
+    fLCDStripes[77].top = 80;
+    fLCDStripes[78].left = 6;
+    fLCDStripes[78].top = 68;
+    fLCDStripes[79].left = 5;
+    fLCDStripes[79].top = 24;
+
+    for (int i = 0; i < 80; i++)
+    {
+//        bitmap = (void *)*(pleft - 1);
+//        if ( bitmap == sevenvert1 )
+//        {
+//            *pleft += 6;
+//            goto LABEL_16;
+//        }
+//        if ( bitmap == g_hSevenVert2 )
+//        {
+//            *pleft += 6;
+//LABEL_14:
+//            top = pleft[1] + 9;
+//LABEL_15:
+//            pleft[1] = top;
+//            goto LABEL_16;
+//        }
+//        if ( bitmap == g_hSevenHonz3 )
+//        {
+//            top = pleft[1] + 18;
+//            goto LABEL_15;
+//        }
+//        if ( bitmap == g_hSevenVert4 || bitmap == g_hSevenHonz2 )
+//            goto LABEL_14;
+//LABEL_16:
+//        left = *pleft;
+//        pleft += 5;
+//        *(pleft - 5) = left + 21;               // prev left
+//        --loopcount;
+//        *(pleft - 4) += 25;                     // prev top
+        TLCDStripe* item = &fLCDStripes[i];
+        QImage* bitmap = &item->bitmap;
+        if ( i == 2 || i == 7 || i == 13 || i == 17 ) {
+            item->left += 6;
+        } else if ( i == 19 || i == 24 || i == 29 || i == 33 ) {
+            item->left += 6;
+            item->top += 9;
+        } else if ( i == 21 || i == 25 || i == 30 || i == 34 ) {
+            item->top += 18;
+        } else if ( i == 22 || i == 26 || i == 31 || i == 35 || i == 3 || i == 8 || i == 14 || i == 18 ) {
+            item->top += 9;
+        }
     }
 }
 

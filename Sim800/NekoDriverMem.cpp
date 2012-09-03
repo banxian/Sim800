@@ -484,10 +484,10 @@ void __stdcall Write0AROABBS( BYTE write, BYTE value )
     if (value != fixedram0000[io0A_roa]) {
         // Update memory pointers only on value changed
         unsigned char bank;
-        if (value & 0x80) {
+        if (value & 0x80u) {
             // ROA == 1
             // RAM (norflash)
-            bank = fixedram0000[io00_bank_switch] & 0xF; // bank = 0~F
+            bank = (fixedram0000[io00_bank_switch] & 0xF); // bank = 0~F
             may4000ptr = norbankheader[bank];
         } else {
             // ROA == 0
@@ -501,11 +501,12 @@ void __stdcall Write0AROABBS( BYTE write, BYTE value )
                 may4000ptr = volume0array[bank];
             }
         }
+        fixedram0000[io0A_roa] = value;
         theNekoDriver->Switch4000toBFFF(bank);
         pmemmap[mapC000] = bbsbankheader[value & 0xF];
     }
     // in simulator destination memory is updated before call WriteIO0A_ROA_BBS
-    fixedram0000[io0A_roa] = value;
+    //fixedram0000[io0A_roa] = value;
     (void)write;
 }
 

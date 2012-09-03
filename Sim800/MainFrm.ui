@@ -61,8 +61,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>338</width>
-             <height>178</height>
+             <width>404</width>
+             <height>182</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout">
@@ -70,14 +70,14 @@
              <widget class="QLabel" name="lcdView">
               <property name="minimumSize">
                <size>
-                <width>320</width>
-                <height>160</height>
+                <width>386</width>
+                <height>164</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>320</width>
-                <height>160</height>
+                <width>386</width>
+                <height>164</height>
                </size>
               </property>
              </widget>

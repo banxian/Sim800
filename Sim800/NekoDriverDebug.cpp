@@ -418,7 +418,7 @@ WORD LogDisassembly ( WORD offset, LPTSTR text )
     //    // Reset
     //    logpos = 0;
     //}
-    if (logpos > 102400*50 - 50) {
+    if (logpos > 102400*50 - 80) {
         fwrite(logbuff, logpos, 1, logfile);
         fflush(logfile);
         logpos = 0;

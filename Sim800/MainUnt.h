@@ -9,8 +9,15 @@
 #include "Common.h"
 #include <QtGui/QLabel>
 #include <QtGui/QProgressbar>
+#include <QtGui/QImage>
 #include <QtCore/QTranslator>
 #include "KeypadUnt.h"
+
+
+typedef struct tagLCDStripe {
+    QImage bitmap;
+    int left, top;
+} TLCDStripe;
 
 
 namespace Ui {
@@ -40,6 +47,7 @@ private:
     QString fLastLangCode;
     QSet<Qt::Key> fPressedKeys;
     TKeyItem* fKeyItems[8][8];
+    TLCDStripe* fLCDStripes;
 private:
     //void TryAcceptDrop( QFileInfo &info, int maxdepth, int &bypasscount, int &acceptcount );
     //void TryAcceptPages( QFileInfo &info, int maxdepth, int chapterindex, int &bypasscount, int &acceptcount );
@@ -47,6 +55,7 @@ private:
     void initKeypad();
     void repaintKeypad();
     void updateKeypadMatrix();
+    void initLcdStripe();
 
 protected:
     virtual bool eventFilter(QObject*, QEvent*);

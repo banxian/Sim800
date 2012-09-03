@@ -50,17 +50,19 @@
                      iowrite[addr & 0xFF]((BYTE)(addr & 0xff),(BYTE)(a));   \
                  }
 // dangerous!! FFFE/FFFF may not in same stripe
+// remove/add AF_BREAK to ps can not restore original AF_BREAK
+/*regs.ps |= AF_BREAK;*/
+//SEI not in stack (dangerous!)
 #define IRQ  {  if (wai) {regs.pc++; wai = 0;}				    \
 				if (!(regs.ps & AF_INTERRUPT)) { 				    \
-			   PUSH(regs.pc >> 8)                                     \
+			        PUSH(regs.pc >> 8)                                     \
                      PUSH(regs.pc & 0xFF)                                   \
-                     SEI                                                    \
 			   EF_TO_AF      												\
-			   		 regs.ps &= ~AF_BREAK;                                  \
+                     regs.ps &= ~AF_BREAK;                                  \
                      PUSH(regs.ps)                                          \
-					 regs.ps |= AF_BREAK;                                   \
-  			   regs.pc = *(LPWORD)(pmemmap[7]+0x1FFE); CYC(7)                \
-                     } 									    \
+  			   regs.pc = *(LPWORD)(pmemmap[7]+0x1FFE); CYC(7)               \
+                    SEI                                                    \
+                } 									    \
 			 }
 // TODO: avoid cross stripe using SHR |
 #define NMI  {   if (wai) {regs.pc++; wai = 0; }                           \
@@ -186,6 +188,7 @@
 #define BPL      if (!flagn) { regs.pc += addr; CYC(1) }
 #define BRA      regs.pc += addr;
 // assume 1FFE/1FFF in same stripe
+// add AF_BREAK to real ps is wrong style
 #define BRK      PUSH(++regs.pc >> 8)                                       \
                  PUSH(regs.pc & 0xFF)                                       \
                  EF_TO_AF                                                   \
@@ -263,8 +266,9 @@
 #define PHY      PUSH(regs.y)
 #define PLA      regs.a = POP;                                              \
                  SETNZ(regs.a)
+// no necessary for PLP?
+//regs.ps |= AF_BREAK;										
 #define PLP      regs.ps = POP;                                             \
-				 regs.ps |= AF_BREAK;										\
                  AF_TO_EF
 #define PLX      regs.x = POP;                                              \
                  SETNZ(regs.x)
@@ -311,8 +315,9 @@
                  flagc  = regs.a & 1;                                       \
                  regs.a = val & 0xFF;                                       \
                  SETNZ(regs.a)
+// AF_BREAK is not set on wqxsim
+//regs.ps |= AF_BREAK;
 #define RTI      regs.ps = POP;                                             \
-				 regs.ps |= AF_BREAK;										\
 	             CLI														\
 				 irq = 1;                                                   \
 				 AF_TO_EF                                                   \
