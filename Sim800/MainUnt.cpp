@@ -87,6 +87,8 @@ TMainFrm::TMainFrm(QWidget *parent)
 
     initKeypad();
     initLcdStripe();
+    QByteArray* dummybuf = new QByteArray(160*80/8, 0xFFu);
+    onLCDBufferChanged(dummybuf);
 
     // connect
     QObject::connect(ui->keypadView, SIGNAL(resized(int, int)), this, SLOT(onKeypadSizeChanged(int, int)));
@@ -117,7 +119,7 @@ TMainFrm::~TMainFrm()
 
     SaveAppSettings();
     theNekoDriver->StopEmulation();
-    delete fLCDStripes;
+    delete[] fLCDStripes;
     delete theNekoDriver;
     delete ui;
 }
@@ -139,11 +141,6 @@ void TMainFrm::StoreTranslator( QTranslator* translator )
     fTranslator = translator;
 }
 
-
-void TMainFrm::onReadyBuildBook()
-{
-
-}
 
 void TMainFrm::onLanguageEnglishClicked()
 {
@@ -255,6 +252,7 @@ void TMainFrm::onStepFinished( quint16 pc )
     //action->setText(QString(tr("PC:%1")).arg(ushort(pc), 4, 16, QLatin1Char('0')));
 }
 
+
 void TMainFrm::onLCDBufferChanged( QByteArray* buffer )
 {
     QImage via(160, 80, QImage::Format_Mono);
@@ -270,18 +268,28 @@ void TMainFrm::onLCDBufferChanged( QByteArray* buffer )
     via = via.copy(-46, -2, 386, 164);
     QPainter painter(&via);
     painter.fillRect(46, 0, 2, 164, Qt::color0);
-    for (int i = 0; i < 80; i++)
+    DrawStripe(65, buffer, painter);
+    for (int i = 79; i >= 0; i--)
     {
-        TLCDStripe* item = &fLCDStripes[i];
-        char pixel = buffer->at((160/8) * i);
-        if (pixel < 0) {
-            painter.drawImage(item->left, item->top, item->bitmap);
+        if (i != 65) {
+            DrawStripe(i, buffer, painter);
         }
     }
+    painter.end();
     ui->lcdView->setPixmap(QPixmap::fromImage(via));
     ui->lcdView->repaint();
     delete buffer;
 }
+
+void TMainFrm::DrawStripe( int i, QByteArray* buffer, QPainter &painter )
+{
+    TLCDStripe* item = &fLCDStripes[i];
+    char pixel = buffer->at((160/8) * i);
+    if (pixel < 0) {
+        painter.drawImage(item->left, item->top, item->bitmap);
+    }
+}
+
 
 void TMainFrm::keyPressEvent( QKeyEvent * ev )
 {
@@ -834,7 +842,7 @@ void TMainFrm::initLcdStripe()
 //        --loopcount;
 //        *(pleft - 4) += 25;                     // prev top
         TLCDStripe* item = &fLCDStripes[i];
-        QImage* bitmap = &item->bitmap;
+        //QImage* bitmap = &item->bitmap;
         if ( i == 2 || i == 7 || i == 13 || i == 17 ) {
             item->left += 6;
         } else if ( i == 19 || i == 24 || i == 29 || i == 33 ) {

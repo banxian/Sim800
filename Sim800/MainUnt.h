@@ -56,6 +56,7 @@ private:
     void repaintKeypad();
     void updateKeypadMatrix();
     void initLcdStripe();
+    void DrawStripe( int i, QByteArray* buffer, QPainter &painter );
 
 protected:
     virtual bool eventFilter(QObject*, QEvent*);
@@ -78,9 +79,9 @@ private slots:
     
 public slots:
     void writeLog(QString content, TLogType logtype = ltMessage);
-    void onReadyBuildBook();
     void onStepFinished(quint16 pc);
     void onLCDBufferChanged(QByteArray* buffer);
+
 };
 
 QString LogTypeToString( TLogType logtype );
