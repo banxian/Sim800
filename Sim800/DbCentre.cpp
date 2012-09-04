@@ -22,7 +22,7 @@ void LoadAppSettings( void )
 
     StateSetting.WindowMaxium = settings.value("State/WindowMaxium", true).toBool();
     StateSetting.MainFrmState = settings.value("State/MainFrmState", QByteArray()).toByteArray();
-    StateSetting.RegisterLayoutState = settings.value("State/RegisterLayoutState", QByteArray()).toByteArray();
+    StateSetting.KeypadLayoutState = settings.value("State/KeypadLayoutState", QByteArray()).toByteArray();
     StateSetting.MessageLayoutState = settings.value("State/MessageLayoutState", QByteArray()).toByteArray();
 
     StateSetting.RegEditorMaxium = settings.value("State/RegEditorMaxium", true).toBool();
@@ -58,7 +58,7 @@ void SaveAppSettings( void )
     settings.beginGroup("State");
     settings.setValue("WindowMaxium", StateSetting.WindowMaxium);
     settings.setValue("MainFrmState", StateSetting.MainFrmState);
-    settings.setValue("RegisterLayoutState", StateSetting.RegisterLayoutState);
+    settings.setValue("KeypadLayoutState", StateSetting.KeypadLayoutState);
     settings.setValue("MessageLayoutState", StateSetting.MessageLayoutState);
 
     settings.setValue("RegEditorMaxium", StateSetting.RegEditorMaxium);

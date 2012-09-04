@@ -22,7 +22,7 @@ typedef struct tagPathRecItem {
 typedef struct tagStateRecItem {
     bool WindowMaxium;
     QByteArray MainFrmState;
-    QByteArray RegisterLayoutState;
+    QByteArray KeypadLayoutState;
     QByteArray MessageLayoutState;
     bool RegEditorMaxium;
     QByteArray RegFrmState;

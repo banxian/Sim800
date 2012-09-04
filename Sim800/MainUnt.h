@@ -48,6 +48,7 @@ private:
     QSet<Qt::Key> fPressedKeys;
     TKeyItem* fKeyItems[8][8];
     TLCDStripe* fLCDStripes;
+    QImage fLCDEmpty, fLCDPixel;
 private:
     //void TryAcceptDrop( QFileInfo &info, int maxdepth, int &bypasscount, int &acceptcount );
     //void TryAcceptPages( QFileInfo &info, int maxdepth, int chapterindex, int &bypasscount, int &acceptcount );
@@ -78,7 +79,7 @@ private slots:
     void onMouseUp(int x, int y);
     
 public slots:
-    void writeLog(QString content, TLogType logtype = ltMessage);
+    //void writeLog(QString content, TLogType logtype = ltMessage);
     void onStepFinished(quint16 pc);
     void onLCDBufferChanged(QByteArray* buffer);
 

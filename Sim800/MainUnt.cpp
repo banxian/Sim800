@@ -33,27 +33,12 @@ TMainFrm::TMainFrm(QWidget *parent)
     if (StateSetting.MainFrmState.isEmpty() == false) {
         restoreState(StateSetting.MainFrmState);
     }
-    if (StateSetting.RegisterLayoutState.isEmpty() == false) {
-        ui->splitterforregister->restoreState(StateSetting.RegisterLayoutState);
+    if (StateSetting.KeypadLayoutState.isEmpty() == false) {
+        ui->splitterforkeypad->restoreState(StateSetting.KeypadLayoutState);
     }
-    if (StateSetting.MessageLayoutState.isEmpty() == false) {
-        ui->splitterforoutput->restoreState(StateSetting.MessageLayoutState);
-    }
-    ui->logView->horizontalHeader()->resizeSection(0, 60);
-    ui->logView->horizontalHeader()->resizeSection(1, 80);
 
     // chibimaho do koneko
-    // TODO: move initialize to main
-    //theNekoDriver = new TNekoDriver(this);
-    //theNekoDriver->SetDoublePageMode(MangaDoublePageMode(GlobalSetting.SplitPage));
-    //fBookInfo.EnhanceLevel = GlobalSetting.EnhanceLevel;
-    //fBookInfo.InternalCodec = GlobalSetting.OutputFormat;
-    //fBookInfo.PageSize = GlobalSetting.OutputResolution;
-
-    // QtDesigner const bug
-    //QObject::connect(ui.projectView, SIGNAL(dropChanged(const QMimeData*)),
-    //    this, SLOT(onProjectDropfiles(const QMimeData*)));
-    QApplication::setApplicationName(tr("MangaBook"));
+    QApplication::setApplicationName(tr("SIM800"));
 
 #ifndef _DEBUG
     // Nuke debug functions
@@ -100,8 +85,8 @@ TMainFrm::~TMainFrm()
 {
     StateSetting.WindowMaxium = windowState() == Qt::WindowMaximized;
     StateSetting.MainFrmState = saveState();
-    StateSetting.RegisterLayoutState = ui->splitterforregister->saveState();
-    StateSetting.MessageLayoutState = ui->splitterforoutput->saveState();
+    StateSetting.KeypadLayoutState = ui->splitterforkeypad->saveState();
+    //StateSetting.MessageLayoutState = ui->splitterforoutput->saveState();
 
     FILTERKEYS oldfilterkeys;
     oldfilterkeys.cbSize = sizeof FILTERKEYS;
@@ -182,35 +167,6 @@ void TMainFrm::onHelpContentsClicked()
     QDesktopServices::openUrl(smartchmname);
 }
 
-void TMainFrm::writeLog( QString content, TLogType logtype /*= ltMessage*/ )
-{
-    if (content.isEmpty()) {
-        content = "NULL";
-    }
-    QStringList list;
-    list = content.split("\n");
-    for (QStringList::iterator it = list.begin(); it != list.end(); it++) {
-        if ((*it).isEmpty() && it + 1 == list.end()) {
-            break;
-        }
-        int prevrowcount = ui->logView->rowCount();
-        ui->logView->setRowCount(prevrowcount + 1);
-        QTableWidgetItem *item;
-        item = new QTableWidgetItem(QDateTime::currentDateTime().toString("hh:mm:ss"));
-        ui->logView->setItem(prevrowcount, 0, item);
-        item = new QTableWidgetItem(LogTypeToString(logtype));
-        ui->logView->setItem(prevrowcount, 1, item);
-        item = new QTableWidgetItem(*it);
-        ui->logView->setItem(prevrowcount, 2, item);
-
-        ui->logView->scrollToItem(item);
-    }
-    if (ui->logView->rowCount() < 80) {
-        //ui->logView->resizeRowsToContents();
-        //ui->logView->resizeColumnsToContents();
-    }
-}
-
 void TMainFrm::onBenchmarkClicked()
 {
 
@@ -255,25 +211,61 @@ void TMainFrm::onStepFinished( quint16 pc )
 
 void TMainFrm::onLCDBufferChanged( QByteArray* buffer )
 {
-    QImage via(160, 80, QImage::Format_Mono);
-    memcpy(via.bits(), buffer->data(), 160 * 80 / 8);
+    // TODO: Anti alias
+    QImage via(768, 324, QImage::Format_Mono);
+    via.fill(Qt::color0); // workaround
     QVector < QRgb > limelcdtable;
     limelcdtable.append(0xFFFFFDE8);
     limelcdtable.append(0xFF32284A);
 
-    via.convertToFormat(QImage::Format_Indexed8);
     via.setColorTable(limelcdtable);
-    via = via.scaled(320, 160);
-    // via is still mono
-    via = via.copy(-46, -2, 386, 164);
     QPainter painter(&via);
-    painter.fillRect(46, 0, 2, 164, Qt::color0);
     DrawStripe(65, buffer, painter);
-    for (int i = 79; i >= 0; i--)
+    for (int y = 79; y >= 0; y--)
     {
-        if (i != 65) {
-            DrawStripe(i, buffer, painter);
+        if (y != 65) {
+            DrawStripe(y, buffer, painter);
         }
+    }
+    painter.end();
+    via = via.convertToFormat(QImage::Format_RGB32);
+    painter.begin(&via);
+    painter.fillRect(QRect(94, 2, 159*4, 80*4), QColor(0xFFFFFCDE));
+    int index = 0;
+    int yp = 2;
+    for (int y = 0; y < 80; y++) {
+        int xp = 94 - 4;
+        for (int i = 0; i < 160 / 8; i++) {
+            const unsigned char pixel = static_cast<const unsigned char>(buffer->at(index));
+            // try to shrink jump cost
+            if (i && (pixel & 0x80u)) {
+                painter.drawImage(xp, yp, fLCDPixel);
+            }
+            if (pixel & 0x40) {
+                painter.drawImage(xp + 4, yp, fLCDPixel);
+            }
+            if (pixel & 0x20) {
+                painter.drawImage(xp + 8, yp, fLCDPixel);
+            }
+            if (pixel & 0x10) {
+                painter.drawImage(xp + 12, yp, fLCDPixel);
+            }
+            if (pixel & 0x08) {
+                painter.drawImage(xp + 16, yp, fLCDPixel);
+            }
+            if (pixel & 0x04) {
+                painter.drawImage(xp + 20, yp, fLCDPixel);
+            }
+            if (pixel & 0x02) {
+                painter.drawImage(xp + 24, yp, fLCDPixel);
+            }
+            if (pixel & 0x01) {
+                painter.drawImage(xp + 28, yp, fLCDPixel);
+            }
+            xp += 32;
+            index++;
+        }
+        yp += 4;
     }
     painter.end();
     ui->lcdView->setPixmap(QPixmap::fromImage(via));
@@ -283,10 +275,10 @@ void TMainFrm::onLCDBufferChanged( QByteArray* buffer )
 
 void TMainFrm::DrawStripe( int i, QByteArray* buffer, QPainter &painter )
 {
-    TLCDStripe* item = &fLCDStripes[i];
     char pixel = buffer->at((160/8) * i);
     if (pixel < 0) {
-        painter.drawImage(item->left, item->top, item->bitmap);
+        TLCDStripe* item = &fLCDStripes[i];
+        painter.drawImage(QRect(item->left * 2 - 2, item->top * 2 - 2, item->bitmap.width() * 2, item->bitmap.height() * 2), item->bitmap);
     }
 }
 
@@ -567,6 +559,8 @@ void TMainFrm::initLcdStripe()
     QImage VertBar = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_VBAR.png");
     QImage SemiColon = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_SEMICOLON.png");
     QImage Point = QImage(":/LCDStripe/PpsDES/lcdstripe/WQX_POINT.png");
+    fLCDPixel = QImage(":/LCDStripe/PpsDES/lcdstripe/lcdpixel.png");
+    fLCDEmpty = QImage(":/LCDStripe/PpsDES/lcdstripe/lcdempty.png");
 
     fLCDStripes = new TLCDStripe[80];
 
