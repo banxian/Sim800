@@ -34,9 +34,10 @@ private:
     bool fPressed;
     bool fHold;
     QString fGraphic;
-    int fMatchedKeycode;
+    QSet<int> fMatchedKeycodes;
     QRect fRect;
 public:
+    void addKeycode(int matchedkeycode);
     void setRect(const QRect& rect);
     bool inRect(const QPoint& point);
     void paintSelf(QImage& image);

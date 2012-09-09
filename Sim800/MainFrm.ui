@@ -30,7 +30,7 @@
           <x>0</x>
           <y>0</y>
           <width>787</width>
-          <height>345</height>
+          <height>420</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout">
@@ -106,7 +106,7 @@
   </action>
   <action name="actionEmulationTest">
    <property name="text">
-    <string>Test</string>
+    <string>Boot FC bin</string>
    </property>
   </action>
  </widget>

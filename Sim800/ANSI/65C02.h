@@ -65,6 +65,7 @@ typedef struct _regsrec {
 extern DWORD      autoboot;
 extern iofunction1 ioread[0x40];
 extern iofunction2 iowrite[0x40];
+extern void checkflashprogram(WORD addr, BYTE data);
 
 // extern LPBYTE     mem;
 extern unsigned char fixedram0000[0x10002]; // just like simulator

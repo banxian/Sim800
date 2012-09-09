@@ -44,9 +44,14 @@
 #define SETZ(a)  flagz = !(a & 0xFF);
 #define TOBCD(a) (((((a)/10) % 10) << 4) | ((a) % 10))
 #define TOBIN(a) (((a) >> 4)*10 + ((a) & 0x0F))
-#define WRITE(a) { if ((addr >= iorange))                                    \
-                     *(pmemmap[addr >> 0xD] + (addr & 0x1FFF)) = (BYTE)(a);                               \
-                   else                                                     \
+// Check flash
+#define WRITE(a) { if ((addr >= iorange)) { \
+                     if ((addr < 0x4000)) { \
+                       *(pmemmap[addr >> 0xD] + (addr & 0x1FFF)) = (BYTE)(a); \
+                     } else { \
+                       checkflashprogram(addr, (BYTE)(a)); \
+                     } \
+                   }  else                                                     \
                      iowrite[addr & 0xFF]((BYTE)(addr & 0xff),(BYTE)(a));   \
                  }
 // dangerous!! FFFE/FFFF may not in same stripe

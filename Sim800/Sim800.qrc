@@ -88,5 +88,6 @@
         <file>PpsDES/lcdstripe/WQX_PGRIGHT.png</file>
         <file>PpsDES/lcdstripe/WQX_SHIFT.png</file>
         <file>PpsDES/lcdstripe/lcdpixel.png</file>
+        <file>PpsDES/lcdstripe/lcdempty.png</file>
     </qresource>
 </RCC>

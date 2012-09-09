@@ -72,8 +72,8 @@ TMainFrm::TMainFrm(QWidget *parent)
 
     initKeypad();
     initLcdStripe();
-    QByteArray* dummybuf = new QByteArray(160*80/8, 0xFFu);
-    onLCDBufferChanged(dummybuf);
+    //QByteArray* dummybuf = new QByteArray(160*80/8, 0xFFu);
+    //onLCDBufferChanged(dummybuf);
 
     // connect
     QObject::connect(ui->keypadView, SIGNAL(resized(int, int)), this, SLOT(onKeypadSizeChanged(int, int)));
@@ -212,13 +212,17 @@ void TMainFrm::onStepFinished( quint16 pc )
 void TMainFrm::onLCDBufferChanged( QByteArray* buffer )
 {
     // TODO: Anti alias
-    QImage via(768, 324, QImage::Format_Mono);
-    via.fill(Qt::color0); // workaround
-    QVector < QRgb > limelcdtable;
-    limelcdtable.append(0xFFFFFDE8);
-    limelcdtable.append(0xFF32284A);
+    //QImage via(768, 324, QImage::Format_Mono);
+    //via.fill(Qt::color0); // workaround
+    //QVector < QRgb > limelcdtable;
+    //limelcdtable.append(0xFFFFFDE8);
+    //limelcdtable.append(0xFF32284A);
 
-    via.setColorTable(limelcdtable);
+    //via.setColorTable(limelcdtable);
+    QImage via(fLCDEmpty);
+    if (via.depth() < 24) {
+        via = via.convertToFormat(QImage::Format_RGB32);
+    }
     QPainter painter(&via);
     DrawStripe(65, buffer, painter);
     for (int y = 79; y >= 0; y--)
@@ -227,10 +231,10 @@ void TMainFrm::onLCDBufferChanged( QByteArray* buffer )
             DrawStripe(y, buffer, painter);
         }
     }
-    painter.end();
-    via = via.convertToFormat(QImage::Format_RGB32);
-    painter.begin(&via);
-    painter.fillRect(QRect(94, 2, 159*4, 80*4), QColor(0xFFFFFCDE));
+    //painter.end();
+    //via = via.convertToFormat(QImage::Format_RGB32);
+    //painter.begin(&via);
+    //painter.fillRect(QRect(94, 2, 159*4, 80*4), QColor(0xFFFFFCDE));
     int index = 0;
     int yp = 2;
     for (int y = 0; y < 80; y++) {
@@ -278,7 +282,7 @@ void TMainFrm::DrawStripe( int i, QByteArray* buffer, QPainter &painter )
     char pixel = buffer->at((160/8) * i);
     if (pixel < 0) {
         TLCDStripe* item = &fLCDStripes[i];
-        painter.drawImage(QRect(item->left * 2 - 2, item->top * 2 - 2, item->bitmap.width() * 2, item->bitmap.height() * 2), item->bitmap);
+        painter.drawImage(QRect(item->left * 2 - 2, item->top * 2 - 2, item->bitmap.width(), item->bitmap.height()), item->bitmap);
     }
 }
 
@@ -459,7 +463,7 @@ void TMainFrm::initKeypad()
         new TKeyItem(48, "Up", Qt::Key_Up),         // P02, P16
         new TKeyItem(58, "Down", Qt::Key_Down),     // P03, P16
         new TKeyItem(29, "P", Qt::Key_P),           // P04, P16
-        new TKeyItem(39, "Enter", Qt::Key_Enter),   // P05, P16
+        new TKeyItem(39, "Enter", Qt::Key_Return),   // P05, P16
         new TKeyItem(49, "PgDn", Qt::Key_PageDown), // P06, P16
         new TKeyItem(59, "Right", Qt::Key_Right),   // P07, P16
 
@@ -472,6 +476,26 @@ void TMainFrm::initKeypad()
         NULL,       // P06, P17
         NULL,       // P07, P17
     };
+    // number key
+    item[3][4]->addKeycode(Qt::Key_1);
+    item[3][5]->addKeycode(Qt::Key_2);
+    item[3][6]->addKeycode(Qt::Key_3);
+    item[4][4]->addKeycode(Qt::Key_4);
+    item[4][5]->addKeycode(Qt::Key_5);
+    item[4][6]->addKeycode(Qt::Key_6);
+    item[5][4]->addKeycode(Qt::Key_7);
+    item[5][5]->addKeycode(Qt::Key_8);
+    item[5][6]->addKeycode(Qt::Key_9);
+
+    item[6][0]->addKeycode(Qt::Key_Slash); // O /
+    item[6][1]->addKeycode(Qt::Key_Asterisk); // L *
+    item[6][2]->addKeycode(Qt::Key_Minus); // Up -
+    item[6][3]->addKeycode(Qt::Key_Plus); // Down +
+
+    item[2][6]->addKeycode(Qt::Key_Space); // =
+    item[7][3]->addKeycode(Qt::Key_Backspace); // F2
+    item[6][5]->addKeycode(Qt::Key_Enter); // keyboard vs keypad
+
     for (int y = 0; y < 8; y++) {
         for (int x = 0; x < 8; x++) {
             fKeyItems[y][x] = item[y][x];

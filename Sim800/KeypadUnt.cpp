@@ -34,9 +34,14 @@ TKeyItem::TKeyItem( int ID, const QString& graphic, int matchedkeycode )
     , fPressed(false)
     , fHold(false)
     , fGraphic(graphic)
-    , fMatchedKeycode(matchedkeycode)
+    //, fMatchedKeycode(matchedkeycode)
 {
+    fMatchedKeycodes.insert(matchedkeycode);
+}
 
+void TKeyItem::addKeycode( int matchedkeycode )
+{
+    fMatchedKeycodes.insert(matchedkeycode);
 }
 
 void TKeyItem::setRect( const QRect& rect )
@@ -81,7 +86,7 @@ void TKeyItem::paintSelf( QImage& image )
 
 bool TKeyItem::press( int keycode )
 {
-    if (keycode == fMatchedKeycode) {
+    if (fMatchedKeycodes.contains(keycode)) {
         fPressed = true;
         return true;
     }
@@ -95,7 +100,7 @@ void TKeyItem::press()
 
 bool TKeyItem::release( int keycode )
 {
-    if (keycode == fMatchedKeycode) {
+    if (fMatchedKeycodes.contains(keycode)) {
         fPressed = false;
         return true;
     }

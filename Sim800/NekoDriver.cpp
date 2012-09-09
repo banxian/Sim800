@@ -13,6 +13,7 @@ TNekoDriver::TNekoDriver()
     : fEmulatorThread(NULL)
     , fNorBuffer(NULL)
     , fBROMBuffer(NULL)
+    , fFlashUpdated(false)
 {
     // Do initialization that must be repeated for a restart
     restart = 0;
@@ -81,6 +82,9 @@ bool TNekoDriver::StopEmulation()
         fEmulatorThread->wait(4000);
         fEmulatorThread->deleteLater();
         fEmulatorThread = NULL;
+        if (fFlashUpdated) {
+            SaveFullNorFlash();
+        }
     }
     return true;
 }
@@ -197,7 +201,11 @@ void EmulatorThread::run()
 
             unsigned int dummynow = GetTickCount();
             nmicount++;
-            if (/*nmicount % 400000 == 0/**/dummynow - nmistart >= 500){
+#ifdef _DEBUG
+            if (nmicount % 400000 == 0){
+#else
+            if (dummynow - nmistart >= 500){
+#endif
                 // 2Hz NMI
                 // TODO: use batchcount as NMI
 #ifdef _DEBUG
@@ -213,7 +221,7 @@ void EmulatorThread::run()
 #endif
                 //nmi = 0; // next CpuExecute will execute two instructions
                 gThreadFlags |= 0x08; // Add NMIFlag
-                //nmicount = 0; // for merge
+                nmicount = 0; // for merge
             }
 
             // NMI > IRQ

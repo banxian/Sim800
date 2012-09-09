@@ -715,6 +715,7 @@ void __stdcall WriteZeroPageBankswitch (BYTE write, BYTE value)
 
 void TNekoDriver::SwitchNorBank( int bank )
 {
+    // TODO: norbank header
     fixedram0000[io0A_roa] = fixedram0000[io0A_roa] | 0x80u;
     //memcpy(&fixedram0000[0x4000], &fNorBuffer[bank * 0x8000], 0x8000);
     pmemmap[map4000] = (unsigned char*)&fNorBuffer[bank * 0x8000]; // 4000
@@ -780,6 +781,22 @@ void TNekoDriver::Switch4000toBFFF( unsigned char bank )
     pmemmap[mapA000] = may4000ptr + 0x6000;
 }
 
+void checkflashprogram(WORD addr16, BYTE data)
+{
+    unsigned char* lpaddr16ram = &pmemmap[addr16 >> 13][addr16 & 0x1FFF];
+    if ((lpaddr16ram >= &fixedram0000[0x4000]) && (lpaddr16ram < &fixedram0000[0x6000])) {
+        // Real physics memory inside 4000~5FFF
+        *lpaddr16ram = data;
+        return;
+    }
+    // consider addr16 >= 0x4000, and is not fixed ram
+    // goto label_checkregister is not necessary now
+    if (addr16 < 0xC000u && fixedram0000[io0A_roa] && 0x80u) {
+        // addr16 inside 4000~BFFF and ROA is RAM(norflash)
+        theNekoDriver->CheckFlashProgramming(addr16, data);
+    }
+}
+
 bool TNekoDriver::LoadDemoNor(const QString& filename)
 {
     QFile mariofile(filename);
@@ -818,11 +835,18 @@ bool TNekoDriver::LoadBROM( const QString& filename )
         romfile.read(fBROMBuffer + 0x8000 * page, 0x4000);
         page++;
     }
+    if (page < 0x200) {
+        // PC1000a
+        for (int i = page - 1; i < 256; i++) {
+            volume1array[i] = volume1array[0];
+        }
+    }
     return true;
 }
 
 bool TNekoDriver::LoadFullNorFlash( const QString& filename )
 {
+    fNorFilename = filename;
     QFile norfile(filename);
     norfile.open(QFile::ReadOnly);
     //if (fNorBuffer == NULL){
@@ -837,5 +861,334 @@ bool TNekoDriver::LoadFullNorFlash( const QString& filename )
         norfile.read(fNorBuffer + 0x8000 * page, 0x4000);
         page++;
     }
+    norfile.close();
+    fFlashUpdated = false;
     return true;
+}
+
+bool TNekoDriver::SaveFullNorFlash()
+{
+    QFile norfile(fNorFilename);
+    norfile.open(QFile::WriteOnly);
+    int page = 0;
+    while (page < 0x10) {
+        norfile.write(fNorBuffer + 0x8000 * page + 0x4000, 0x4000);
+        norfile.write(fNorBuffer + 0x8000 * page, 0x4000);
+        page++;
+    }
+    norfile.close();
+    fFlashUpdated = false;
+    return true;
+}
+
+unsigned char gNor5555_AAFlag = 0, gNorAAAA_AAFlag = 0, gNor8555_AAFlag = 0;
+unsigned char gNorSingleByteStep = 0, gNorPageEraseStep = 0;
+unsigned char gPrevNor8000 = 0, gPrevNor8001 = 0;
+int gErasePos = 0, gEraseBlockAddr = 0;
+
+void TNekoDriver::CheckFlashProgramming( unsigned short addr16, unsigned char data )
+{
+    //qDebug("ggv wanna erase flash!");
+    // consider addr16 >= 0x4000, and is not fixed ram
+    // goto label_checkregister is not necessary now
+    // addr16 inside 4000~BFFF and ROA is RAM(norflash)
+    unsigned char nor5555_AAflag = gNor5555_AAFlag;
+    // first step
+    if ( !gNorSingleByteStep && !gNor5555_AAFlag )
+    {
+        if ( !gNorAAAA_AAFlag && !gNor8555_AAFlag )
+        {
+            if ( !gNorPageEraseStep )
+            {
+                switch ( addr16 )
+                {
+                case 0x8555:
+                    if ( data == 0xAA )
+                        gNor8555_AAFlag = 1;
+                    break;
+                case 0x5555:
+                    if ( data == 0xAA )
+                    {
+                        gNor5555_AAFlag = 1;
+                        gNorSingleByteStep = 1;
+                        gNorPageEraseStep = 1;
+                    }
+                    break;
+                case 0xAAAA:
+                    if ( data == 0xAA )
+                        gNorAAAA_AAFlag = 1;
+                    break;
+                }
+                return; //goto label_checkregister;
+            }
+            goto label_checkpageerase;
+        }
+        nor5555_AAflag = gNor5555_AAFlag;
+    }
+    // read ID step (AMD)
+    if ( gNor8555_AAFlag )
+    {
+        // dead code
+        // assume every nor operation is start with 5555<-AA
+        switch ( gNor8555_AAFlag )
+        {
+        case 1:
+            if ( addr16 == 0x82AA && data == 0x55 )
+            {
+                gNor8555_AAFlag = 2;
+                return; //goto label_checkregister;
+            }
+            break;
+        case 2:
+            if ( addr16 == 0x8555 && data == 0x90 )
+            {
+                gNor8555_AAFlag = 3;
+                return; //goto label_checkregister;
+            }
+            break;
+        case 3:
+            if ( addr16 == 0xAAAA && data == 0xAA )
+            {
+                gNor8555_AAFlag = 4;
+                return; //goto label_checkregister;
+            }
+            break;
+        case 4:
+            if ( addr16 == 0x5555 && data == 0x55 )
+            {
+                gNor8555_AAFlag = 5;
+                return; //goto label_checkregister;
+            }
+            break;
+        case 5:
+            if ( addr16 == 0xAAAA && data == 0xA0 )
+            {
+                gNor8555_AAFlag = 6;
+                return; //goto label_checkregister;
+            }
+            break;
+        default:
+            if ( gNor8555_AAFlag == 6 && addr16 == 0x8000 && data == 0xF0 )
+            {
+                gNor8555_AAFlag = 0;
+                return; //goto label_checkregister;
+            }
+            break;
+        }
+        qDebug("error occurs when read AMD id!");
+        return; //goto label_printerr_DestToAddr16_checkregister;
+    }
+    // read ID step (ST)
+    if ( gNorAAAA_AAFlag )
+    {
+        // assume every nor operation is start with 5555<-AA
+        if ( gNorAAAA_AAFlag == 1 )
+        {
+            // we have an AAAA<-AA
+            if ( addr16 == 0x5555 && data == 0x55 )
+            {
+                gNorAAAA_AAFlag = 2;        // 2 means AAAA<-AA, AAAA<-55
+                return; //goto label_checkregister;
+            }
+        }
+        else
+        {
+            if ( gNorAAAA_AAFlag == 2 )
+            {
+                // we have two AAAA<-AA, AAAA<-55
+                if ( addr16 == 0xAAAA && data == 0x90 )
+                {
+                    gNorAAAA_AAFlag = 3;    // 3 means AAAA<-AA, AAAA<-55, AAAA<-90
+                    return; //goto label_checkregister;
+                }
+            }
+            else
+            {
+                if ( gNorAAAA_AAFlag == 3 && addr16 == 0x8000 && data == 0xF0 )
+                {
+                    gNorAAAA_AAFlag = 0;    // reset
+                    return; //goto label_checkregister;
+                }
+            }
+        }
+        qDebug("error occurs when read ST id!");
+        return; //goto label_printerr_DestToAddr16_checkregister;
+    }
+    // normal second step check
+    switch ( nor5555_AAflag )
+    {
+    case 1:
+        // we have an nice 5555<-AA step
+        if ( addr16 == 0xAAAA && data == 0x55 )
+        {
+            gNor5555_AAFlag = 2;        // 2 means 5555<-AA, AAAA<-55
+            ++gNorPageEraseStep;
+            ++gNorSingleByteStep;
+            return; //goto label_checkregister;
+        }
+        break;
+    case 2:
+        if ( addr16 == 0x5555 && data == 0x90 )
+        {
+            // Modify 8000 in bank1
+            //gPrevNor8000 = *(unsigned char *)(norbankheader[1] + 0x4000);
+            //gPrevNor8001 = *(unsigned char *)(norbankheader[1] + 0x4001);
+            //*(unsigned char *)(norbankheader[1] + 0x4000) = 0xBFu;
+            //*(unsigned char *)(norbankheader[1] + 0x4001) = 0xD7u;
+            qDebug("ggv wanna update bank1 8000 flash!");
+            gPrevNor8000 = norbankheader[1][0x4000];
+            gPrevNor8001 = norbankheader[1][0x4001];
+            norbankheader[1][0x4000] = 0xBFu;
+            norbankheader[1][0x4001] = 0xD7u;
+            gNorPageEraseStep = 0;
+            ++gNor5555_AAFlag;          // 3 means 5555<-AA, AAAA<-55, 5555<-90
+            gNorSingleByteStep = 0;
+            return; //goto label_DestToAddr16_checkregister;
+        }
+        break;
+    case 3:
+        //mayDestAddr = 0x8000u;          // Check range, dead condtion
+        if ( data == 0xF0 )
+        {
+            // Restore 8000 in bank1
+            //*(unsigned char *)(norbankheader[1] + 0x4000) = gPrevNor8000;
+            //*(unsigned char *)(norbankheader[1] + 0x4001) = gPrevNor8001;
+            qDebug("ggv wanna restore bank1 8000 flash!");
+            norbankheader[1][0x4000] = gPrevNor8000;
+            norbankheader[1][0x4001] = gPrevNor8001;
+            gNor5555_AAFlag = 0;        // Finish!
+            return; //goto label_DestToAddr16_checkregister;
+        }
+        qDebug("error occurs when read SST id!");
+        return; //goto label_printerr_DestToAddr16_checkregister;
+    }
+    if ( gNorSingleByteStep == 2 )
+    {
+        if ( addr16 == 0x5555 && data == 0xA0 )
+        {
+            gNorSingleByteStep = 3;         // Single byte last check
+            gNor5555_AAFlag = 0;            // Finish!
+            gNorPageEraseStep = 0;
+            return; //goto label_checkregister;
+        }
+    }
+    else
+    {
+        if ( gNorSingleByteStep == 3 )
+        {
+            // Single byte mode write step
+            // use &= because only can write on dest addr is earse to FF
+            //*(unsigned char *)((unsigned __int16)addr16 + may4000ptr - 0x4000) &= data;
+            // addr16 = 4000~BFFF -> 0000~7FFF
+            qDebug("ggv wanna change single byte flash!");
+            unsigned char norbank = fixedram0000[io00_bank_switch] & 0xF;
+            norbankheader[norbank][addr16 - 0x4000] &= data;
+            gNorSingleByteStep = 0;
+            fFlashUpdated = true;
+            return; //goto label_DestToAddr16_checkregister;
+        }
+    }
+label_checkpageerase:
+    if ( gNorPageEraseStep == 2 )
+    {
+        if ( addr16 == 0x5555 && data == 0x80 )
+        {
+            // Step3 of PAGE ERASE
+            gNorPageEraseStep = 3;
+            gNor5555_AAFlag = 0;
+            gNorSingleByteStep = 0;
+            return; //goto label_checkregister;
+        }
+    }
+    else
+    {
+        // gNorFlag0 != 2
+        if ( (unsigned __int8)gNorPageEraseStep > 2u )
+        {
+            // Check ERASE mode
+            switch ( gNorPageEraseStep )
+            {
+            case 3:
+                if ( addr16 == 0x5555 && data == 0xAA )
+                {
+                    // Step4 of PAGE ERASE
+                    gNorPageEraseStep = 4;
+                    return; //goto label_checkregister;
+                }
+                break;
+            case 4:
+                if ( addr16 == 0xAAAA && data == 0x55 )
+                {
+                    // Step5 of PAGE ERASE
+                    gNorPageEraseStep = 5;
+                    return; //goto label_checkregister;
+                }
+                break;
+            case 5:
+                // 5555<-10 erase all
+                // dest<-30 erase 4K
+                if ( addr16 == 0x5555 && data == 0x10 )
+                {
+                    // PAGE EARSE - earse every bank of 16 banks
+                    // using gnorflag0 as norbank
+                    qDebug("ggv wanna erase 0~F bank flash!");
+                    gNorPageEraseStep = 0;
+                    do
+                    {
+                        int i = 0;
+                        gErasePos = 0;
+                        do
+                        {
+                            //*(unsigned char *)(norbankheader[(unsigned __int8)gNorPageEraseStep] + i) = 0xFFu;
+                            norbankheader[(unsigned __int8)gNorPageEraseStep][i] = 0xFFu;
+                            i = gErasePos++ + 1;
+                        }
+                        while ( (unsigned int)gErasePos < 0x8000 );
+                        ++gNorPageEraseStep;
+                    }
+                    while ( (unsigned __int8)gNorPageEraseStep < 0x10u );
+                    gErasePos = 0;
+                    gNorPageEraseStep = 0;
+                    fFlashUpdated = true;
+                    return; //goto label_DestToAddr16_checkregister;
+                }
+                if ( data == 0x30 )
+                {
+                    // PAGE ERASE - 4K mode
+                    // still use gnorflag0 as norbank
+                    qDebug("ggv wanna erase one block of flash!");
+                    gNorPageEraseStep = fixedram0000[io00_bank_switch];// cross?! 557
+                    // 5018 -> 5018 - 18 - 4000 = 1000
+                    gEraseBlockAddr = (unsigned __int16)addr16 - (unsigned __int16)addr16 % 0x1000 - 0x4000;
+                    int i2 = 0;
+                    gErasePos = 0;
+                    do
+                    {
+                        *(unsigned char *)(gEraseBlockAddr + norbankheader[(unsigned __int8)gNorPageEraseStep] + i2) = 0xFFu;
+                        i2 = gErasePos++ + 1;
+                    }
+                    while ( (unsigned int)gErasePos < 0x1000 );
+                    gErasePos = 0;
+                    gNor8555_AAFlag = 0;
+                    gNorPageEraseStep = 0;
+                    fFlashUpdated = true;
+                    return; //goto label_DestToAddr16_checkregister;
+                }
+                break;
+            }
+            qDebug("error occurs when erase flash!");
+            return; //goto label_printerr_DestToAddr16_checkregister;
+        }
+    }
+    qDebug("error occurs when put a byte in flash!");
+//label_printerr_DestToAddr16_checkregister:
+//    //printf(errmsg);
+//    return; //goto label_DestToAddr16_checkregister;
+//label_DestToAddr16_checkregister:
+//    // addr16 = mayDestAddr
+//    // return; //goto label_checkregister;
+//label_checkregister:
+//    //if ( addr16 < (unsigned __int16)(unsigned __int8)RegisterRange )
+//    //    JUMPOUT(loc_40D680);
+//    return;
 }

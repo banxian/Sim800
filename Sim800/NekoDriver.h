@@ -23,10 +23,13 @@ private:
     EmulatorThread* fEmulatorThread;
     char* fNorBuffer; // for performance
     char* fBROMBuffer;
+    QString fNorFilename;
+    bool fFlashUpdated;
 private:
     bool LoadBROM(const QString& filename);
     bool LoadFullNorFlash(const QString& filename);
     bool LoadDemoNor(const QString& filename);
+    bool SaveFullNorFlash();
     //static bool NicetoScaleOnFly( QSize &orgsize, bool ispng, bool isjpeg );
     //static bool NiceToRotate( int width, int height, int destwidth, int destheight );
     //static bool PrepareScaledQPicture( QImage& qimage, int destwidth, int destheight, ScaleFilter filter, int& scaletime );
@@ -45,6 +48,7 @@ public:
     bool StopEmulation();
     bool PauseEmulation();
     bool ResumeEmulation();
+    void CheckFlashProgramming(unsigned short addr, unsigned char data);
 
 public slots:
     void onLCDBufferChanged(QByteArray* buffer);
