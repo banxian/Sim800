@@ -89,5 +89,45 @@
         <file>PpsDES/lcdstripe/WQX_SHIFT.png</file>
         <file>PpsDES/lcdstripe/lcdpixel.png</file>
         <file>PpsDES/lcdstripe/lcdempty.png</file>
+        <file>PpsDES/lcdstripe/lcd_alarm.png</file>
+        <file>PpsDES/lcdstripe/lcd_caps.png</file>
+        <file>PpsDES/lcdstripe/lcd_down.png</file>
+        <file>PpsDES/lcdstripe/lcd_eng.png</file>
+        <file>PpsDES/lcdstripe/lcd_flash.png</file>
+        <file>PpsDES/lcdstripe/lcd_hbar.png</file>
+        <file>PpsDES/lcdstripe/lcd_hframe.png</file>
+        <file>PpsDES/lcdstripe/lcd_line.png</file>
+        <file>PpsDES/lcdstripe/lcd_line5.png</file>
+        <file>PpsDES/lcdstripe/lcd_minus.png</file>
+        <file>PpsDES/lcdstripe/lcd_num.png</file>
+        <file>PpsDES/lcdstripe/lcd_pgup.png</file>
+        <file>PpsDES/lcdstripe/lcd_point.png</file>
+        <file>PpsDES/lcdstripe/lcd_right.png</file>
+        <file>PpsDES/lcdstripe/lcd_semicolon.png</file>
+        <file>PpsDES/lcdstripe/lcd_sharpbell.png</file>
+        <file>PpsDES/lcdstripe/lcd_shift.png</file>
+        <file>PpsDES/lcdstripe/lcd_sound.png</file>
+        <file>PpsDES/lcdstripe/lcd_speaker.png</file>
+        <file>PpsDES/lcdstripe/lcd_star.png</file>
+        <file>PpsDES/lcdstripe/lcd_tape.png</file>
+        <file>PpsDES/lcdstripe/lcd_up.png</file>
+        <file>PpsDES/lcdstripe/lcd_vframe.png</file>
+        <file>PpsDES/lcdstripe/lcdshadow.png</file>
+        <file>PpsDES/lcdstripe/lcd_keyclick.png</file>
+        <file>PpsDES/lcdstripe/lcd_battery.png</file>
+        <file>PpsDES/lcdstripe/lcd_left.png</file>
+        <file>PpsDES/lcdstripe/lcd_pgdown.png</file>
+        <file>PpsDES/lcdstripe/lcd_pgleft.png</file>
+        <file>PpsDES/lcdstripe/lcd_pgright.png</file>
+        <file>PpsDES/lcdstripe/lcd_secret.png</file>
+        <file>PpsDES/lcdstripe/lcd_microphone.png</file>
+        <file>PpsDES/lcdstripe/lcd_vbar.png</file>
+        <file>PpsDES/lcdstripe/lcd_seven_honz1.png</file>
+        <file>PpsDES/lcdstripe/lcd_seven_honz2.png</file>
+        <file>PpsDES/lcdstripe/lcd_seven_honz3.png</file>
+        <file>PpsDES/lcdstripe/lcd_seven_vert1.png</file>
+        <file>PpsDES/lcdstripe/lcd_seven_vert2.png</file>
+        <file>PpsDES/lcdstripe/lcd_seven_vert3.png</file>
+        <file>PpsDES/lcdstripe/lcd_seven_vert4.png</file>
     </qresource>
 </RCC>
