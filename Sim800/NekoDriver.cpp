@@ -177,6 +177,7 @@ void EmulatorThread::run()
 {
     // Load PC from Reset Vector
     CpuInitialize();
+    lcdoffshift0flag = false;
     //stp = 1; // test
     unsigned int nmistart = GetTickCount();
     gThreadFlags &= 0xFFFEu; // Remove 0x01 from gThreadFlags (stack related)
@@ -435,7 +436,7 @@ void CheckLCDOffShift0AndEnableWatchDog()
         }
     } else {
         if (keypadmatrix[0][2] == 1) {
-            lcdoffshift0flag = true; // this flag is used for UI?
+            lcdoffshift0flag = true; // this flag is used for UI? (IO05_ClockControl)
         }
     }
 }

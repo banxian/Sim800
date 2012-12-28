@@ -34,11 +34,13 @@ private:
     bool fPressed;
     bool fHold;
     QString fGraphic;
+    QString fSubscript;
     QSet<int> fMatchedKeycodes;
     QRect fRect;
 public:
     void addKeycode(int matchedkeycode);
     void setRect(const QRect& rect);
+    void setSubscript(const QString& subscript);
     bool inRect(const QPoint& point);
     void paintSelf(QImage& image);
     bool press(int keycode);

@@ -77,7 +77,7 @@ BYTE __stdcall Read06StopTimer1( BYTE ) // 06
     return fixedram0000[io06_lcd_config];
 }
 
-bool lcdoffshift0flag = 0;
+bool lcdoffshift0flag = false;
 
 void __stdcall Write05ClockCtrl( BYTE write, BYTE value )
 {
@@ -85,9 +85,11 @@ void __stdcall Write05ClockCtrl( BYTE write, BYTE value )
     // SPDC1016
     if (fixedram0000[io05_clock_ctrl] & 0x8) {
         // old bit3, LCDON
+        // Previous LCD on
         if ((value & 0xF) == 0) {
-            // new bit0~bit3 is 0
-            lcdoffshift0flag = 1;
+            // new value bit0~3 is 0
+            // LCD off, lcd shift clock select bit0~3 is 0
+            lcdoffshift0flag = true;
         }
     }
     fixedram0000[io05_clock_ctrl] = value;

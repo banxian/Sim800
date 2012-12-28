@@ -57,7 +57,7 @@ private:
     void repaintKeypad();
     void updateKeypadMatrix();
     void initLcdStripe();
-    void DrawStripe( int i, QByteArray* buffer, QPainter &painter );
+    void DrawShadowOrPixel( QByteArray* buffer, QPainter &painter, bool semishadow );
 
 protected:
     virtual bool eventFilter(QObject*, QEvent*);

@@ -4,7 +4,9 @@
 #include "DbCentre.h"
 #include <QtCore/QDebug>
 #include <QtCore/QBuffer>
+#ifdef _WIN32
 #include <Windows.h>
+#endif
 #include "NekoDriver.h"
 #include "AddonFuncUnt.h"
 #include <QtCore/QRegExp>
@@ -72,8 +74,8 @@ TMainFrm::TMainFrm(QWidget *parent)
 
     initKeypad();
     initLcdStripe();
-    QByteArray* dummybuf = new QByteArray(160*80/8, 0xFFu);
-    onLCDBufferChanged(dummybuf);
+    //QByteArray* dummybuf = new QByteArray(160*80/8, 0xFFu);
+    //onLCDBufferChanged(dummybuf);
 
     // connect
     QObject::connect(ui->keypadView, SIGNAL(resized(int, int)), this, SLOT(onKeypadSizeChanged(int, int)));
@@ -208,33 +210,53 @@ void TMainFrm::onStepFinished( quint16 pc )
     //action->setText(QString(tr("PC:%1")).arg(ushort(pc), 4, 16, QLatin1Char('0')));
 }
 
+extern bool lcdoffshift0flag;
 
 void TMainFrm::onLCDBufferChanged( QByteArray* buffer )
 {
     // TODO: Anti alias
-    //QImage via(768, 324, QImage::Format_Mono);
-    //via.fill(Qt::color0); // workaround
-    //QVector < QRgb > limelcdtable;
-    //limelcdtable.append(0xFFFFFDE8);
-    //limelcdtable.append(0xFF32284A);
-
-    //via.setColorTable(limelcdtable);
     QImage via(fLCDEmpty);
+
     if (via.depth() < 24) {
         via = via.convertToFormat(QImage::Format_RGB32);
     }
     QPainter painter(&via);
-    //DrawStripe(65, buffer, painter);
+
+    if (lcdoffshift0flag) {
+        painter.setOpacity(0.8);
+        painter.fillRect(via.rect(), QColor(0xFFFFFDE8));
+    } else {
+        DrawShadowOrPixel(buffer, painter, true);
+        DrawShadowOrPixel(buffer, painter, false);
+    }
+
+    painter.end();
+    ui->lcdView->setPixmap(QPixmap::fromImage(via));
+    ui->lcdView->repaint();
+    delete buffer;
+}
+
+void TMainFrm::DrawShadowOrPixel( QByteArray* buffer, QPainter &painter, bool semishadow )
+{
+    if (semishadow) {
+        painter.setOpacity(0.2);
+        QTransform shadow;
+        shadow.translate(2, 2);
+        painter.setTransform(shadow, true);
+    } else {
+        painter.resetTransform();
+        painter.setOpacity(1);
+    }
     for (int y = 79; y >= 0; y--)
     {
-        //if (y != 65) {
-            DrawStripe(y, buffer, painter);
-        //}
+        char pixel = buffer->at((160/8) * y);
+        if (pixel < 0) {
+            TLCDStripe* item = &fLCDStripes[y];
+            //painter.drawImage(QRect(item->left * 2 - 2, item->top * 2 - 2, item->bitmap.width(), item->bitmap.height()), item->bitmap);
+            painter.drawImage(QRect(item->left, item->top, item->bitmap.width(), item->bitmap.height()), item->bitmap);
+        }
     }
-    //painter.end();
-    //via = via.convertToFormat(QImage::Format_RGB32);
-    //painter.begin(&via);
-    //painter.fillRect(QRect(94, 2, 159*4, 80*4), QColor(0xFFFFFCDE));
+
     int index = 0;
     int yp = 2;
     for (int y = 0; y < 80; y++) {
@@ -242,48 +264,36 @@ void TMainFrm::onLCDBufferChanged( QByteArray* buffer )
         for (int i = 0; i < 160 / 8; i++) {
             const unsigned char pixel = static_cast<const unsigned char>(buffer->at(index));
             // try to shrink jump cost
-            if (i && (pixel & 0x80u)) {
-                painter.drawImage(xp, yp, fLCDPixel);
-            }
-            if (pixel & 0x40) {
-                painter.drawImage(xp + 4, yp, fLCDPixel);
-            }
-            if (pixel & 0x20) {
-                painter.drawImage(xp + 8, yp, fLCDPixel);
-            }
-            if (pixel & 0x10) {
-                painter.drawImage(xp + 12, yp, fLCDPixel);
-            }
-            if (pixel & 0x08) {
-                painter.drawImage(xp + 16, yp, fLCDPixel);
-            }
-            if (pixel & 0x04) {
-                painter.drawImage(xp + 20, yp, fLCDPixel);
-            }
-            if (pixel & 0x02) {
-                painter.drawImage(xp + 24, yp, fLCDPixel);
-            }
-            if (pixel & 0x01) {
-                painter.drawImage(xp + 28, yp, fLCDPixel);
+            if (pixel) {
+                if (i && (pixel & 0x80u)) {
+                    painter.drawImage(xp, yp, fLCDPixel);
+                }
+                if (pixel & 0x40) {
+                    painter.drawImage(xp + 4, yp, fLCDPixel);
+                }
+                if (pixel & 0x20) {
+                    painter.drawImage(xp + 8, yp, fLCDPixel);
+                }
+                if (pixel & 0x10) {
+                    painter.drawImage(xp + 12, yp, fLCDPixel);
+                }
+                if (pixel & 0x08) {
+                    painter.drawImage(xp + 16, yp, fLCDPixel);
+                }
+                if (pixel & 0x04) {
+                    painter.drawImage(xp + 20, yp, fLCDPixel);
+                }
+                if (pixel & 0x02) {
+                    painter.drawImage(xp + 24, yp, fLCDPixel);
+                }
+                if (pixel & 0x01) {
+                    painter.drawImage(xp + 28, yp, fLCDPixel);
+                }
             }
             xp += 32;
             index++;
         }
         yp += 4;
-    }
-    painter.end();
-    ui->lcdView->setPixmap(QPixmap::fromImage(via));
-    ui->lcdView->repaint();
-    delete buffer;
-}
-
-void TMainFrm::DrawStripe( int i, QByteArray* buffer, QPainter &painter )
-{
-    char pixel = buffer->at((160/8) * i);
-    if (pixel < 0) {
-        TLCDStripe* item = &fLCDStripes[i];
-        //painter.drawImage(QRect(item->left * 2 - 2, item->top * 2 - 2, item->bitmap.width(), item->bitmap.height()), item->bitmap);
-        painter.drawImage(QRect(item->left, item->top, item->bitmap.width(), item->bitmap.height()), item->bitmap);
     }
 }
 
@@ -407,26 +417,26 @@ void TMainFrm::initKeypad()
     TKeyItem* item[8][8] = {
         NULL,       // P00, P10
         NULL,       // P01, P10
-        new TKeyItem(18, "ON", Qt::Key_F12),        // P02, P10
+        new TKeyItem(18, "ON/OFF", Qt::Key_F12),        // P02, P10
         NULL,       // P03, P10
         NULL,       // P04, P10
         NULL,       // P05, P10
         NULL,       // P06, P10
         NULL,       // P07, P10
 
-        new TKeyItem(0, "F5", Qt::Key_F5),          // P00, P11
-        new TKeyItem(1, "F6", Qt::Key_F6),          // P01, P11
-        new TKeyItem(2, "F7", Qt::Key_F7),          // P02, P11
-        new TKeyItem(3, "F8", Qt::Key_F8),          // P03, P11
-        new TKeyItem(4, "F9", Qt::Key_F9),          // P04, P11
-        new TKeyItem(5, "F10", Qt::Key_F10),        // P05, P11
-        new TKeyItem(6, "F11", Qt::Key_F11),        // P06, P11
+        new TKeyItem(0, "Dictionary", Qt::Key_F5),          // P00, P11
+        new TKeyItem(1, "Card", Qt::Key_F6),          // P01, P11
+        new TKeyItem(2, "Calculator", Qt::Key_F7),          // P02, P11
+        new TKeyItem(3, "Reminder", Qt::Key_F8),          // P03, P11
+        new TKeyItem(4, "Data", Qt::Key_F9),          // P04, P11
+        new TKeyItem(5, "Time", Qt::Key_F10),        // P05, P11
+        new TKeyItem(6, "Network", Qt::Key_F11),        // P06, P11
         NULL,       // P07, P11
 
         new TKeyItem(50, "Help", Qt::Key_Control),  // P00, P12
         new TKeyItem(51, "Shift", Qt::Key_Shift),   // P01, P12
         new TKeyItem(52, "Caps", Qt::Key_CapsLock), // P02, P12
-        new TKeyItem(53, "AC", Qt::Key_Escape),     // P03, P12
+        new TKeyItem(53, "Esc", Qt::Key_Escape),     // P03, P12
         new TKeyItem(54, "0", Qt::Key_0),           // P04, P12
         new TKeyItem(55, ".", Qt::Key_Period),      // P05, P12
         new TKeyItem(56, "=", Qt::Key_Equal),       // P06, P12
@@ -487,6 +497,26 @@ void TMainFrm::initKeypad()
     item[5][4]->addKeycode(Qt::Key_7);
     item[5][5]->addKeycode(Qt::Key_8);
     item[5][6]->addKeycode(Qt::Key_9);
+
+    item[3][4]->setSubscript("1");
+    item[3][5]->setSubscript("2");
+    item[3][6]->setSubscript("3");
+    item[4][4]->setSubscript("4");
+    item[4][5]->setSubscript("5");
+    item[4][6]->setSubscript("6");
+    item[5][4]->setSubscript("7");
+    item[5][5]->setSubscript("8");
+    item[5][6]->setSubscript("9");
+
+    item[1][0]->setSubscript("C2E");
+    item[1][1]->setSubscript("Note");
+    item[1][2]->setSubscript("Conv");
+    item[1][3]->setSubscript("Test");
+    item[1][4]->setSubscript("Game");
+    item[1][5]->setSubscript("Etc");
+
+    item[2][1]->setSubscript("IME");
+    item[2][3]->setSubscript("AC");
 
     item[6][0]->addKeycode(Qt::Key_Slash); // O /
     item[6][1]->addKeycode(Qt::Key_Asterisk); // L *
@@ -601,18 +631,18 @@ void TMainFrm::initLcdStripe()
     int xdelta = 16;
     fLCDStripes[2].left  = 14;
     fLCDStripes[2].top   = 2;
-    fLCDStripes[19].left = 14;
-    fLCDStripes[19].top  = 12;
+    fLCDStripes[33].left = 14;
+    fLCDStripes[33].top  = 12;
     fLCDStripes[0].left  = 5;
     fLCDStripes[0].top   = 2;
-    fLCDStripes[22].left = 5;
-    fLCDStripes[22].top  = 12;
+    fLCDStripes[35].left = 5;
+    fLCDStripes[35].top  = 12;
     fLCDStripes[1].left  = 5;
     fLCDStripes[1].top   = 2;
     fLCDStripes[3].left  = 5;
     fLCDStripes[3].top   = 10;
-    fLCDStripes[21].left = 5;
-    fLCDStripes[21].top  = 19;
+    fLCDStripes[34].left = 5;
+    fLCDStripes[34].top  = 19;
 
     fLCDStripes[7].bitmap = SevenVert1;
     fLCDStripes[24].bitmap = SevenVert2;
@@ -623,18 +653,18 @@ void TMainFrm::initLcdStripe()
     fLCDStripes[25].bitmap = SevenHonz3;
     fLCDStripes[7].left  = fLCDStripes[2].left + xdelta;
     fLCDStripes[7].top   = fLCDStripes[2].top;
-    fLCDStripes[24].left = fLCDStripes[19].left + xdelta;
-    fLCDStripes[24].top  = fLCDStripes[19].top;
+    fLCDStripes[29].left = fLCDStripes[33].left + xdelta;
+    fLCDStripes[29].top  = fLCDStripes[33].top;
     fLCDStripes[5].left  = fLCDStripes[0].left + xdelta;
     fLCDStripes[5].top   = fLCDStripes[0].top;
-    fLCDStripes[26].left = fLCDStripes[22].left + xdelta;
-    fLCDStripes[26].top  = fLCDStripes[22].top;
+    fLCDStripes[31].left = fLCDStripes[35].left + xdelta;
+    fLCDStripes[31].top  = fLCDStripes[35].top;
     fLCDStripes[6].left  = fLCDStripes[1].left + xdelta;
     fLCDStripes[6].top   = fLCDStripes[1].top;
     fLCDStripes[8].left  = fLCDStripes[3].left + xdelta;
     fLCDStripes[8].top   = fLCDStripes[3].top;
-    fLCDStripes[25].left = fLCDStripes[21].left + xdelta;
-    fLCDStripes[25].top  = fLCDStripes[21].top;
+    fLCDStripes[30].left = fLCDStripes[34].left + xdelta;
+    fLCDStripes[30].top  = fLCDStripes[34].top;
 
     fLCDStripes[13].bitmap = SevenVert1;
     fLCDStripes[29].bitmap = SevenVert2;
@@ -646,18 +676,18 @@ void TMainFrm::initLcdStripe()
     xdelta += 2;
     fLCDStripes[13].left = fLCDStripes[7].left  + xdelta;
     fLCDStripes[13].top  = fLCDStripes[7].top;
-    fLCDStripes[29].left = fLCDStripes[24].left + xdelta;
-    fLCDStripes[29].top  = fLCDStripes[24].top;
+    fLCDStripes[24].left = fLCDStripes[29].left + xdelta;
+    fLCDStripes[24].top  = fLCDStripes[29].top;
     fLCDStripes[10].left = fLCDStripes[5].left  + xdelta;
     fLCDStripes[10].top  = fLCDStripes[5].top;
-    fLCDStripes[31].left  = fLCDStripes[26].left + xdelta;
-    fLCDStripes[31].top = fLCDStripes[26].top;
+    fLCDStripes[26].left = fLCDStripes[31].left + xdelta;
+    fLCDStripes[26].top  = fLCDStripes[31].top;
     fLCDStripes[11].left = fLCDStripes[6].left  + xdelta;
     fLCDStripes[11].top  = fLCDStripes[6].top;
     fLCDStripes[14].left = fLCDStripes[8].left  + xdelta;
     fLCDStripes[14].top  = fLCDStripes[8].top;
-    fLCDStripes[30].left = fLCDStripes[25].left + xdelta;
-    fLCDStripes[30].top  = fLCDStripes[25].top;
+    fLCDStripes[25].left = fLCDStripes[30].left + xdelta;
+    fLCDStripes[25].top  = fLCDStripes[30].top;
     xdelta -= 2;
 
     fLCDStripes[17].bitmap = SevenVert1;
@@ -669,18 +699,18 @@ void TMainFrm::initLcdStripe()
     fLCDStripes[34].bitmap = SevenHonz3;
     fLCDStripes[17].left = fLCDStripes[13].left + xdelta;
     fLCDStripes[17].top  = fLCDStripes[13].top;
-    fLCDStripes[33].left = fLCDStripes[29].left + xdelta;
-    fLCDStripes[33].top  = fLCDStripes[29].top;
+    fLCDStripes[19].left = fLCDStripes[24].left + xdelta;
+    fLCDStripes[19].top  = fLCDStripes[24].top;
     fLCDStripes[15].left = fLCDStripes[10].left + xdelta;
     fLCDStripes[15].top  = fLCDStripes[10].top;
-    fLCDStripes[35].left = fLCDStripes[31].left + xdelta;
-    fLCDStripes[35].top  = fLCDStripes[31].top;
+    fLCDStripes[22].left = fLCDStripes[26].left + xdelta;
+    fLCDStripes[22].top  = fLCDStripes[26].top;
     fLCDStripes[16].left = fLCDStripes[11].left + xdelta;
     fLCDStripes[16].top  = fLCDStripes[11].top;
     fLCDStripes[18].left = fLCDStripes[14].left + xdelta;
     fLCDStripes[18].top  = fLCDStripes[14].top;
-    fLCDStripes[34].left = fLCDStripes[30].left + xdelta;
-    fLCDStripes[34].top  = fLCDStripes[30].top;
+    fLCDStripes[21].left = fLCDStripes[25].left + xdelta;
+    fLCDStripes[21].top  = fLCDStripes[25].top;
 
     fLCDStripes[32].bitmap = Point;
     fLCDStripes[32].left = 18;
