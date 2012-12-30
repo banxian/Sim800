@@ -183,14 +183,6 @@ void EmulatorThread::run()
     unsigned int nmistart = GetTickCount();
     gThreadFlags &= 0xFFFEu; // Remove 0x01 from gThreadFlags (stack related)
     while(fKeeping) {
-        //ContinueExecution();
-        //DWORD processtime		= totcycles;// needed for comm routines
-        //DWORD loop				= 4096; //speed * 300;// watchdog timer
-        //DWORD elapsed			= 0;
-        //DWORD CpuTicks          = 0;
-        //DWORD j = 0;
-
-        //elapsed = GetTickCount()-stmsecs;
         const unsigned spdc1016freq = GlobalSetting.SPDC1016Frequency;
 
         while (batchcount >= 0 && fKeeping) {
@@ -241,11 +233,8 @@ void EmulatorThread::run()
             }
 
             DWORD CpuTicks = CpuExecute();
-            //totcycles += CpuTicks;
             totalcycle += CpuTicks;
-            //executed++;
             // add checks for reset, IRQ, NMI, and other pin signals
-            //elapsed = GetTickCount()-stmsecs;
             if (lastTicket == 0) {
                 lastTicket = GetTickCount();
             }
@@ -295,22 +284,7 @@ void EmulatorThread::run()
                 }
             }
             
-            //loop--;
-            //// added for irq timing/
-            //if (irqclk) {
-            //    irqcnt += CpuTicks;
-            //    if (irqcnt >= irqclk) {
-            //        irq=0;
-            //        irqcnt = irqcnt - irqclk;
-            //    }
-            //}
-            //if (nmiclk) {
-            //    nmicnt += CpuTicks;
-            //    if (nmicnt >= nmiclk) {
-            //        nmi=0;
-            //        nmicnt = nmicnt - nmiclk;
-            //    }
-            //}
+
             //if (timer0started) {
             //    fixedram0000[io02_timer0_val] = fixedram0000[io02_timer0_val] + 1;
             //}
@@ -318,9 +292,11 @@ void EmulatorThread::run()
             //    fixedram0000[io03_timer1_val] = fixedram0000[io03_timer1_val] + 1;
             //}
 
-            /* Throttling routine (simple delay loop)  */
-            //if (throttle) for (j=throttle*CpuTicks;j>1;j--);
             if (totalcycle % spdc1016freq < 10 && totalcycle > spdc1016freq) {
+#ifdef TARGET_OS_IPHONE
+                measured = true;
+                batchlimiter = spdc1016freq / 4;
+#endif
                 if (measured == false) {
                     measured = true;
                     if (totalcycle < spdc1016freq * 2) {
@@ -386,16 +362,7 @@ void EmulatorThread::run()
             //usleep(10);
             //Sleep(0);
         }
-        /* Throttling update routine   */
-        //if (throttle) {
-        //    if (totcycles < (elapsed * 100 * speed)) {
-        //        throttle--;
-        //        if (throttle < 1) throttle = 1;
-        //    }
-        //    else {
-        //        throttle++;
-        //    }
-        //}
+
         if (memcmp(&fixedram0000[0x9C0], fLCDBuffer, 160*80/8) != 0) {
             memcpy(fLCDBuffer, &fixedram0000[0x9C0], 160*80/8);
             qDebug("lcdBufferChanged");
