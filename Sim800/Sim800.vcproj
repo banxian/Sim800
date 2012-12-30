@@ -147,6 +147,7 @@
 				ExceptionHandling="1"
 				RuntimeLibrary="0"
 				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="true"
 				TreatWChar_tAsBuiltInType="false"
 				RuntimeTypeInfo="true"
 				AssemblerListingLocation="$(IntDir)\"
@@ -178,6 +179,105 @@
 				GenerateMapFile="true"
 				MapExports="true"
 				SubSystem="2"
+				OptimizeReferences="2"
+				LinkTimeCodeGeneration="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Shipping|Win32"
+			OutputDirectory="$(SolutionDir)\Target\VS2008\$(ConfigurationName)"
+			IntermediateDirectory=".\tmp\obj\$(ConfigurationName)"
+			ConfigurationType="1"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				WarningLevel="0"
+				DefaultCharType="0"
+				EnableErrorChecks="1"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="-Zm200 -w34100 -w34189 -w34100 -w34189"
+				Optimization="1"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
+				EnableFiberSafeOptimizations="true"
+				WholeProgramOptimization="true"
+				AdditionalIncludeDirectories="&quot;.\tmp&quot;;&quot;$(QTDIR)\include&quot;;&quot;$(QTDIR)\include\QtCore&quot;;&quot;$(QTDIR)\include\QtGui&quot;;&quot;$(QTDIR)\include\QtXml&quot;;&quot;.&quot;;&quot;.\..\FvQKOLLite&quot;;&quot;.\LibMUIMaker&quot;;&quot;.\tmp\moc\$(ConfigurationName)&quot;;&quot;$(QTDIR)\include\QtSql&quot;;&quot;$(QTDIR)\include\ActiveQt&quot;;G:\root\git\qt\qtlite\src\3rdparty;&quot;.\tmp\$(ConfigurationName)&quot;"
+				PreprocessorDefinitions="QT_NO_DEBUG;NDEBUG;_WINDOWS;UNICODE;WIN32;QT_LARGEFILE_SUPPORT;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;QT_NODLL;SHIP_BUILD;QT_NO_DEBUG_OUTPUT"
+				GeneratePreprocessedFile="0"
+				ExceptionHandling="1"
+				RuntimeLibrary="0"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="true"
+				TreatWChar_tAsBuiltInType="false"
+				RuntimeTypeInfo="true"
+				AssemblerListingLocation="$(IntDir)\"
+				ProgramDataBaseFileName=".\"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				DebugInformationFormat="0"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="QT_NO_DEBUG,NDEBUG,_WINDOWS,UNICODE,WIN32,QT_LARGEFILE_SUPPORT,QT_DLL,QT_NO_DEBUG,QT_GUI_LIB,QT_CORE_LIB,QT_THREAD_SUPPORT"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				IgnoreImportLibrary="true"
+				AdditionalOptions="&quot;/MANIFESTDEPENDENCY:type=&apos;win32&apos; name=&apos;Microsoft.Windows.Common-Controls&apos; version=&apos;6.0.0.0&apos; publicKeyToken=&apos;6595b64144ccf1df&apos; language=&apos;*&apos; processorArchitecture=&apos;*&apos;&quot; &quot;/MANIFESTDEPENDENCY:type=&apos;win32&apos; name=&apos;Microsoft.Windows.Common-Controls&apos; version=&apos;6.0.0.0&apos; publicKeyToken=&apos;6595b64144ccf1df&apos; language=&apos;*&apos; processorArchitecture=&apos;*&apos;&quot;"
+				AdditionalDependencies="ole32.lib QtCore.lib QtGui.lib qtmain.lib QtXml.lib QtSql.lib QAxServer.lib QAxContainer.lib qjpegmod.lib qpngmod.lib imm32.lib ws2_32.lib"
+				OutputFile="$(OutDir)\$(ProjectName).exe"
+				LinkIncremental="1"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="&quot;$(QTDIR)\lib&quot;;&quot;$(QTDIR)\plugins\imageformats&quot;;./PpsDES;./OpenBook"
+				GenerateDebugInformation="true"
+				GenerateMapFile="true"
+				MapExports="true"
+				SubSystem="2"
+				OptimizeReferences="2"
 				LinkTimeCodeGeneration="1"
 			/>
 			<Tool
@@ -294,6 +394,17 @@
 						Outputs="&quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Moc&apos;ing MyZoomWidget.h..."
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DQT_NODLL -DSHIP_BUILD -DQT_NO_DEBUG_OUTPUT -D_UNICODE &quot;-I.\tmp&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtXml&quot; &quot;-I.&quot; &quot;-I.\..\FvQKOLLite&quot; &quot;-I.\LibMUIMaker&quot; &quot;-I.\tmp\moc\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\QtSql&quot; &quot;-I$(QTDIR)\include\ActiveQt&quot; &quot;-IG:\root\git\qt\qtlite\src\3rdparty&quot; &quot;-I.\tmp\$(ConfigurationName)\.&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
+						Outputs="&quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\NekoDriver.h"
@@ -304,7 +415,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing NekoDriver.h..."
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_NODLL -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_UNICODE  &quot;-I.\tmp&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtXml&quot; &quot;-I.&quot; &quot;-I.\..\FvQKOLLite&quot; &quot;-I.\LibMUIMaker&quot; &quot;-I.\tmp\moc\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\QtSql&quot; &quot;-I$(QTDIR)\include\ActiveQt&quot; &quot;-IG:\root\git\qt\qt\src\3rdparty&quot; &quot;-I.\tmp\$(ConfigurationName)\.&quot;&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_NODLL -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_UNICODE &quot;-I.\tmp&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtXml&quot; &quot;-I.&quot; &quot;-I.\..\FvQKOLLite&quot; &quot;-I.\LibMUIMaker&quot; &quot;-I.\tmp\moc\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\QtSql&quot; &quot;-I$(QTDIR)\include\ActiveQt&quot; &quot;-IG:\root\git\qt\qt\src\3rdparty&quot; &quot;-I.\tmp\$(ConfigurationName)\.&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
 						Outputs="&quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>
@@ -315,7 +426,18 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing NekoDriver.h..."
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DQT_NODLL &quot;-I.\tmp&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtXml&quot; &quot;-I.&quot; &quot;-I.\..\FvQKOLLite&quot; &quot;-I.\LibMUIMaker&quot; &quot;-I.\tmp\moc\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\QtSql&quot; &quot;-I$(QTDIR)\include\ActiveQt&quot; &quot;-IG:\root\git\qt\qtlite\src\3rdparty&quot; &quot;-I.\tmp\$(ConfigurationName)\.&quot;&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DQT_NODLL -D_UNICODE &quot;-I.\tmp&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtXml&quot; &quot;-I.&quot; &quot;-I.\..\FvQKOLLite&quot; &quot;-I.\LibMUIMaker&quot; &quot;-I.\tmp\moc\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\QtSql&quot; &quot;-I$(QTDIR)\include\ActiveQt&quot; &quot;-IG:\root\git\qt\qtlite\src\3rdparty&quot; &quot;-I.\tmp\$(ConfigurationName)\.&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
+						Outputs="&quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Moc&apos;ing NekoDriver.h..."
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DQT_NODLL -DSHIP_BUILD -DQT_NO_DEBUG_OUTPUT -D_UNICODE &quot;-I.\tmp&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtXml&quot; &quot;-I.&quot; &quot;-I.\..\FvQKOLLite&quot; &quot;-I.\LibMUIMaker&quot; &quot;-I.\tmp\moc\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\QtSql&quot; &quot;-I$(QTDIR)\include\ActiveQt&quot; &quot;-IG:\root\git\qt\qtlite\src\3rdparty&quot; &quot;-I.\tmp\$(ConfigurationName)\.&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
 						Outputs="&quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>
@@ -340,6 +462,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -376,6 +506,17 @@
 						Outputs=""
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Performing Custom Build Step"
+						CommandLine=""
+						AdditionalDependencies=""
+						Outputs=""
+					/>
+				</FileConfiguration>
 			</File>
 			<Filter
 				Name="Debug"
@@ -387,6 +528,14 @@
 					>
 					<FileConfiguration
 						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Shipping|Win32"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -405,6 +554,14 @@
 							Name="VCCLCompilerTool"
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Shipping|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\tmp\Debug\moc_MyZoomWidget.cpp"
@@ -417,12 +574,28 @@
 							Name="VCCLCompilerTool"
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Shipping|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\tmp\Debug\moc_NekoDriver.cpp"
 					>
 					<FileConfiguration
 						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Shipping|Win32"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -447,12 +620,28 @@
 							Name="VCCLCompilerTool"
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Shipping|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\tmp\Release\moc_MainUnt.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Shipping|Win32"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -471,12 +660,114 @@
 							Name="VCCLCompilerTool"
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Shipping|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\tmp\Release\moc_NekoDriver.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Shipping|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+				</File>
+			</Filter>
+			<Filter
+				Name="Shipping"
+				Filter="cpp;moc"
+				SourceControlFiles="false"
+				>
+				<File
+					RelativePath=".\tmp\Shipping\moc_KeypadUnt.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\tmp\Shipping\moc_MainUnt.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\tmp\Shipping\moc_MyZoomWidget.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\tmp\Shipping\moc_NekoDriver.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -517,6 +808,17 @@
 						Outputs="&quot;.\tmp\ui_$(InputName).h&quot;"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Uic&apos;ing $(InputFileName)..."
+						CommandLine="&quot;$(QTDIR)\bin\uic.exe&quot; -o &quot;.\tmp\ui_$(InputName).h&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="$(QTDIR)\bin\uic.exe"
+						Outputs="&quot;.\tmp\ui_$(InputName).h&quot;"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="MainFrm.ui"
@@ -534,6 +836,17 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="UIC MainFrm.ui"
+						CommandLine="$(QTDIR)\bin\uic.exe MainFrm.ui -o tmp\ui_MainFrm.h&#x0D;&#x0A;"
+						AdditionalDependencies="MainFrm.ui;$(QTDIR)\bin\uic.exe"
+						Outputs="tmp\ui_MainFrm.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -586,6 +899,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\Cloaking.png"
@@ -600,6 +921,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -626,6 +955,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\24x24-tango\document-open.png"
@@ -640,6 +977,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -666,6 +1011,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\24x24-tango\document-save-as.png"
@@ -680,6 +1033,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -706,6 +1067,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\24x24-gnome\document.png"
@@ -720,6 +1089,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -746,6 +1123,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\16x16-tango\drive-removable-media.png"
@@ -760,6 +1145,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -786,6 +1179,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\16x16-tango\edit-find.png"
@@ -800,6 +1201,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -826,6 +1235,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\16x16-tango\emblem-symbolic-link.png"
@@ -840,6 +1257,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -866,6 +1291,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\16x16-tango\emblem-unreadable.png"
@@ -880,6 +1313,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -906,6 +1347,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\16x16-tango\empty.png"
@@ -920,6 +1369,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -946,6 +1403,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\16x16-tango\exec.png"
@@ -960,6 +1425,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -986,6 +1459,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\16x16-gnome2\filesave.png"
@@ -1000,6 +1481,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1026,6 +1515,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\24x24-gnome\folder_tar.png"
@@ -1040,6 +1537,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1066,6 +1571,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\24x24-unofficetango\gnome-mime-application-msword.png"
@@ -1080,6 +1593,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1106,6 +1627,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\16x16-tango\go-bottom.png"
@@ -1120,6 +1649,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1146,6 +1683,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\16x16-tango\go-first.png"
@@ -1160,6 +1705,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1186,6 +1739,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\16x16-tango\go-up.png"
@@ -1200,6 +1761,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1226,6 +1795,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\16x16-tango\info.png"
@@ -1240,6 +1817,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1266,6 +1851,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_battery.png"
@@ -1280,6 +1873,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1306,6 +1907,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_down.png"
@@ -1320,6 +1929,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1346,6 +1963,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_flash.png"
@@ -1360,6 +1985,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1386,6 +2019,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_hframe.png"
@@ -1400,6 +2041,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1426,6 +2075,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_left.png"
@@ -1440,6 +2097,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1466,6 +2131,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_line5.png"
@@ -1480,6 +2153,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1506,6 +2187,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_minus.png"
@@ -1520,6 +2209,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1546,6 +2243,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_pgdown.png"
@@ -1560,6 +2265,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1586,6 +2299,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_pgright.png"
@@ -1600,6 +2321,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1626,6 +2355,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_point.png"
@@ -1640,6 +2377,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1666,6 +2411,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_secret.png"
@@ -1680,6 +2433,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1706,6 +2467,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_seven_honz1.png"
@@ -1720,6 +2489,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1746,6 +2523,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_seven_honz3.png"
@@ -1760,6 +2545,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1786,6 +2579,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_seven_vert2.png"
@@ -1800,6 +2601,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1826,6 +2635,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_seven_vert4.png"
@@ -1840,6 +2657,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1866,6 +2691,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_sever_honz2.png"
@@ -1880,6 +2713,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1906,6 +2747,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_sever_hoz1.png"
@@ -1920,6 +2769,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1946,6 +2803,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_sever_hoz3.png"
@@ -1960,6 +2825,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1986,6 +2859,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_sever_vert2.png"
@@ -2000,6 +2881,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2026,6 +2915,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_sever_vert4.png"
@@ -2040,6 +2937,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2066,6 +2971,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_shift.png"
@@ -2080,6 +2993,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2106,6 +3027,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_speaker-30.png"
@@ -2120,6 +3049,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2146,6 +3083,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_star.png"
@@ -2160,6 +3105,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2186,6 +3139,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_up.png"
@@ -2200,6 +3161,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2226,6 +3195,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcd_vertbar.png"
@@ -2240,6 +3217,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2266,6 +3251,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcdempty.png"
@@ -2280,6 +3273,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2306,6 +3307,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\lcdshadow.png"
@@ -2320,6 +3329,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2346,6 +3363,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\16x16-tango\list-remove.png"
@@ -2360,6 +3385,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2386,6 +3419,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\16x16-tango\mail-attachment.png"
@@ -2400,6 +3441,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2426,6 +3475,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\16x16-tango\shellscript.png"
@@ -2440,6 +3497,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2472,6 +3537,17 @@
 						Outputs=".\tmp\qrc_$(InputName).cpp"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Rcc&apos;ing $(InputFileName)..."
+						CommandLine="&quot;$(QTDIR)\bin\rcc.exe&quot; -name &quot;$(InputName)&quot; -no-compress &quot;$(InputPath)&quot; -o .\tmp\qrc_$(InputName).cpp&#x0D;&#x0A;"
+						AdditionalDependencies="$(InputPath);.\PpsDES\24x24-tango\document-new.png;.\PpsDES\24x24-tango\emblem-unreadable.png;.\PpsDES\24x24-tango\document-open.png;.\PpsDES\16x16-tango\go-first.png;.\PpsDES\16x16-tango\emblem-symbolic-link.png;.\PpsDES\16x16-tango\edit-undo.png;.\PpsDES\16x16-tango\mail-attachment.png;.\PpsDES\24x24-tango\document-save.png;.\PpsDES\24x24-tango\system-installer.png;.\PpsDES\16x16-tango\system-shutdown.png;.\PpsDES\16x16-tango\drive-removable-media.png;.\PpsDES\24x24-tango\system-file-manager.png;.\PpsDES\24x24-tango\document-save-as.png;.\PpsDES\24x24-tango\exit.png;.\PpsDES\16x16-tango\application-certificate.png;.\PpsDES\24x24-tango\document-print.png;.\PpsDES\16x16-tango\edit-clear.png;.\PpsDES\16x16-tango\edit-find.png;.\PpsDES\16x16-tango\video.png;.\PpsDES\16x16-tango\zip.png;.\PpsDES\16x16-tango\document.png;.\PpsDES\16x16-tango\emblem-system.png;.\PpsDES\16x16-tango\emblem-unreadable.png;.\PpsDES\16x16-tango\empty.png;.\PpsDES\16x16-tango\emptytrash.png;.\PpsDES\16x16-tango\exec.png;.\PpsDES\16x16-tango\image.png;.\PpsDES\16x16-tango\info.png;.\PpsDES\16x16-tango\locked.png;.\PpsDES\16x16-tango\preferences-desktop.png;.\PpsDES\16x16-tango\shellscript.png;.\PpsDES\16x16-tango\sound.png;.\PpsDES\16x16-tango\trashcan_full.png;.\PpsDES\Cloaking.png;.\PpsDES\16x16-gnome2\folder_open.png;.\PpsDES\16x16-gnome2\stock_folder.png;.\PpsDES\24x24-tango\tab-new.png;.\PpsDES\16x16-gnome2\stock_data-query-rename.png;.\PpsDES\16x16-tango\tab-new.png;.\PpsDES\16x16-gnome2\gnome-mime-application-vnd.oasis.opendocument.presentation-template.png;.\PpsDES\16x16-gnome2\filesave.png;.\PpsDES\16x16-tango\list-add.png;.\PpsDES\16x16-tango\list-remove.png;.\PpsDES\16x16-tango\go-bottom.png;.\PpsDES\16x16-tango\go-down.png;.\PpsDES\16x16-tango\go-top.png;.\PpsDES\16x16-tango\go-up.png;.\PpsDES\16x16-gnome2\view-sort-ascending.png;.\PpsDES\24x24-gnome\document.png;.\PpsDES\24x24-gnome\folder_tar.png;.\PpsDES\24x24-unofficetango\folder_tar.png;.\PpsDES\24x24-unofficetango\gnome-mime-application-msword.png;.\PpsDES\lcdstripe\WQX_ALARM.png;.\PpsDES\lcdstripe\WQX_BATTERY.png;.\PpsDES\lcdstripe\WQX_CAPS.png;.\PpsDES\lcdstripe\WQX_DOWN.png;.\PpsDES\lcdstripe\WQX_ENG.png;.\PpsDES\lcdstripe\WQX_FLASH.png;.\PpsDES\lcdstripe\WQX_HBAR.png;.\PpsDES\lcdstripe\WQX_KEYCLICK.png;.\PpsDES\lcdstripe\WQX_LEFT.png;.\PpsDES\lcdstripe\WQX_LINE.png;.\PpsDES\lcdstripe\WQX_MICROPHONE.png;.\PpsDES\lcdstripe\WQX_MINUS.png;.\PpsDES\lcdstripe\WQX_NUM.png;.\PpsDES\lcdstripe\WQX_PGDOWN.png;.\PpsDES\lcdstripe\WQX_PGLEFT.png;.\PpsDES\lcdstripe\WQX_PGUP.png;.\PpsDES\lcdstripe\WQX_POINT.png;.\PpsDES\lcdstripe\WQX_RIGHT.png;.\PpsDES\lcdstripe\WQX_SECRET.png;.\PpsDES\lcdstripe\WQX_SEMICOLON.png;.\PpsDES\lcdstripe\WQX_SEVEN_H.png;.\PpsDES\lcdstripe\WQX_SEVEN_V.png;.\PpsDES\lcdstripe\WQX_SHARPBELL.png;.\PpsDES\lcdstripe\WQX_SOUND.png;.\PpsDES\lcdstripe\WQX_SPEAKER.png;.\PpsDES\lcdstripe\WQX_STAR.png;.\PpsDES\lcdstripe\WQX_TAPE.png;.\PpsDES\lcdstripe\WQX_UP.png;.\PpsDES\lcdstripe\WQX_VBAR.png;.\PpsDES\lcdstripe\WQX_VFRAME.png;.\PpsDES\lcdstripe\WQX_HFRAME.png;.\PpsDES\lcdstripe\WQX_PGRIGHT.png;.\PpsDES\lcdstripe\WQX_SHIFT.png;.\PpsDES\lcdstripe\lcdpixel.png;.\PpsDES\lcdstripe\lcdempty.png;.\PpsDES\lcdstripe\lcd_alarm.png;.\PpsDES\lcdstripe\lcd_caps.png;.\PpsDES\lcdstripe\lcd_down.png;.\PpsDES\lcdstripe\lcd_eng.png;.\PpsDES\lcdstripe\lcd_flash.png;.\PpsDES\lcdstripe\lcd_hbar.png;.\PpsDES\lcdstripe\lcd_hframe.png;.\PpsDES\lcdstripe\lcd_line.png;.\PpsDES\lcdstripe\lcd_line5.png;.\PpsDES\lcdstripe\lcd_minus.png;.\PpsDES\lcdstripe\lcd_num.png;.\PpsDES\lcdstripe\lcd_pgup.png;.\PpsDES\lcdstripe\lcd_point.png;.\PpsDES\lcdstripe\lcd_right.png;.\PpsDES\lcdstripe\lcd_semicolon.png;.\PpsDES\lcdstripe\lcd_sharpbell.png;.\PpsDES\lcdstripe\lcd_shift.png;.\PpsDES\lcdstripe\lcd_sound.png;.\PpsDES\lcdstripe\lcd_speaker.png;.\PpsDES\lcdstripe\lcd_star.png;.\PpsDES\lcdstripe\lcd_tape.png;.\PpsDES\lcdstripe\lcd_up.png;.\PpsDES\lcdstripe\lcd_vframe.png;.\PpsDES\lcdstripe\lcdshadow.png;.\PpsDES\lcdstripe\lcd_keyclick.png;.\PpsDES\lcdstripe\lcd_battery.png;.\PpsDES\lcdstripe\lcd_left.png;.\PpsDES\lcdstripe\lcd_pgdown.png;.\PpsDES\lcdstripe\lcd_pgleft.png;.\PpsDES\lcdstripe\lcd_pgright.png;.\PpsDES\lcdstripe\lcd_secret.png;.\PpsDES\lcdstripe\lcd_microphone.png;.\PpsDES\lcdstripe\lcd_vbar.png;.\PpsDES\lcdstripe\lcd_seven_honz1.png;.\PpsDES\lcdstripe\lcd_seven_honz2.png;.\PpsDES\lcdstripe\lcd_seven_honz3.png;.\PpsDES\lcdstripe\lcd_seven_vert1.png;.\PpsDES\lcdstripe\lcd_seven_vert2.png;.\PpsDES\lcdstripe\lcd_seven_vert3.png;.\PpsDES\lcdstripe\lcd_seven_vert4.png"
+						Outputs=".\tmp\qrc_$(InputName).cpp"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\16x16-tango\sound.png"
@@ -2486,6 +3562,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2512,6 +3596,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\16x16-gnome2\stock_folder.png"
@@ -2526,6 +3618,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2552,6 +3652,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\24x24-tango\system-installer.png"
@@ -2566,6 +3674,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2592,6 +3708,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\16x16-tango\tab-new.png"
@@ -2606,6 +3730,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2632,6 +3764,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\16x16-tango\trashcan_full.png"
@@ -2646,6 +3786,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2672,6 +3820,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\16x16-gnome2\view-sort-ascending.png"
@@ -2686,6 +3842,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2712,6 +3876,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\WQX_BATTERY.png"
@@ -2726,6 +3898,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2752,6 +3932,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\WQX_DOWN.png"
@@ -2766,6 +3954,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2792,6 +3988,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\WQX_FLASH.png"
@@ -2806,6 +4010,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2832,6 +4044,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\WQX_HFRAME.png"
@@ -2846,6 +4066,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2872,6 +4100,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\WQX_LEFT.png"
@@ -2886,6 +4122,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2912,6 +4156,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\WQX_MICROPHONE.png"
@@ -2926,6 +4178,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2952,6 +4212,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\WQX_NUM.png"
@@ -2966,6 +4234,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2992,6 +4268,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\WQX_PGLEFT.png"
@@ -3006,6 +4290,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -3032,6 +4324,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\WQX_PGUP.png"
@@ -3046,6 +4346,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -3072,6 +4380,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\WQX_RIGHT.png"
@@ -3086,6 +4402,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -3112,6 +4436,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\WQX_SEMICOLON.png"
@@ -3126,6 +4458,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -3152,6 +4492,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\WQX_SEVEN_V.png"
@@ -3166,6 +4514,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -3192,6 +4548,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\WQX_SHIFT.png"
@@ -3206,6 +4570,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -3232,6 +4604,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\WQX_SPEAKER.png"
@@ -3246,6 +4626,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -3272,6 +4660,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\WQX_TAPE.png"
@@ -3286,6 +4682,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -3312,6 +4716,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\lcdstripe\WQX_VBAR.png"
@@ -3326,6 +4738,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -3352,6 +4772,14 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\PpsDES\16x16-tango\zip.png"
@@ -3366,6 +4794,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -3406,6 +4842,17 @@
 						Outputs="&quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Moc&apos;ing KeypadUnt.h..."
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DQT_NODLL -DSHIP_BUILD -DQT_NO_DEBUG_OUTPUT -D_UNICODE &quot;-I.\tmp&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtXml&quot; &quot;-I.&quot; &quot;-I.\..\FvQKOLLite&quot; &quot;-I.\LibMUIMaker&quot; &quot;-I.\tmp\moc\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\QtSql&quot; &quot;-I$(QTDIR)\include\ActiveQt&quot; &quot;-IG:\root\git\qt\qtlite\src\3rdparty&quot; &quot;-I.\tmp\$(ConfigurationName)\.&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
+						Outputs="&quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="MainUnt.cpp"
@@ -3420,7 +4867,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing MainUnt.h..."
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_NODLL -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_UNICODE  &quot;-I.\tmp&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtXml&quot; &quot;-I.&quot; &quot;-I.\..\FvQKOLLite&quot; &quot;-I.\LibMUIMaker&quot; &quot;-I.\tmp\moc\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\QtSql&quot; &quot;-I$(QTDIR)\include\ActiveQt&quot; &quot;-IG:\root\git\qt\qt\src\3rdparty&quot; &quot;-I.\tmp\$(ConfigurationName)\.&quot;&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_NODLL -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_UNICODE &quot;-I.\tmp&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtXml&quot; &quot;-I.&quot; &quot;-I.\..\FvQKOLLite&quot; &quot;-I.\LibMUIMaker&quot; &quot;-I.\tmp\moc\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\QtSql&quot; &quot;-I$(QTDIR)\include\ActiveQt&quot; &quot;-IG:\root\git\qt\qt\src\3rdparty&quot; &quot;-I.\tmp\$(ConfigurationName)\.&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
 						Outputs="&quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>
@@ -3431,7 +4878,18 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing MainUnt.h..."
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DQT_NODLL &quot;-I.\tmp&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtXml&quot; &quot;-I.&quot; &quot;-I.\..\FvQKOLLite&quot; &quot;-I.\LibMUIMaker&quot; &quot;-I.\tmp\moc\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\QtSql&quot; &quot;-I$(QTDIR)\include\ActiveQt&quot; &quot;-IG:\root\git\qt\qtlite\src\3rdparty&quot; &quot;-I.\tmp\$(ConfigurationName)\.&quot;&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DQT_NODLL -D_UNICODE &quot;-I.\tmp&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtXml&quot; &quot;-I.&quot; &quot;-I.\..\FvQKOLLite&quot; &quot;-I.\LibMUIMaker&quot; &quot;-I.\tmp\moc\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\QtSql&quot; &quot;-I$(QTDIR)\include\ActiveQt&quot; &quot;-IG:\root\git\qt\qtlite\src\3rdparty&quot; &quot;-I.\tmp\$(ConfigurationName)\.&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
+						Outputs="&quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Shipping|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Moc&apos;ing MainUnt.h..."
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DQT_NODLL -DSHIP_BUILD -DQT_NO_DEBUG_OUTPUT -D_UNICODE &quot;-I.\tmp&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtXml&quot; &quot;-I.&quot; &quot;-I.\..\FvQKOLLite&quot; &quot;-I.\LibMUIMaker&quot; &quot;-I.\tmp\moc\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\QtSql&quot; &quot;-I$(QTDIR)\include\ActiveQt&quot; &quot;-IG:\root\git\qt\qtlite\src\3rdparty&quot; &quot;-I.\tmp\$(ConfigurationName)\.&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
 						Outputs="&quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>

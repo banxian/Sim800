@@ -30,13 +30,7 @@ private:
     bool LoadFullNorFlash(const QString& filename);
     bool LoadDemoNor(const QString& filename);
     bool SaveFullNorFlash();
-    //static bool NicetoScaleOnFly( QSize &orgsize, bool ispng, bool isjpeg );
-    //static bool NiceToRotate( int width, int height, int destwidth, int destheight );
-    //static bool PrepareScaledQPicture( QImage& qimage, int destwidth, int destheight, ScaleFilter filter, int& scaletime );
-    //static void OptimizeMangaImage( QImage& qimage );
-    //static void SaveBundleRec( TPageBundleRec& page ); // Encode to file and drop image
-    //bool PreparePageImagesBuffer();
-    //void CalulatePages(int& allpagecount, int &readypagecount);
+
 public:
     bool IsProjectEmpty();
     bool IsProjectModified();
@@ -73,7 +67,8 @@ private:
     unsigned int lastTicket;
     unsigned long long totalcycle;
     //const unsigned spdc1016freq = 3686400;
-    bool checked;
+    bool measured;
+    unsigned remeasure;
     unsigned batchlimiter;
     long batchcount;
     double sleepgap;

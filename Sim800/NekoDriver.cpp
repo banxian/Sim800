@@ -129,7 +129,8 @@ EmulatorThread::EmulatorThread( char* brom, char* nor )
     , fLCDBuffer(malloc(160*80/8))
     , lastTicket(0)
     , totalcycle(0)
-    , checked(false)
+    , measured(false)
+    , remeasure(2)
     , batchlimiter(0)
     , batchcount(UINT_MAX)
     , sleepgap(10)
@@ -144,7 +145,7 @@ EmulatorThread::~EmulatorThread()
 }
 
 
-extern WORD LogDisassembly (WORD offset, LPTSTR text);
+extern WORD LogDisassembly (WORD offset, char* text);
 extern void AppendLog(const char* text);
 
 extern bool timer0started;
@@ -230,6 +231,7 @@ void EmulatorThread::run()
                 gThreadFlags &= 0xFFF7u; // remove 0x08 NMI Flag
                 nmi = 0; // next CpuExecute will execute two instructions
                 qDebug("ggv wanna NMI.");
+                //fprintf(stderr, "ggv wanna NMI.\n");
                 gDeadlockCounter--; // wrong behavior of wqxsim
             } else if (((regs.ps & 0x4) == 0) && ((gThreadFlags & 0x10) != 0)) {
                 gThreadFlags &= 0xFFEFu; // remove 0x10 IRQ Flag
@@ -239,9 +241,9 @@ void EmulatorThread::run()
             }
 
             DWORD CpuTicks = CpuExecute();
-            totcycles += CpuTicks;
+            //totcycles += CpuTicks;
             totalcycle += CpuTicks;
-            executed++;
+            //executed++;
             // add checks for reset, IRQ, NMI, and other pin signals
             //elapsed = GetTickCount()-stmsecs;
             if (lastTicket == 0) {
@@ -319,22 +321,37 @@ void EmulatorThread::run()
             /* Throttling routine (simple delay loop)  */
             //if (throttle) for (j=throttle*CpuTicks;j>1;j--);
             if (totalcycle % spdc1016freq < 10 && totalcycle > spdc1016freq) {
-                if (checked == false) {
-                    checked = true;
+                if (measured == false) {
+                    measured = true;
                     if (totalcycle < spdc1016freq * 2) {
                         // first loop check!
                         // spdc1016 executed one second in fullspeed virtual timeline
                         unsigned long long realworldtime = GetTickCount() - lastTicket; // should less than 1000ms
                         lastTicket = GetTickCount();
                         //double virtual100ms = realworldtime / 100.0;
+                        qDebug("realworldtime:%llu", realworldtime);
+                        fprintf(stderr, "realworldtime:%llu\n", realworldtime);
                         if (realworldtime > 1000) {
-                            batchlimiter = spdc1016freq * 2;
+                            // TODO: device may slower than simulator
+                            // in my test iPad I get 3528/3779/3630 msec to finish one sdpc1016freq loop
+                            // we should make screen refresh at least twice per real world second or screen will never been updated
+                            // 1000->500 2000->250 4000->125
+                            //batchlimiter = spdc1016freq * 2;
+                            batchlimiter = 500 * spdc1016freq / realworldtime;
+                            if (remeasure) {
+                                qDebug("remeasure on batchlimiter: %u", batchlimiter);
+                                fprintf(stderr, "remeasure on batchlimiter: %u\n", batchlimiter);
+                                measured = false;
+                                totalcycle = 0;
+                                remeasure--;
+                            }
                         } else if (batchlimiter == 0) {
                             // 1000 - realworldtime = overflow time, overflow time / 10 = sleepcount, freq / sleepcount = batchcount
                             //batchlimiter = spdc1016freq / ((1000 - realworldtime) / 10);
                             sleepcount = (1000 - realworldtime) / sleepgap;
                             batchlimiter = spdc1016freq * sleepgap / (1000 - realworldtime);
                         } else {
+                            // wrong path?
                             // sleep(0) is less than 10ms, but we'd never go here
                         }
                         batchcount = batchlimiter;
@@ -355,7 +372,7 @@ void EmulatorThread::run()
                 }
             }
             if (totalcycle % spdc1016freq > 10 && totalcycle > spdc1016freq) {
-                checked = false;
+                measured = false;
             }
 
             if (batchlimiter != 0) {
@@ -382,6 +399,7 @@ void EmulatorThread::run()
         if (memcmp(&fixedram0000[0x9C0], fLCDBuffer, 160*80/8) != 0) {
             memcpy(fLCDBuffer, &fixedram0000[0x9C0], 160*80/8);
             qDebug("lcdBufferChanged");
+            fprintf(stderr, "lcdBufferChanged\n");
             emit lcdBufferChanged(new QByteArray((const char*)fLCDBuffer, 160*80/8));
         }
         //emit stepFinished(regs.pc);

@@ -7,30 +7,30 @@ extern "C" {
 #include "CC800IOName.h"
 
 
-BYTE __stdcall NullRead (BYTE read);
-void __stdcall NullWrite (BYTE write, BYTE value);
+BYTE __iocallconv NullRead (BYTE read);
+void __iocallconv NullWrite (BYTE write, BYTE value);
 
-BYTE __stdcall Read04StopTimer0 (BYTE read); // $04
-BYTE __stdcall Read05StartTimer0 (BYTE read); // $05
-BYTE __stdcall Read07StartTimer1 (BYTE read); // $07
-BYTE __stdcall Read06StopTimer1 (BYTE read); // $06
-BYTE __stdcall ReadPort0 (BYTE read); // $08
-BYTE __stdcall ReadPort1 (BYTE read); // $09
+BYTE __iocallconv Read04StopTimer0 (BYTE read); // $04
+BYTE __iocallconv Read05StartTimer0 (BYTE read); // $05
+BYTE __iocallconv Read07StartTimer1 (BYTE read); // $07
+BYTE __iocallconv Read06StopTimer1 (BYTE read); // $06
+BYTE __iocallconv ReadPort0 (BYTE read); // $08
+BYTE __iocallconv ReadPort1 (BYTE read); // $09
 
-BYTE __stdcall Read00BankSwitch (BYTE read); // $00
-void __stdcall Write00BankSwitch (BYTE write, BYTE value); // $00
-void __stdcall Write02Timer0Value(BYTE write, BYTE value); // $02
-void __stdcall Write05ClockCtrl(BYTE write, BYTE value); // $05
-void __stdcall Write06LCDStartAddr (BYTE write, BYTE value); // $06
-void __stdcall WriteTimer01Control (BYTE write, BYTE value);
-void __stdcall Write08Port0 (BYTE write, BYTE value); // $08
-void __stdcall Write09Port1 (BYTE write, BYTE value); // $09
-void __stdcall ControlPort1 (BYTE write, BYTE value); // $15
-void __stdcall WriteZeroPageBankswitch (BYTE write, BYTE value); // $0F
-void __stdcall Write0AROABBS (BYTE write, BYTE value); // $0A
-void __stdcall Write0DVolumeIDLCDSegCtrl(BYTE write, BYTE value); // $0D
-void __stdcall Write20JG(BYTE write, BYTE value); // $20
-void __stdcall Write23Unknow(BYTE write, BYTE value); // $20
+BYTE __iocallconv Read00BankSwitch (BYTE read); // $00
+void __iocallconv Write00BankSwitch (BYTE write, BYTE value); // $00
+void __iocallconv Write02Timer0Value(BYTE write, BYTE value); // $02
+void __iocallconv Write05ClockCtrl(BYTE write, BYTE value); // $05
+void __iocallconv Write06LCDStartAddr (BYTE write, BYTE value); // $06
+void __iocallconv WriteTimer01Control (BYTE write, BYTE value);
+void __iocallconv Write08Port0 (BYTE write, BYTE value); // $08
+void __iocallconv Write09Port1 (BYTE write, BYTE value); // $09
+void __iocallconv ControlPort1 (BYTE write, BYTE value); // $15
+void __iocallconv WriteZeroPageBankswitch (BYTE write, BYTE value); // $0F
+void __iocallconv Write0AROABBS (BYTE write, BYTE value); // $0A
+void __iocallconv Write0DVolumeIDLCDSegCtrl(BYTE write, BYTE value); // $0D
+void __iocallconv Write20JG(BYTE write, BYTE value); // $20
+void __iocallconv Write23Unknow(BYTE write, BYTE value); // $20
 
 
 iofunction1 ioread[0x40]  = {
@@ -287,12 +287,12 @@ void SetByte( unsigned short address, unsigned char value )
     *(pmemmap[row] + address % 0x2000) = value;
 }
 
-BYTE __stdcall NullRead (BYTE address) {
+BYTE __iocallconv NullRead (BYTE address) {
     //qDebug("ggv wanna read io, [%04x] -> %02x", address, mem[address]);
     return fixedram0000[address];
 }
 
-void __stdcall NullWrite(BYTE address, BYTE value) {
+void __iocallconv NullWrite(BYTE address, BYTE value) {
     //qDebug("ggv wanna write io, [%04x] (%02x) -> %02x", address, mem[address], value);
     fixedram0000[address] = value;
 }
@@ -315,7 +315,7 @@ void TNekoDriver::InitInternalAddrs()
 }
 
 
-void __stdcall Write00BankSwitch( BYTE write, BYTE bank )
+void __iocallconv Write00BankSwitch( BYTE write, BYTE bank )
 {
     //char result; // al@1
     //int rambank; // eax@6
@@ -383,7 +383,7 @@ void __stdcall Write00BankSwitch( BYTE write, BYTE bank )
     (void) write;
 }
 
-BYTE __stdcall Read00BankSwitch( BYTE )
+BYTE __iocallconv Read00BankSwitch( BYTE )
 {
     byte r = fixedram0000[io00_bank_switch];
     qDebug("ggv wanna read bank. current bank 0x%02x", r);
@@ -445,7 +445,7 @@ void FillC000BIOSBank(unsigned char** array) {
     }
 }
 
-void __stdcall Write0AROABBS( BYTE write, BYTE value )
+void __iocallconv Write0AROABBS( BYTE write, BYTE value )
 {
     //char bank; // al@3
     //DWORD addr4000; // edx@3
@@ -510,7 +510,7 @@ void __stdcall Write0AROABBS( BYTE write, BYTE value )
     (void)write;
 }
 
-void __stdcall Write0DVolumeIDLCDSegCtrl(BYTE write, BYTE value)
+void __iocallconv Write0DVolumeIDLCDSegCtrl(BYTE write, BYTE value)
 {
     //char result; // al@1
     //signed int fullbank; // eax@3
@@ -622,7 +622,7 @@ unsigned char* GetZeroPagePointer(unsigned char bank) {
     return result;
 }
 
-void __stdcall WriteZeroPageBankswitch (BYTE write, BYTE value)
+void __iocallconv WriteZeroPageBankswitch (BYTE write, BYTE value)
 {
     //char *oldzpbank; // eax@1
     //unsigned __int8 newzpbank; // dl@1
@@ -1103,7 +1103,7 @@ label_checkpageerase:
     else
     {
         // gNorFlag0 != 2
-        if ( (unsigned __int8)gNorPageEraseStep > 2u )
+        if ( (unsigned char)gNorPageEraseStep > 2u )
         {
             // Check ERASE mode
             switch ( gNorPageEraseStep )
@@ -1140,13 +1140,13 @@ label_checkpageerase:
                         do
                         {
                             //*(unsigned char *)(norbankheader[(unsigned __int8)gNorPageEraseStep] + i) = 0xFFu;
-                            norbankheader[(unsigned __int8)gNorPageEraseStep][i] = 0xFFu;
+                            norbankheader[(unsigned char)gNorPageEraseStep][i] = 0xFFu;
                             i = gErasePos++ + 1;
                         }
                         while ( (unsigned int)gErasePos < 0x8000 );
                         ++gNorPageEraseStep;
                     }
-                    while ( (unsigned __int8)gNorPageEraseStep < 0x10u );
+                    while ( (unsigned char)gNorPageEraseStep < 0x10u );
                     gErasePos = 0;
                     gNorPageEraseStep = 0;
                     fFlashUpdated = true;
@@ -1159,12 +1159,12 @@ label_checkpageerase:
                     qDebug("ggv wanna erase one block of flash!");
                     gNorPageEraseStep = fixedram0000[io00_bank_switch];// cross?! 557
                     // 5018 -> 5018 - 18 - 4000 = 1000
-                    gEraseBlockAddr = (unsigned __int16)addr16 - (unsigned __int16)addr16 % 0x1000 - 0x4000;
+                    gEraseBlockAddr = (unsigned short)addr16 - (unsigned short)addr16 % 0x1000 - 0x4000;
                     int i2 = 0;
                     gErasePos = 0;
                     do
                     {
-                        *(unsigned char *)(gEraseBlockAddr + norbankheader[(unsigned __int8)gNorPageEraseStep] + i2) = 0xFFu;
+                        *(unsigned char *)(gEraseBlockAddr + norbankheader[(unsigned char)gNorPageEraseStep] + i2) = 0xFFu;
                         i2 = gErasePos++ + 1;
                     }
                     while ( (unsigned int)gErasePos < 0x1000 );

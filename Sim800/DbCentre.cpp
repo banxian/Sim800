@@ -1,7 +1,6 @@
 #include <QtGui/QApplication>
 #include <QtCore/QSettings>
 #include <QtCore/QFile>
-#include <QtSql/QtSQL>
 #include "DbCentre.h"
 
 TPathRecItem PathSetting; // imp

@@ -1,12 +1,10 @@
-//#include <commctrl.h>
-#include <conio.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <tchar.h>
 #include <time.h>
 #include <windows.h>
+#include <sys/types.h>
 
 //#define  BUILDNUMBER       2     // Rename to 65c02
 //#define  BUILDNUMBER       3     // remove registry, use ini file
@@ -46,12 +44,10 @@
 #define  MAX(a,b)          (((a) > (b)) ? (a) : (b))
 #define  MIN(a,b)          (((a) < (b)) ? (a) : (b))
 
-//#define HFINDFILE   HANDLE
+#define __iocallconv __fastcall
 
-typedef BYTE (_stdcall *iofunction1)(BYTE);
-typedef void (_stdcall *iofunction2)(BYTE,BYTE);
-
-typedef struct _IMAGE__ { int unused; } *HIMAGE;
+typedef BYTE (__iocallconv *iofunction1)(BYTE);
+typedef void (__iocallconv *iofunction2)(BYTE,BYTE);
 
 typedef struct _regsrec {
   BYTE a;   // accumulator
@@ -79,17 +75,17 @@ extern unsigned char* bbsbankheader[0x10];
 extern WORD       iorange;
 extern regsrec    regs;
 extern BOOL       restart;
-extern DWORD	  totcycles;
-extern DWORD      stmsecs;
-extern DWORD      executed;
-extern int        benchmark;
-extern DWORD      throttle;
+//extern DWORD	  totcycles;
+//extern DWORD      stmsecs;
+//extern DWORD      executed;
+//extern int        benchmark;
+//extern DWORD      throttle;
 extern BOOL       irq;
 extern BOOL       nmi;
 extern BOOL       wai;
 extern BOOL       stp;
-extern DWORD      irqclk;       /*  used for auto-IRQ  */
-extern DWORD      nmiclk;       /*  used for auto-NMI  */
+//extern DWORD      irqclk;       /*  used for auto-IRQ  */
+//extern DWORD      nmiclk;       /*  used for auto-NMI  */
 
 
 
@@ -98,9 +94,6 @@ void    CpuInitialize ();
 void    MemDestroy ();
 void    MemInitialize ();
 void    MemReset ();
-void	w65c22init(int);
-void	w65c22upd(DWORD);
-void    w65c22pins(WORD);
 
 
 

@@ -327,7 +327,7 @@ unsigned logpos = 0;
 
 char logbuff [102400*50]; // 5M buffer. no need initialize
 
-WORD LogDisassembly ( WORD offset, LPTSTR text )
+WORD LogDisassembly ( WORD offset, char* text )
 {
     if (logfile == NULL) {
         wchar_t* filepath = new wchar_t[MAX_PATH];
@@ -383,7 +383,7 @@ WORD LogDisassembly ( WORD offset, LPTSTR text )
             address = (offset+3+(int)(signed char)address) & 0xffff;
 
             char zptxt[14];
-            sprintf(zptxt,(LPSTR)GetSymbol(zpaddr,2));
+            sprintf(zptxt,"%s",(LPSTR)GetSymbol(zpaddr,2));
             sprintf(addresstext,
                 addressmode[addrmode].format,
                 zptxt,

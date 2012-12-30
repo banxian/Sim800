@@ -15,9 +15,7 @@ enum TImageType {
     itUnknown = -1, itTarga, itBitmap, itPNG, itJPEG, itGif, itHDPhoto, itPKArchive, itRarArchive
 };
 
-QImage NewQImageFromRCDATA(LPCTSTR lpName);
-QImage NewQImageFromResource(HMODULE hModule, LPCTSTR lpType, LPCTSTR lpName);
-bool LoadQImageFromResource(QImage& qimage, HMODULE hModule, LPCTSTR lpType, LPCTSTR lpName);
+
 void Normalize8bitQImage( QImage& qimage ); // or Indexed8
 void QuantizeToGrayscaleQImage( QImage& qimage, bool dither = false ); // diffusion?
 void ReplaceAlphaWithChecker( QImage& qimage );
@@ -43,5 +41,7 @@ bool SaveByteArrayToFile( const QString& filename, const QByteArray& content );
 
 int greedydiv(int n, int m);
 int getCpuCount();
-unsigned int getTickCount();
+#ifndef _WIN32
+unsigned int GetTickCount();
+#endif
 #endif

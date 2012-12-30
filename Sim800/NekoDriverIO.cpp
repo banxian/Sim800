@@ -15,7 +15,7 @@ unsigned short gThreadFlags;
 unsigned char* gGeneralCtrlPtr;
 unsigned short mayGenralnClockCtrlValue;
 
-BYTE __stdcall Read05StartTimer0( BYTE ) // 05
+BYTE __iocallconv Read05StartTimer0( BYTE ) // 05
 {
     // SPDC1016
     qDebug("ggv wanna start timer0");
@@ -34,7 +34,7 @@ BYTE __stdcall Read05StartTimer0( BYTE ) // 05
     return fixedram0000[io05_clock_ctrl]; // follow rulz by GGV
 }
 
-BYTE __stdcall Read04StopTimer0( BYTE ) // 04
+BYTE __iocallconv Read04StopTimer0( BYTE ) // 04
 {
     // SPDC1016
     qDebug("ggv wanna stop timer0");
@@ -54,7 +54,7 @@ BYTE __stdcall Read04StopTimer0( BYTE ) // 04
     return fixedram0000[io04_general_ctrl];
 }
 
-BYTE __stdcall Read07StartTimer1( BYTE ) // 07
+BYTE __iocallconv Read07StartTimer1( BYTE ) // 07
 {
     // SPDC1016
     //qDebug("ggv wanna start timer1");
@@ -63,7 +63,7 @@ BYTE __stdcall Read07StartTimer1( BYTE ) // 07
     return fixedram0000[io07_port_config];
 }
 
-BYTE __stdcall Read06StopTimer1( BYTE ) // 06
+BYTE __iocallconv Read06StopTimer1( BYTE ) // 06
 {
     // Stop timer1, and return time1 value
     // SPDC1016
@@ -79,7 +79,7 @@ BYTE __stdcall Read06StopTimer1( BYTE ) // 06
 
 bool lcdoffshift0flag = false;
 
-void __stdcall Write05ClockCtrl( BYTE write, BYTE value )
+void __iocallconv Write05ClockCtrl( BYTE write, BYTE value )
 {
     // FROM WQXSIM
     // SPDC1016
@@ -98,7 +98,7 @@ void __stdcall Write05ClockCtrl( BYTE write, BYTE value )
 
 unsigned short lcdbuffaddr;
 
-void __stdcall Write06LCDStartAddr( BYTE write, BYTE value ) // 06
+void __iocallconv Write06LCDStartAddr( BYTE write, BYTE value ) // 06
 {
     unsigned int t = ((fixedram0000[io0C_lcd_config] & 0x3) << 12);
     t = t | (value << 4);
@@ -111,7 +111,7 @@ void __stdcall Write06LCDStartAddr( BYTE write, BYTE value ) // 06
     fixedram0000[io09_port1_data] &= 0xFEu; // remove bit0 of port1 (keypad)
 }
 
-void __stdcall WriteTimer01Control( BYTE write, BYTE value ) // 0C
+void __iocallconv WriteTimer01Control( BYTE write, BYTE value ) // 0C
 {
     unsigned int t = ((value & 0x3) << 12); // lc12~lc13
     t = t | (fixedram0000[io06_lcd_config] << 4); // lc4~lc11
@@ -122,7 +122,7 @@ void __stdcall WriteTimer01Control( BYTE write, BYTE value ) // 0C
     (void)write;
 }
 
-void __stdcall Write20JG( BYTE write, BYTE value )
+void __iocallconv Write20JG( BYTE write, BYTE value )
 {
     // SPDC1016
 
@@ -139,7 +139,7 @@ void __stdcall Write20JG( BYTE write, BYTE value )
 }
 
 
-void __stdcall Write23Unknow( BYTE write, BYTE value )
+void __iocallconv Write23Unknow( BYTE write, BYTE value )
 {
     // SPDC1023
     // io23 unknown
@@ -206,7 +206,7 @@ void __stdcall Write23Unknow( BYTE write, BYTE value )
     (void)write;
 }
 
-void __stdcall Write02Timer0Value( BYTE write, BYTE value )
+void __iocallconv Write02Timer0Value( BYTE write, BYTE value )
 {
     // SPDC1016
     if (timer0started) {
@@ -316,7 +316,7 @@ void UpdateKeypadRegisters()
     fixedram0000[io08_port0_data] = port0data;
 }
 
-BYTE __stdcall ReadPort0( BYTE read )
+BYTE __iocallconv ReadPort0( BYTE read )
 {
     UpdateKeypadRegisters();
     //qDebug("ggv wanna read keypad port0, [%04x] -> %02x", read, mem[read]);
@@ -324,7 +324,7 @@ BYTE __stdcall ReadPort0( BYTE read )
     (void)read;
 }
 
-BYTE __stdcall ReadPort1( BYTE read )
+BYTE __iocallconv ReadPort1( BYTE read )
 {
     UpdateKeypadRegisters();
     //qDebug("ggv wanna read keypad port1, [%04x] -> %02x", read, mem[read]);
@@ -332,7 +332,7 @@ BYTE __stdcall ReadPort1( BYTE read )
     (void)read;
 }
 
-void __stdcall Write08Port0( BYTE write, BYTE value )
+void __iocallconv Write08Port0( BYTE write, BYTE value )
 {
     //qDebug("ggv wanna write keypad port0, [%04x] (%02x) -> %02x", write, mem[write], value);
     fixedram0000[io08_port0_data] = value;
@@ -381,7 +381,7 @@ void __stdcall Write08Port0( BYTE write, BYTE value )
     (void)write;
 }
 
-void __stdcall Write09Port1( BYTE write, BYTE value )
+void __iocallconv Write09Port1( BYTE write, BYTE value )
 {
     //qDebug("ggv wanna write keypad port1, [%04x] (%02x) -> %02x", write, mem[write], value);
     fixedram0000[io09_port1_data] = value;
@@ -476,7 +476,7 @@ void __stdcall Write09Port1( BYTE write, BYTE value )
     (void)write;
 }
 
-void __stdcall ControlPort1( BYTE write, BYTE value )
+void __iocallconv ControlPort1( BYTE write, BYTE value )
 {
     //qDebug("ggv wanna config keypad port1, [%04x] (%02x) -> %02x", write, mem[write], value);
     fixedram0000[io15_port1_dir] = value;

@@ -17,29 +17,6 @@
 #include <QtGui/QApplication>
 
 
-QImage NewQImageFromRCDATA(LPCTSTR lpName)
-{
-    QImage Result;
-    LoadQImageFromResource(Result, GetModuleHandle(NULL), RT_RCDATA, lpName);
-    return Result;
-}
-
-QImage NewQImageFromResource( HMODULE hModule, LPCTSTR lpType, LPCTSTR lpName )
-{
-    QImage Result;
-    LoadQImageFromResource(Result, hModule, lpType, lpName);
-    return Result;
-}
-
-bool LoadQImageFromResource(QImage& qimage, HMODULE hModule, LPCTSTR lpType, LPCTSTR lpName) {
-    HRSRC resinfo = FindResource(hModule, lpName, lpType);
-    HGLOBAL resdata = LoadResource(hModule, resinfo);
-    DWORD ressize = SizeofResource(hModule, resinfo);
-    LPTSTR resbyte = LPTSTR(LockResource(resdata));
-    qimage.loadFromData((uchar*)resbyte, ressize);
-    return resbyte != 0;
-}
-
 void Normalize8bitQImage( QImage &qimage )
 {
     if (qimage.depth() != 8) {
@@ -1144,6 +1121,8 @@ int getCpuCount()
     return cpuCount;
 }
 
-unsigned int getTickCount() {
+#ifndef _WIN32
+unsigned int GetTickCount() {
     return GetTickCount();
 }
+#endif

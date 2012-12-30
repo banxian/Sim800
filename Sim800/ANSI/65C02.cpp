@@ -4,23 +4,22 @@ extern "C" {
 #include <QtCore/QDebug>
 
 DWORD     autoboot          = 0;
-HINSTANCE instance          = (HINSTANCE)0;
 BOOL      restart           = 0;
 WORD      iorange           = 0x0040;
 
-DWORD     totcycles			= 0;
-DWORD     stmsecs           = 0;
-DWORD     executed			= 0;
-int       benchmark         = 0;
+//DWORD     totcycles			= 0;
+//DWORD     stmsecs           = 0;
+//DWORD     executed			= 0;
+//int       benchmark         = 0;
 BOOL      irq			= 1;
 BOOL	  nmi				= 1;
 BOOL	  stp				= 0;
 BOOL	  wai				= 0;
-DWORD     irqclk            = 0;
-DWORD     irqcnt            = 0;
-DWORD     nmiclk            = 0;
-DWORD     nmicnt            = 0;
-DWORD     throttle          = 0;
+//DWORD     irqclk            = 0;
+//DWORD     irqcnt            = 0;
+//DWORD     nmiclk            = 0;
+//DWORD     nmicnt            = 0;
+//DWORD     throttle          = 0;
 
 
 
