@@ -58,7 +58,7 @@
 // remove/add AF_BREAK to ps can not restore original AF_BREAK
 /*regs.ps |= AF_BREAK;*/
 //SEI not in stack (dangerous!)
-#define IRQ  {  if (wai) {regs.pc++; wai = 0;}				    \
+#define IRQ  {  if (g_wai) {regs.pc++; g_wai = 0;}				    \
 				if (!(regs.ps & AF_INTERRUPT)) { 				    \
 			        PUSH(regs.pc >> 8)                                     \
                      PUSH(regs.pc & 0xFF)                                   \
@@ -70,14 +70,14 @@
                 } 									    \
 			 }
 // TODO: avoid cross stripe using SHR |
-#define NMI  {   if (wai) {regs.pc++; wai = 0; }                           \
+#define NMI  {   if (g_wai) {regs.pc++; g_wai = 0; }                           \
 			     PUSH(regs.pc >> 8)                                        \
                  PUSH(regs.pc & 0xFF)                                       \
 				 SEI                                                \
 				 EF_TO_AF                                           \
                  PUSH(regs.ps)                                              \
 				 regs.pc = *(LPWORD)(pmemmap[7]+0x1FFA);                   \
-				 nmi = 1; CYC(7)						    \
+				 g_nmi = 1; CYC(7)						    \
 			 }
 
 /****************************************************************************
@@ -324,7 +324,7 @@
 //regs.ps |= AF_BREAK;
 #define RTI      regs.ps = POP;                                             \
 	             CLI														\
-				 irq = 1;                                                   \
+				 g_irq = 1;                                                   \
 				 AF_TO_EF                                                   \
                  regs.pc = POP;												\
 				 regs.pc |= (((WORD)POP) << 8);
@@ -374,7 +374,7 @@
                  SETNZ(val)                                                 \
                  WRITE(val)
 #define STA      WRITE(regs.a)
-#define STP      regs.pc--; stp=1;
+#define STP      regs.pc--; g_stp=1;
 #define STX      WRITE(regs.x)
 #define STY      WRITE(regs.y)
 #define STZ      WRITE(0)
@@ -397,7 +397,7 @@
 #define TXS      regs.sp = 0x100 | regs.x;
 #define TYA      regs.a = regs.y;                                           \
                  SETNZ(regs.a)
-#define WAI      regs.pc--; wai = 1;
+#define WAI      regs.pc--; g_wai = 1;
 #define INVALID1 { }
 #define INVALID2 ++regs.pc;
 #define INVALID3 regs.pc += 2;
@@ -684,9 +684,9 @@ DWORD CpuExecute () {
       case 0xFE:       ABSX INC      CYC(6)  break;
       case 0xFF: CMOS  ZPG BBS7      CYC(5)  break;
     }
-      if (!stp ) {        // If STP, then no IRQ or NMI allowed
-	   if (!nmi) NMI;
-	   if (!irq) IRQ;
+      if (!g_stp ) {        // If STP, then no IRQ or NMI allowed
+	   if (!g_nmi) NMI;
+	   if (!g_irq) IRQ;
       }
 //  } while (cycles < totalcycles);
   EF_TO_AF								// put flags back in regs.ps
@@ -702,8 +702,8 @@ void CpuInitialize ()
     // assume 1FFC/1FFD in same stripe
     regs.pc = *(LPWORD)(pmemmap[7]+0x1FFC);
     regs.sp = 0x01FF;
-    irq	  = 1;
-    nmi	  = 1;
-    wai   = 0;
-    stp   = 0;
+    g_irq	  = 1;
+    g_nmi	  = 1;
+    g_wai   = 0;
+    g_stp   = 0;
 }

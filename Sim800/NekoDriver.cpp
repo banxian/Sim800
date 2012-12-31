@@ -1,7 +1,7 @@
 #include "NekoDriver.h"
 #include "DBCentre.h"
 extern "C" {
-#include "ANSI/65c02.h"
+#include "ANSI/w65c02.h"
 }
 #include "CC800IOName.h"
 
@@ -221,13 +221,13 @@ void EmulatorThread::run()
             // NMI > IRQ
             if ((gThreadFlags & 0x08) != 0) {
                 gThreadFlags &= 0xFFF7u; // remove 0x08 NMI Flag
-                nmi = 0; // next CpuExecute will execute two instructions
+                g_nmi = 0; // next CpuExecute will execute two instructions
                 qDebug("ggv wanna NMI.");
                 //fprintf(stderr, "ggv wanna NMI.\n");
                 gDeadlockCounter--; // wrong behavior of wqxsim
             } else if (((regs.ps & 0x4) == 0) && ((gThreadFlags & 0x10) != 0)) {
                 gThreadFlags &= 0xFFEFu; // remove 0x10 IRQ Flag
-                irq = 0; // B flag will remove in CpuExecute (AF_BREAK)
+                g_irq = 0; // B flag will remove in CpuExecute (AF_BREAK)
                 qDebug("ggv wanna IRQ.");
                 gDeadlockCounter--; // wrong behavior of wqxsim
             }

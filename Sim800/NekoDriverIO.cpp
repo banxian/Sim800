@@ -1,8 +1,10 @@
 #include "NekoDriver.h"
 extern "C" {
-#include "ANSI/65c02.h"
+#include "ANSI/w65c02.h"
 }
 #include "CC800IOName.h"
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 
 
 bool timer0started = false;
@@ -227,18 +229,18 @@ void UpdateKeypadRegisters()
     // TODO: 2pass check
     //qDebug("old [0015]:%02x [0009]:%02x [0008]:%02x", mem[0x15], mem[0x9], mem[0x8]);
     //int up = 0, down = 0;
-    byte port1control = fixedram0000[io15_port1_dir];
-    byte port0control = fixedram0000[io0F_port0_dir] & 0xF0; // b4~b7
-    byte port1controlbit = 1; // aka, y control bit
-    byte tmpdest0 = 0, tmpdest1 = 0;
-    byte port1data = fixedram0000[io09_port1_data], port0data = fixedram0000[io08_port0_data];
+    unsigned char port1control = fixedram0000[io15_port1_dir];
+    unsigned char port0control = fixedram0000[io0F_port0_dir] & 0xF0; // b4~b7
+    unsigned char port1controlbit = 1; // aka, y control bit
+    unsigned char tmpdest0 = 0, tmpdest1 = 0;
+    unsigned char port1data = fixedram0000[io09_port1_data], port0data = fixedram0000[io08_port0_data];
     for (int y = 0; y < 8; y++) {
         // y = Port10~Port17
         bool ysend = ((port1control & port1controlbit) != 0);
-        byte xbit = 1;
+        unsigned char xbit = 1;
         for (int x = 0; x < 8; x++) {
             // x = Port00~Port07
-            byte port0controlbit;
+            unsigned char port0controlbit;
             if (x < 2) {
                 // 0, 1 = b4 b5
                 port0controlbit = xbit << 4;
@@ -295,7 +297,7 @@ void UpdateKeypadRegisters()
         // clean port0
         // calculate port0 mask
         // in most case port0 will be set to 0
-        byte port0mask = (port0control >> 4) & 0x3; // bit4->0 bit5->1
+        unsigned char port0mask = (port0control >> 4) & 0x3; // bit4->0 bit5->1
         if (port0control & 0x40) {
             // bit6->2,3
             port0mask |= 0x0C; // 00001100
@@ -351,8 +353,8 @@ void __iocallconv Write08Port0( BYTE write, BYTE value )
     //    // or newvalue is 0 (all colume is 0)
     //    // or row7 == FB (ON/OFF)
     //    gFixedRAM0[io0b] = io0bvalue1 & 0xFE;   // Remove LCDIR1
-    byte xbit = 1;
-    byte row6data = 0, row7data = 0;
+    unsigned char xbit = 1;
+    unsigned char row6data = 0, row7data = 0;
     for (int x = 0; x < 8; x++) {
         if ((keypadmatrix[1][x] != 1)) {
             row6data |= xbit;
@@ -386,8 +388,8 @@ void __iocallconv Write09Port1( BYTE write, BYTE value )
     //qDebug("ggv wanna write keypad port1, [%04x] (%02x) -> %02x", write, mem[write], value);
     fixedram0000[io09_port1_data] = value;
     // cosply simulator
-    byte xbit = 1;
-    byte row6data = 0, row7data = 0;
+    unsigned char xbit = 1;
+    unsigned char row6data = 0, row7data = 0;
     for (int x = 0; x < 8; x++) {
         if ((keypadmatrix[1][x] != 1)) {
             row6data |= xbit;
@@ -404,7 +406,7 @@ void __iocallconv Write09Port1( BYTE write, BYTE value )
     if (row7data == 0xFF) {
         row7data = 0;
     }
-    byte port0bit01 = fixedram0000[io08_port0_data] & 3;
+    unsigned char port0bit01 = fixedram0000[io08_port0_data] & 3;
     if (value == 0) {
         //case 0u:
         //    // none of P10~P17 is set.

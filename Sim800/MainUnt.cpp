@@ -15,7 +15,7 @@
 #include <QtCore/QSettings>
 #include <QtXml/QDomDocument>
 extern "C" {
-#include "ANSI/65c02.h"
+#include "ANSI/w65c02.h"
 }
 
 

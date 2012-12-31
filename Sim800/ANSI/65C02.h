@@ -75,17 +75,10 @@ extern unsigned char* bbsbankheader[0x10];
 extern WORD       iorange;
 extern regsrec    regs;
 extern BOOL       restart;
-//extern DWORD	  totcycles;
-//extern DWORD      stmsecs;
-//extern DWORD      executed;
-//extern int        benchmark;
-//extern DWORD      throttle;
-extern BOOL       irq;
-extern BOOL       nmi;
-extern BOOL       wai;
-extern BOOL       stp;
-//extern DWORD      irqclk;       /*  used for auto-IRQ  */
-//extern DWORD      nmiclk;       /*  used for auto-NMI  */
+extern BOOL       g_irq;
+extern BOOL       g_nmi;
+extern BOOL       g_wai;
+extern BOOL       g_stp;
 
 
 

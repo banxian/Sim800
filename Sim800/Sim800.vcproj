@@ -862,15 +862,19 @@
 			Name="ANSI"
 			>
 			<File
-				RelativePath=".\ANSI\65C02.cpp"
+				RelativePath=".\ANSI\w65c02.h"
 				>
 			</File>
 			<File
-				RelativePath=".\ANSI\65C02.h"
+				RelativePath=".\ANSI\w65c02cpu.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ANSI\65C02CPU.c"
+				RelativePath=".\ANSI\w65c02macro.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ANSI\w65c02op.cpp"
 				>
 			</File>
 		</Filter>
