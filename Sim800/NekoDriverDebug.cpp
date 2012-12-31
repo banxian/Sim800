@@ -1,7 +1,5 @@
 #include "NekoDriver.h"
-extern "C" {
 #include "ANSI/w65c02.h"
-}
 #include <QtCore/QDebug>
 
 

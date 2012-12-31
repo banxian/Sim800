@@ -1,8 +1,6 @@
 #include "NekoDriver.h"
 #include "DBCentre.h"
-extern "C" {
 #include "ANSI/w65c02.h"
-}
 #include "CC800IOName.h"
 
 
@@ -225,7 +223,7 @@ void EmulatorThread::run()
                 qDebug("ggv wanna NMI.");
                 //fprintf(stderr, "ggv wanna NMI.\n");
                 gDeadlockCounter--; // wrong behavior of wqxsim
-            } else if (((regs.ps & 0x4) == 0) && ((gThreadFlags & 0x10) != 0)) {
+            } else if (((/*regs.ps*/PS() & 0x4) == 0) && ((gThreadFlags & 0x10) != 0)) {
                 gThreadFlags &= 0xFFEFu; // remove 0x10 IRQ Flag
                 g_irq = 0; // B flag will remove in CpuExecute (AF_BREAK)
                 qDebug("ggv wanna IRQ.");
@@ -269,7 +267,7 @@ void EmulatorThread::run()
                     fixedram0000[io01_int_enable] |= 0x1; // TIMER A INTERRUPT ENABLE
                     fixedram0000[io02_timer0_val] |= 0x1; // [io01+1] Timer0 bit1 = 1
                     gThreadFlags &= 0xFF7F;      // remove 0x80 | 0x10
-                    regs.pc = *(unsigned short*)&pmemmap[mapE000][0x1FFC];
+                    mPC /*regs.pc*/ = *(unsigned short*)&pmemmap[mapE000][0x1FFC];
                 }
             } else {
                 if (timer0started) {

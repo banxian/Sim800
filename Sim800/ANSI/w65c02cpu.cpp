@@ -1,6 +1,4 @@
-extern "C" {
 #include "w65c02.h"
-}
 #include "w65c02macro.h"
 
 DWORD     autoboot          = 0;
@@ -44,8 +42,8 @@ int mDbgFlag;
 int mBCDTable[2][256];
 
 
-int PS();
-void PS(int ps);
+//int PS();
+//void PS(int ps);
 
 void CpuInitialize()
 {
@@ -75,7 +73,7 @@ void CpuInitialize()
 
 void SetRegs(C6502_REGS &regs)
 {
-    PS(regs.PS);
+    setPS(regs.PS);
     mA = regs.A;
     mX = regs.X;
     mY = regs.Y;
@@ -137,7 +135,7 @@ int PS()
 
 
 // Change the processor flags to correspond to the given value
-void PS(int ps)
+void setPS(int ps)
 {
     mN = ps & 0x80;
     mV = ps & 0x40;

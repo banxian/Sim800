@@ -1,6 +1,4 @@
-extern "C" {
 #include "w65c02.h"
-}
 #include "w65c02macro.h"
 
 

@@ -185,6 +185,6 @@ extern int mBCDTable[2][256];
 //
 
 int PS();
-void PS(int ps);
+void setPS(int ps);
 
 #endif

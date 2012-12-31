@@ -1,7 +1,5 @@
 #include "NekoDriver.h"
-extern "C" {
 #include "ANSI/w65c02.h"
-}
 #include "CC800IOName.h"
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>

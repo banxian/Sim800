@@ -1,8 +1,6 @@
 #include "NekoDriver.h"
 #include <windows.h>
-extern "C" {
 #include "ANSI/w65c02.h"
-}
 #include <QtCore/QFile>
 #include "CC800IOName.h"
 
@@ -228,7 +226,7 @@ void MemReset ()
     // Initialize the cpu
     CpuInitialize(); // Read pc from reset vector
     //regs.ps = 0x24; // 00100100 unused P(bit5) = 1, I(bit3) = 1, B(bit4) = 0
-    PS();
+    setPS(0x24);
 }
 
 void InitRAM0IO() 

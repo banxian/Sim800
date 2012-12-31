@@ -601,7 +601,7 @@
 {\
 	int P;\
 	PULL(P);\
-	PS(P);\
+	setPS(P);\
 }
 
 #define	xPLX()\
@@ -660,7 +660,7 @@
 {\
 	int tmp;\
 	PULL(tmp);\
-	PS(tmp);\
+	setPS(tmp);\
 	PULL(mPC);\
 	PULL(tmp);\
 	mPC|=tmp<<8;\
