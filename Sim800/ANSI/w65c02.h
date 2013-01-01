@@ -6,6 +6,7 @@
 #include <windows.h>
 #else
 #include "wintypes.h"
+#include <objc/objc.h>
 #endif
 #include <stdlib.h>
 #include <sys/types.h>

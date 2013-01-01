@@ -192,21 +192,30 @@ void EmulatorThread::run()
     gThreadFlags &= 0xFFFEu; // Remove 0x01 from gThreadFlags (stack related)
 #ifdef AUTOTEST
     unsigned totalline = 0;
+    enablelogging = false;
 #endif
     while(fKeeping) {
         const unsigned spdc1016freq = GlobalSetting.SPDC1016Frequency;
 
         while (batchcount >= 0 && fKeeping) {
-            //qDebug("PC:0x%04x, opcode: 0x%06x", regs.pc, (*(LPDWORD)(mem+regs.pc)) & 0xFFFFFF);
-#ifdef HANDYPSP
-            LogDisassembly(mPC, NULL);
-#else
-            LogDisassembly(regs.pc, NULL);
-#endif
 #ifdef AUTOTEST
             totalline++;
             TryTest(totalline);
 #endif
+            //qDebug("PC:0x%04x, opcode: 0x%06x", regs.pc, (*(LPDWORD)(mem+regs.pc)) & 0xFFFFFF);
+#ifdef LOGASM
+#ifdef AUTOTEST
+            if (enablelogging) {
+#endif
+#ifdef HANDYPSP
+                LogDisassembly(mPC, NULL);
+#else
+                LogDisassembly(regs.pc, NULL);
+#endif
+#ifdef AUTOTEST
+            }
+#endif
+#endif // LOGASM
             if (matrixupdated) {
                 matrixupdated = false;
                 AppendLog("keypadmatrix updated.");
@@ -414,8 +423,10 @@ void EmulatorThread::StopKeeping()
     fKeeping = false;
 }
 
+#ifdef AUTOTEST
 void EmulatorThread::TryTest( unsigned line )
 {
+    // Network
     if (line == 1024000) {
         keypadmatrix[1][6] = 1;
         CheckLCDOffShift0AndEnableWatchDog();
@@ -424,15 +435,37 @@ void EmulatorThread::TryTest( unsigned line )
         keypadmatrix[1][6] = 0;
         CheckLCDOffShift0AndEnableWatchDog();
     }
-    if (line == 1524000) {
+    // Down
+    if (line == 1224000) {
         keypadmatrix[6][3] = 1;
         CheckLCDOffShift0AndEnableWatchDog();
     }
-    if (line == 1564000) {
+    if (line == 1264000) {
         keypadmatrix[6][3] = 0;
         CheckLCDOffShift0AndEnableWatchDog();
     }
+    // Enter
+    if (line == 1424000) {
+        keypadmatrix[6][5] = 1;
+        CheckLCDOffShift0AndEnableWatchDog();
+        enablelogging = true;
+    }
+    if (line == 1524000) {
+        keypadmatrix[6][5] = 0;
+        CheckLCDOffShift0AndEnableWatchDog();
+    }
+    // Splash
+    if (line == 4724000) {
+        keypadmatrix[6][5] = 1;
+        CheckLCDOffShift0AndEnableWatchDog();
+    }
+    if (line == 4764000) {
+        keypadmatrix[6][5] = 0;
+        CheckLCDOffShift0AndEnableWatchDog();
+    }
+
 }
+#endif
 
 void CheckLCDOffShift0AndEnableWatchDog()
 {

@@ -3,7 +3,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#else
+#include "wintypes.h"
+#include <objc/objc.h> // BOOL
+#endif
 #include <sys/types.h>
 
 //#define  BUILDNUMBER       2     // Rename to 65c02

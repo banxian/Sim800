@@ -79,7 +79,7 @@
 				 EF_TO_AF                                           \
                  PUSH(regs.ps)                                              \
 				 regs.pc = *(LPWORD)(pmemmap[7]+0x1FFA);                   \
-				 g_nmi = 0; CYC(7) /* MERGE */						    \
+				 g_nmi = 0; CYC(7) /* MERGE */					    \
 			 }
 
 /****************************************************************************

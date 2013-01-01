@@ -142,7 +142,7 @@
 				EnableFiberSafeOptimizations="true"
 				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories="&quot;.\tmp&quot;;&quot;$(QTDIR)\include&quot;;&quot;$(QTDIR)\include\QtCore&quot;;&quot;$(QTDIR)\include\QtGui&quot;;&quot;$(QTDIR)\include\QtXml&quot;;&quot;.&quot;;&quot;.\..\FvQKOLLite&quot;;&quot;.\LibMUIMaker&quot;;&quot;.\tmp\moc\$(ConfigurationName)&quot;;&quot;$(QTDIR)\include\QtSql&quot;;&quot;$(QTDIR)\include\ActiveQt&quot;;G:\root\git\qt\qtlite\src\3rdparty;&quot;.\tmp\$(ConfigurationName)&quot;"
-				PreprocessorDefinitions="QT_NO_DEBUG;NDEBUG;_WINDOWS;UNICODE;WIN32;QT_LARGEFILE_SUPPORT;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;QT_NODLL;FAKENMI;HANDYPSP;AUTOTEST"
+				PreprocessorDefinitions="QT_NO_DEBUG;NDEBUG;_WINDOWS;UNICODE;WIN32;QT_LARGEFILE_SUPPORT;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;QT_NODLL;FAKENMI;HANDYPSP;AUTOTEST;LOGASM;QT_NO_DEBUG_OUTPUT"
 				GeneratePreprocessedFile="0"
 				ExceptionHandling="1"
 				RuntimeLibrary="0"
@@ -389,7 +389,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing MyZoomWidget.h..."
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DQT_NODLL -DFAKENMI -DHANDYPSP -DAUTOTEST -D_UNICODE  &quot;-I.\tmp&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtXml&quot; &quot;-I.&quot; &quot;-I.\..\FvQKOLLite&quot; &quot;-I.\LibMUIMaker&quot; &quot;-I.\tmp\moc\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\QtSql&quot; &quot;-I$(QTDIR)\include\ActiveQt&quot; &quot;-IG:\root\git\qt\qtlite\src\3rdparty&quot; &quot;-I.\tmp\$(ConfigurationName)\.&quot;&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DQT_NODLL -DFAKENMI -DHANDYPSP -DAUTOTEST -DLOGASM -DQT_NO_DEBUG_OUTPUT -D_UNICODE  &quot;-I.\tmp&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtXml&quot; &quot;-I.&quot; &quot;-I.\..\FvQKOLLite&quot; &quot;-I.\LibMUIMaker&quot; &quot;-I.\tmp\moc\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\QtSql&quot; &quot;-I$(QTDIR)\include\ActiveQt&quot; &quot;-IG:\root\git\qt\qtlite\src\3rdparty&quot; &quot;-I.\tmp\$(ConfigurationName)\.&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
 						Outputs="&quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>
@@ -426,7 +426,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing NekoDriver.h..."
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DQT_NODLL -DFAKENMI -DHANDYPSP -DAUTOTEST -D_UNICODE  &quot;-I.\tmp&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtXml&quot; &quot;-I.&quot; &quot;-I.\..\FvQKOLLite&quot; &quot;-I.\LibMUIMaker&quot; &quot;-I.\tmp\moc\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\QtSql&quot; &quot;-I$(QTDIR)\include\ActiveQt&quot; &quot;-IG:\root\git\qt\qtlite\src\3rdparty&quot; &quot;-I.\tmp\$(ConfigurationName)\.&quot;&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DQT_NODLL -DFAKENMI -DHANDYPSP -DAUTOTEST -DLOGASM -DQT_NO_DEBUG_OUTPUT -D_UNICODE  &quot;-I.\tmp&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtXml&quot; &quot;-I.&quot; &quot;-I.\..\FvQKOLLite&quot; &quot;-I.\LibMUIMaker&quot; &quot;-I.\tmp\moc\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\QtSql&quot; &quot;-I$(QTDIR)\include\ActiveQt&quot; &quot;-IG:\root\git\qt\qtlite\src\3rdparty&quot; &quot;-I.\tmp\$(ConfigurationName)\.&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
 						Outputs="&quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>
@@ -4869,7 +4869,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing KeypadUnt.h..."
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DQT_NODLL -DFAKENMI -DHANDYPSP -DAUTOTEST -D_UNICODE  &quot;-I.\tmp&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtXml&quot; &quot;-I.&quot; &quot;-I.\..\FvQKOLLite&quot; &quot;-I.\LibMUIMaker&quot; &quot;-I.\tmp\moc\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\QtSql&quot; &quot;-I$(QTDIR)\include\ActiveQt&quot; &quot;-IG:\root\git\qt\qtlite\src\3rdparty&quot; &quot;-I.\tmp\$(ConfigurationName)\.&quot;&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DQT_NODLL -DFAKENMI -DHANDYPSP -DAUTOTEST -DLOGASM -DQT_NO_DEBUG_OUTPUT -D_UNICODE  &quot;-I.\tmp&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtXml&quot; &quot;-I.&quot; &quot;-I.\..\FvQKOLLite&quot; &quot;-I.\LibMUIMaker&quot; &quot;-I.\tmp\moc\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\QtSql&quot; &quot;-I$(QTDIR)\include\ActiveQt&quot; &quot;-IG:\root\git\qt\qtlite\src\3rdparty&quot; &quot;-I.\tmp\$(ConfigurationName)\.&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
 						Outputs="&quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>
@@ -4910,7 +4910,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing MainUnt.h..."
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DQT_NODLL -DFAKENMI -DHANDYPSP -DAUTOTEST -D_UNICODE  &quot;-I.\tmp&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtXml&quot; &quot;-I.&quot; &quot;-I.\..\FvQKOLLite&quot; &quot;-I.\LibMUIMaker&quot; &quot;-I.\tmp\moc\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\QtSql&quot; &quot;-I$(QTDIR)\include\ActiveQt&quot; &quot;-IG:\root\git\qt\qtlite\src\3rdparty&quot; &quot;-I.\tmp\$(ConfigurationName)\.&quot;&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DQT_NODLL -DFAKENMI -DHANDYPSP -DAUTOTEST -DLOGASM -DQT_NO_DEBUG_OUTPUT -D_UNICODE  &quot;-I.\tmp&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtXml&quot; &quot;-I.&quot; &quot;-I.\..\FvQKOLLite&quot; &quot;-I.\LibMUIMaker&quot; &quot;-I.\tmp\moc\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\QtSql&quot; &quot;-I$(QTDIR)\include\ActiveQt&quot; &quot;-IG:\root\git\qt\qtlite\src\3rdparty&quot; &quot;-I.\tmp\$(ConfigurationName)\.&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
 						Outputs="&quot;.\tmp\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>

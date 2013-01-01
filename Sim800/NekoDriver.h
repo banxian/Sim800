@@ -79,6 +79,7 @@ protected:
 
 #ifdef AUTOTEST
 private:
+    bool enablelogging;
     void TryTest(unsigned line);
 #endif
 
