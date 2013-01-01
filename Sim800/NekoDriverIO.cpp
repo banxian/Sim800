@@ -226,7 +226,7 @@ void __iocallconv Write02Timer0Value( BYTE write, BYTE value )
 //////////////////////////////////////////////////////////////////////////
 // Keypad registers
 //////////////////////////////////////////////////////////////////////////
-unsigned char keypadmatrix[8][8] = {0,};
+unsigned /*char*/ keypadmatrix[8][8] = {0,};
 
 void UpdateKeypadRegisters()
 {

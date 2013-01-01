@@ -93,8 +93,8 @@ signals:
 typedef TNekoDriver* PNekoDriver;
 extern PNekoDriver theNekoDriver;
 
-extern unsigned short lcdbuffaddr;
+extern unsigned short lcdbuffaddr; // unused
 
-extern unsigned char keypadmatrix[8][8];
+extern unsigned keypadmatrix[8][8]; // char -> uint32
 
 #endif

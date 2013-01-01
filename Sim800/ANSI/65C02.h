@@ -43,12 +43,6 @@
 									// removed BUILDNUMBER from the ini config file structure
 
 
-#define  SPEED_NORMAL      10
-#define  SPEED_MAX         250
-
-
-#define  MAX(a,b)          (((a) > (b)) ? (a) : (b))
-#define  MIN(a,b)          (((a) < (b)) ? (a) : (b))
 
 #define __iocallconv __fastcall
 

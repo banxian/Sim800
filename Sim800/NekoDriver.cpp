@@ -160,14 +160,11 @@ extern bool timer0started;
 extern bool timer1started;
 extern unsigned short gThreadFlags;
 
-//DWORD lastTicket = 0;
-//unsigned long long totalcycle = 0;
-//const unsigned spdc1016freq = 3686400;
-//bool checked = false;
-//unsigned batchlimiter = 0;
-//long batchcount = LONG_MAX;
-//double sleepgap = 10;
-//long sleepcount = 0;
+
+#if 0
+#define spdc1016freq 3686400
+#endif
+
 
 // WQXSIM
 extern bool timer0waveoutstart;
@@ -176,6 +173,7 @@ int gDeadlockCounter = 0;
 extern bool lcdoffshift0flag;
 bool matrixupdated = false;
 long nmicount = 0;
+long twohznmicycle;
 
 void Turnoff2HzNMIMaskAddIRQFlag();
 void CheckTimebaseAndEnableIRQnEXIE1();
@@ -188,21 +186,26 @@ void EmulatorThread::run()
     CpuInitialize();
     lcdoffshift0flag = false;
     //stp = 1; // test
+#ifndef FAKENMI
     unsigned int nmistart = GetTickCount();
+#endif
     gThreadFlags &= 0xFFFEu; // Remove 0x01 from gThreadFlags (stack related)
 #ifdef AUTOTEST
     unsigned totalline = 0;
     enablelogging = false;
 #endif
     while(fKeeping) {
+#if 1
         const unsigned spdc1016freq = GlobalSetting.SPDC1016Frequency;
-
+#endif
+#ifdef FAMENMI
+        twohznmicycle = spdc1016freq / 2;
+#endif
         while (batchcount >= 0 && fKeeping) {
 #ifdef AUTOTEST
             totalline++;
             TryTest(totalline);
-#endif
-            //qDebug("PC:0x%04x, opcode: 0x%06x", regs.pc, (*(LPDWORD)(mem+regs.pc)) & 0xFFFFFF);
+#endif // AUTOTEST
 #ifdef LOGASM
 #ifdef AUTOTEST
             if (enablelogging) {
@@ -211,39 +214,34 @@ void EmulatorThread::run()
                 LogDisassembly(mPC, NULL);
 #else
                 LogDisassembly(regs.pc, NULL);
-#endif
+#endif // HANDYPSP
 #ifdef AUTOTEST
             }
-#endif
+#endif // AUTOTEST
 #endif // LOGASM
             if (matrixupdated) {
                 matrixupdated = false;
                 AppendLog("keypadmatrix updated.");
             }
 
-            unsigned int dummynow = GetTickCount();
-            nmicount++;
+            //nmicount++;
 #ifdef FAKENMI
-            if (nmicount % (3686400 /2) == 0){
+            //if (nmicount % 400000 == 0){
+            if (twohznmicycle < 0) {
 #else
+            unsigned int dummynow = GetTickCount();
             if (dummynow - nmistart >= 500){
 #endif
                 // 2Hz NMI
                 // TODO: use batchcount as NMI
 #ifdef FAKENMI
-                //if (dummynow - nmistart >= 1000) {
-                //    // Debugger
-                //    nmistart = dummynow - 3000; // delay 3s
-                //} else {
-                //    nmistart = dummynow; // prevent multi NMI
-                //}
-                nmistart = dummynow;
+                twohznmicycle = spdc1016freq / 2; // reset
 #else
                 nmistart += 500;
 #endif
                 //nmi = 0; // next CpuExecute will execute two instructions
                 gThreadFlags |= 0x08; // Add NMIFlag
-                nmicount = 0; // for merge
+                //nmicount = 0; // for merge
             }
 
             // NMI > IRQ
@@ -267,6 +265,7 @@ void EmulatorThread::run()
 
             DWORD CpuTicks = CpuExecute();
             totalcycle += CpuTicks;
+            twohznmicycle -= CpuTicks;
             // add checks for reset, IRQ, NMI, and other pin signals
             if (lastTicket == 0) {
                 lastTicket = GetTickCount();
@@ -329,63 +328,69 @@ void EmulatorThread::run()
             //    fixedram0000[io03_timer1_val] = fixedram0000[io03_timer1_val] + 1;
             //}
 
-            if (totalcycle % spdc1016freq < 10 && totalcycle > spdc1016freq) {
-#ifdef TARGET_OS_IPHONE
+            if (measured == false && totalcycle % spdc1016freq < 10 && totalcycle > spdc1016freq) {
                 measured = true;
+#if 0
+                // fixed rate on device
+                // realworld time = 106
+#ifdef HANDYPSP
+                batchlimiter = spdc1016freq / 88; // 12*10=120ms
+#else
                 batchlimiter = spdc1016freq / 4;
 #endif
-                if (measured == false) {
-                    measured = true;
-                    if (totalcycle < spdc1016freq * 2) {
-                        // first loop check!
-                        // spdc1016 executed one second in fullspeed virtual timeline
-                        unsigned long long realworldtime = GetTickCount() - lastTicket; // should less than 1000ms
-                        lastTicket = GetTickCount();
-                        //double virtual100ms = realworldtime / 100.0;
-                        qDebug("realworldtime:%llu", realworldtime);
-                        fprintf(stderr, "realworldtime:%llu\n", realworldtime);
-                        if (realworldtime > 1000) {
-                            // TODO: device may slower than simulator
-                            // in my test iPad I get 3528/3779/3630 msec to finish one sdpc1016freq loop
-                            // we should make screen refresh at least twice per real world second or screen will never been updated
-                            // 1000->500 2000->250 4000->125
-                            //batchlimiter = spdc1016freq * 2;
-                            batchlimiter = 500 * spdc1016freq / realworldtime;
-                            if (remeasure) {
-                                qDebug("remeasure on batchlimiter: %u", batchlimiter);
-                                fprintf(stderr, "remeasure on batchlimiter: %u\n", batchlimiter);
-                                measured = false;
-                                totalcycle = 0;
-                                remeasure--;
-                            }
-                        } else if (batchlimiter == 0) {
-                            // 1000 - realworldtime = overflow time, overflow time / 10 = sleepcount, freq / sleepcount = batchcount
-                            //batchlimiter = spdc1016freq / ((1000 - realworldtime) / 10);
-                            sleepcount = (1000 - realworldtime) / sleepgap;
-                            batchlimiter = spdc1016freq * sleepgap / (1000 - realworldtime);
-                        } else {
-                            // wrong path?
-                            // sleep(0) is less than 10ms, but we'd never go here
+                batchcount = batchlimiter;
+#else
+                if (totalcycle < spdc1016freq * 2) {
+                    // first loop check!
+                    // spdc1016 executed one second in fullspeed virtual timeline
+                    unsigned long long realworldtime = GetTickCount() - lastTicket; // should less than 1000ms
+                    lastTicket = GetTickCount();
+                    //double virtual100ms = realworldtime / 100.0;
+                    qDebug("realworldtime:%llu", realworldtime);
+                    fprintf(stderr, "realworldtime:%llu\n", realworldtime);
+                    if (realworldtime > 1000) {
+                        // TODO: device may slower than simulator
+                        // in my test iPad I get 3528/3779/3630 msec to finish one sdpc1016freq loop
+                        // we should make screen refresh at least twice per real world second or screen will never been updated
+                        // 1000->500 2000->250 4000->125
+                        //batchlimiter = spdc1016freq * 2;
+                        batchlimiter = 500 * spdc1016freq / realworldtime;
+                        if (remeasure) {
+                            qDebug("remeasure on batchlimiter: %u", batchlimiter);
+                            fprintf(stderr, "remeasure on batchlimiter: %u\n", batchlimiter);
+                            measured = false;
+                            totalcycle = 0;
+                            remeasure--;
                         }
                         batchcount = batchlimiter;
+                    } else if (batchlimiter == 0) {
+                        // 1000 - realworldtime = overflow time, overflow time / 10 = sleepcount, freq / sleepcount = batchcount
+                        //batchlimiter = spdc1016freq / ((1000 - realworldtime) / 10);
+                        sleepcount = (1000 - realworldtime) / sleepgap;
+                        batchlimiter = spdc1016freq * sleepgap / (1000 - realworldtime);
                     } else {
-                        //// check once more
-                        //unsigned long long realworldtime = GetTickCount() - lastTicket; // should less than 1000ms
-                        //lastTicket = GetTickCount();
-                        //if (realworldtime < 1000 && batchlimiter > 0) {
-                        //    // sleep(0) is less than 10ms
-                        //    // TODO: calculate real sleep gap
-                        //    double lastexrtatime = sleepgap * sleepcount; // for eg400ms, sleep 20*10ms
-                        //    long newextratime = (1000 - realworldtime); // for eg100ms, real sleepgap = (400 - 100) / 20
-                        //    sleepgap = (lastexrtatime - newextratime) / sleepcount;
-                        //    sleepcount = lastexrtatime / sleepgap;
-                        //    batchlimiter = spdc1016freq * 10 / lastexrtatime;
-                        //}
+                        // wrong path?
+                        // sleep(0) is less than 10ms, but we'd never go here
                     }
+                    batchcount = batchlimiter;
+                } else {
+                    //// check once more
+                    //unsigned long long realworldtime = GetTickCount() - lastTicket; // should less than 1000ms
+                    //lastTicket = GetTickCount();
+                    //if (realworldtime < 1000 && batchlimiter > 0) {
+                    //    // sleep(0) is less than 10ms
+                    //    // TODO: calculate real sleep gap
+                    //    double lastexrtatime = sleepgap * sleepcount; // for eg400ms, sleep 20*10ms
+                    //    long newextratime = (1000 - realworldtime); // for eg100ms, real sleepgap = (400 - 100) / 20
+                    //    sleepgap = (lastexrtatime - newextratime) / sleepcount;
+                    //    sleepcount = lastexrtatime / sleepgap;
+                    //    batchlimiter = spdc1016freq * 10 / lastexrtatime;
+                    //}
                 }
-            }
+#endif // TARGET_IPHONE_SIMULATOR
+            } // measured == false && totalcycle % spdc1016freq < 10 && totalcycle > spdc1016freq 
             if (totalcycle % spdc1016freq > 10 && totalcycle > spdc1016freq) {
-                // FIXME: re-measure
+                // FIXME: bug on slow device
                 //measured = false;
             }
 
@@ -409,7 +414,7 @@ void EmulatorThread::run()
         }
         //emit stepFinished(regs.pc);
         //qDebug("PC:0x%04x", regs.pc);
-        Sleep(10);
+        Sleep(10); // SleepGap. 10ms = 10us
         if (batchlimiter > 0) {
             batchcount = batchlimiter;
         } else {
