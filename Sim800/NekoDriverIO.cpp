@@ -1,5 +1,11 @@
 #include "NekoDriver.h"
+extern "C" {
+#ifdef HANDYPSP
 #include "ANSI/w65c02.h"
+#else
+#include "ANSI/65C02.h"
+#endif
+}
 #include "CC800IOName.h"
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>

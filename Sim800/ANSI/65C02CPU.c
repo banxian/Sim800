@@ -1,3 +1,5 @@
+#ifndef HANDYPSP
+
 #include "65c02.h"
 
 #define  AF_SIGN       0x80
@@ -77,7 +79,7 @@
 				 EF_TO_AF                                           \
                  PUSH(regs.ps)                                              \
 				 regs.pc = *(LPWORD)(pmemmap[7]+0x1FFA);                   \
-				 g_nmi = 1; CYC(7)						    \
+				 g_nmi = 0; CYC(7) /* MERGE */						    \
 			 }
 
 /****************************************************************************
@@ -324,7 +326,7 @@
 //regs.ps |= AF_BREAK;
 #define RTI      regs.ps = POP;                                             \
 	             CLI														\
-				 g_irq = 1;                                                   \
+				 g_irq = 0; /* MERGE */                                        \
 				 AF_TO_EF                                                   \
                  regs.pc = POP;												\
 				 regs.pc |= (((WORD)POP) << 8);
@@ -685,8 +687,8 @@ DWORD CpuExecute () {
       case 0xFF: CMOS  ZPG BBS7      CYC(5)  break;
     }
       if (!g_stp ) {        // If STP, then no IRQ or NMI allowed
-	   if (!g_nmi) NMI;
-	   if (!g_irq) IRQ;
+	   if (g_nmi) NMI;  // FIXME: NO MORE REVERSE
+	   if (g_irq) IRQ;  // FIXME: NO MORE REVERSE
       }
 //  } while (cycles < totalcycles);
   EF_TO_AF								// put flags back in regs.ps
@@ -702,8 +704,10 @@ void CpuInitialize ()
     // assume 1FFC/1FFD in same stripe
     regs.pc = *(LPWORD)(pmemmap[7]+0x1FFC);
     regs.sp = 0x01FF;
-    g_irq	  = 1;
-    g_nmi	  = 1;
+    g_irq	  = 0;  // FIXME: NO MORE REVERSE
+    g_nmi	  = 0;  // FIXME: NO MORE REVERSE
     g_wai   = 0;
     g_stp   = 0;
 }
+
+#endif

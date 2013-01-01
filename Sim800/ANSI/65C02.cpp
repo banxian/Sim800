@@ -1,3 +1,5 @@
+#ifndef HANDYPSP
+
 extern "C" {
 #include "65c02.h"
 }
@@ -7,19 +9,10 @@ DWORD     autoboot          = 0;
 BOOL      restart           = 0;
 WORD      iorange           = 0x0040;
 
-//DWORD     totcycles			= 0;
-//DWORD     stmsecs           = 0;
-//DWORD     executed			= 0;
-//int       benchmark         = 0;
-BOOL      g_irq			= 1;
-BOOL	  g_nmi				= 1;
-BOOL	  g_stp				= 0;
-BOOL	  g_wai				= 0;
-//DWORD     irqclk            = 0;
-//DWORD     irqcnt            = 0;
-//DWORD     nmiclk            = 0;
-//DWORD     nmicnt            = 0;
-//DWORD     throttle          = 0;
+BOOL      g_irq             = 0;    // FIXME: NO MORE REVERSE
+BOOL      g_nmi             = 0;    // FIXME: NO MORE REVERSE
+BOOL      g_stp             = 0;
+BOOL      g_wai             = 0;
 
 
 
@@ -36,20 +29,20 @@ BOOL	  g_wai				= 0;
 // extern bool timer1started;
 
 // void ContinueExecution () {
-// 
-//     DWORD processtime		= totcycles;// needed for comm routines
-//     DWORD loop				= speed * 300;// watchdog timer
-//     DWORD elapsed			= 0;
+//
+//     DWORD processtime        = totcycles;// needed for comm routines
+//     DWORD loop               = speed * 300;// watchdog timer
+//     DWORD elapsed            = 0;
 //     DWORD CpuTicks          = 0;
 //     DWORD j = 0;
-// 
+//
 //     if (benchmark == 2) {
 //         ClearCounters();
 //         benchmark = 1;
 //     }
-// 
+//
 //     elapsed = GetTickCount()-stmsecs;
-// 
+//
 //     while (loop && (totcycles < (elapsed * 100 * speed))) {
 //         //qDebug("PC:0x%04x, opcode: 0x%06x", regs.pc, (*(LPDWORD)(mem+regs.pc)) & 0xFFFFFF);
 //         //LogDisassembly(regs.pc, NULL);
@@ -80,10 +73,10 @@ BOOL	  g_wai				= 0;
 //         if (timer1started) {
 //             mem[03] = mem[03] + 1;
 //         }
-// 
+//
 //         /* Throttling routine (simple delay loop)  */
 //         if (throttle) for (j=throttle*CpuTicks;j>1;j--);
-// 
+//
 //     }
 //     /* Throttling update routine   */
 //     if (throttle) {
@@ -95,19 +88,19 @@ BOOL	  g_wai				= 0;
 //             throttle++;
 //         }
 //     }
-// 
-// 
+//
+//
 // //     if (benchmark && (elapsed >= 5000)) {
 // //         DisplayBenchmark(elapsed);
 // //         benchmark = 0;
 // //         ClearCounters();
 // //     }
-// 
+//
 // //     DrawStatusArea((HDC)0,0);
 // //     if (Displayflag) TerminalDisplay(0);
 // //     CommUpdate(totcycles - processtime);
-// 
+//
 // }
 
 
-
+#endif

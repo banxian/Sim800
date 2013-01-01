@@ -1,12 +1,16 @@
+#ifdef HANDYPSP
+
+extern "C" {
 #include "w65c02.h"
 #include "w65c02macro.h"
+}
 
 DWORD     autoboot          = 0;
 BOOL      restart           = 0;
 WORD      iorange           = 0x0040;
 
-BOOL      g_irq             = 1;
-BOOL      g_nmi             = 1;
+BOOL      g_irq             = 0;    // FIXME: NO MORE REVERSE
+BOOL      g_nmi             = 0;    // FIXME: NO MORE REVERSE
 BOOL      g_stp             = 0;
 BOOL      g_wai             = 0;
 BOOL      g_wai_saved       = 0;
@@ -61,12 +65,12 @@ void CpuInitialize()
     mB = FALSE;
     mD = FALSE;
     mI = TRUE;
-    mZ = TRUE;
+    mZ = FALSE; // GGV
     mC = FALSE;
     mIRQActive = FALSE;
 
-    g_nmi = FALSE;
-    g_irq = FALSE;
+    g_nmi = FALSE; // MERGE
+    g_irq = FALSE; // MERGE
     g_wai = FALSE;
     g_wai_saved = FALSE;
 }
@@ -85,8 +89,8 @@ void SetRegs(C6502_REGS &regs)
 #ifdef _LYNXDBG
     for (int loop = 0; loop < MAX_CPU_BREAKPOINTS; loop++) mPcBreakpoints[loop] = regs.cpuBreakpoints[loop];
 #endif
-    g_nmi = regs.NMI;
-    g_irq = regs.IRQ;
+    g_nmi = regs.NMI; // MERGE
+    g_irq = regs.IRQ; // MERGE
 }
 
 void GetRegs(C6502_REGS &regs)
@@ -145,3 +149,5 @@ void setPS(int ps)
     mZ = ps & 0x02;
     mC = ps & 0x01;
 }
+
+#endif // HANDYPSP

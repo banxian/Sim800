@@ -75,8 +75,8 @@ extern unsigned char* bbsbankheader[0x10];
 extern WORD       iorange;
 extern regsrec    regs;
 extern BOOL       restart;
-extern BOOL       g_irq;
-extern BOOL       g_nmi;
+extern BOOL       g_irq;    // FIXME: NO MORE REVERSE
+extern BOOL       g_nmi;    // FIXME: NO MORE REVERSE
 extern BOOL       g_wai;
 extern BOOL       g_stp;
 

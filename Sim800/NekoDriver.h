@@ -77,6 +77,11 @@ private:
 protected:
     void run();
 
+#ifdef AUTOTEST
+private:
+    void TryTest(unsigned line);
+#endif
+
 public:
     void StopKeeping();
 signals:

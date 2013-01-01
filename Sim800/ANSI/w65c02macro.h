@@ -314,6 +314,7 @@
 \
 	mD=FALSE;\
 	mI=TRUE;\
+    mB = TRUE; /* MERGE */ \
 \
 	mPC=CPU_PEEKW(IRQ_VECTOR);\
 }
@@ -661,6 +662,7 @@
 	int tmp;\
 	PULL(tmp);\
 	setPS(tmp);\
+    mI = FALSE; /* MERGE */ \
 	PULL(mPC);\
 	PULL(tmp);\
 	mPC|=tmp<<8;\

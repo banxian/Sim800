@@ -39,8 +39,8 @@ extern unsigned char* bbsbankheader[0x10];
 extern WORD       iorange;
 extern regsrec    regs;
 extern BOOL       restart;
-extern BOOL       g_irq;
-extern BOOL       g_nmi;
+extern BOOL       g_irq;    // FIXME: NO MORE REVERSE
+extern BOOL       g_nmi;    // FIXME: NO MORE REVERSE
 extern BOOL       g_wai, g_wai_saved;
 extern BOOL       g_stp;
 
@@ -101,10 +101,10 @@ unsigned short GetWord(unsigned short address);
 #define CPU_PEEK(addr)      ((addr < iorange)                           \
                             ? ioread[addr & 0xFF]((BYTE)(addr & 0xff))  \
                             : *(pmemmap[(addr >> 0xD)] + (addr & 0x1FFF)))
-#define CPU_PEEKW(addr)     (CPU_PEEK(addr) + (CPU_PEEK(addr + 1) << 8))
+#define CPU_PEEKW(addr)     (CPU_PEEK((addr)) + (CPU_PEEK((addr + 1)) << 8))
 #define CPU_POKE(addr, a)   { if ((addr >= iorange)) { \
                                 if ((addr < 0x4000)) { \
-                                    *(pmemmap[addr >> 0xD] + (addr & 0x1FFF)) = (BYTE)(a); \
+                                    *(pmemmap[(addr >> 0xD)] + (addr & 0x1FFF)) = (BYTE)(a); \
                                 } else { \
                                     checkflashprogram(addr, (BYTE)(a)); \
                                 } \

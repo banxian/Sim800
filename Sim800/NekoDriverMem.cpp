@@ -1,6 +1,12 @@
 #include "NekoDriver.h"
 #include <windows.h>
+extern "C" {
+#ifdef HANDYPSP
 #include "ANSI/w65c02.h"
+#else
+#include "ANSI/65C02.h"
+#endif
+}
 #include <QtCore/QFile>
 #include "CC800IOName.h"
 
@@ -225,8 +231,11 @@ void MemReset ()
 
     // Initialize the cpu
     CpuInitialize(); // Read pc from reset vector
-    //regs.ps = 0x24; // 00100100 unused P(bit5) = 1, I(bit3) = 1, B(bit4) = 0
+#ifdef HANDYPSP
     setPS(0x24);
+#else
+    regs.ps = 0x24; // 00100100 unused P(bit5) = 1, I(bit3) = 1, B(bit4) = 0
+#endif
 }
 
 void InitRAM0IO() 
@@ -384,7 +393,7 @@ void __iocallconv Write00BankSwitch( BYTE write, BYTE bank )
 
 BYTE __iocallconv Read00BankSwitch( BYTE )
 {
-    byte r = fixedram0000[io00_bank_switch];
+    BYTE r = fixedram0000[io00_bank_switch];
     qDebug("ggv wanna read bank. current bank 0x%02x", r);
     return r;
 }

@@ -1,5 +1,9 @@
+#ifdef HANDYPSP
+
+extern "C" {
 #include "w65c02.h"
 #include "w65c02macro.h"
+}
 
 
 // Read/Write Cycle definitions
@@ -15,49 +19,50 @@ DWORD CpuExecute(void)
 //
 // NMI is currently unused by the lynx so lets save some time
 //
-//          Check NMI & IRQ status, prioritise NMI then IRQ
-//          if(mNMI)
-//          {
-//              // Mark the NMI as services
-//              mNMI=FALSE;
-//              mProcessingInterrupt++;
-//
-//              // Push processor status
-//              CPU_POKE(0x0100+mSP--,mPC>>8);
-//              CPU_POKE(0x0100+mSP--,mPC&0x00ff);
-//              CPU_POKE(0x0100+mSP--,PS());
-//
-//              // Pick up the new PC
-//              mPC=CPU_PEEKW(NMI_VECTOR);
-//          }
-
-    if (g_irq && !mI) {
-        TRACE_CPU1("Update() IRQ taken at PC=%04x", mPC);
-        // IRQ signal clearance is handled by CMikie::Update() as this
-        // is the only source of interrupts
-
-        // Push processor status
-        PUSH(mPC >> 8);
-        PUSH(mPC & 0xff);
-        PUSH(PS() & 0xef);      // Clear B flag on stack
-
-        mI = TRUE;              // Stop further interrupts
-        mD = FALSE;             // Clear decimal mode
-
-        // Pick up the new PC
-        mPC = CPU_PEEKW(IRQ_VECTOR);
-
-        // Save the sleep state as an irq has possibly woken the processor
-        g_wai_saved = g_wai;
-        g_wai = FALSE;
-
-        // Log the irq entry time
-        // FIXME: cc800 wakeup IRQ
-        //gIRQEntryCycle = gSystemCycleCount;
-
-        // Clear the interrupt status line
-        g_irq = FALSE;
-    }
+    // Check NMI & IRQ status, prioritise NMI then IRQ
+//     if(g_nmi)
+//     {
+//         // Mark the NMI as services
+//         g_nmi=FALSE;
+//         // FIXME: cycle
+//         //mProcessingInterrupt++;
+// 
+//         // Push processor status
+//         CPU_POKE(0x0100+mSP--,mPC>>8);
+//         CPU_POKE(0x0100+mSP--,mPC&0x00ff);
+//         CPU_POKE(0x0100+mSP--,PS());
+// 
+//         // Pick up the new PC
+//         mPC=CPU_PEEKW(NMI_VECTOR);
+//     }
+// 
+//     if (g_irq && !mI) {
+//         TRACE_CPU1("Update() IRQ taken at PC=%04x", mPC);
+//         // IRQ signal clearance is handled by CMikie::Update() as this
+//         // is the only source of interrupts
+// 
+//         // Push processor status
+//         PUSH(mPC >> 8);
+//         PUSH(mPC & 0xff);
+//         PUSH(PS() & 0xef);      // Clear B flag on stack
+// 
+//         mI = TRUE;              // Stop further interrupts
+//         mD = FALSE;             // Clear decimal mode
+// 
+//         // Pick up the new PC
+//         mPC = CPU_PEEKW(IRQ_VECTOR);
+// 
+//         // Save the sleep state as an irq has possibly woken the processor
+//         g_wai_saved = g_wai;
+//         g_wai = FALSE;
+// 
+//         // Log the irq entry time
+//         // FIXME: cc800 wakeup IRQ
+//         //gIRQEntryCycle = gSystemCycleCount;
+// 
+//         // Clear the interrupt status line
+//         g_irq = FALSE;
+//     }
 
     //
     // If the CPU is asleep then skip to the next timer event
@@ -1451,6 +1456,57 @@ DWORD CpuExecute(void)
         break;
     }
 
+
+    // FIXME: GET Latest GGV Simulator
+    if(g_nmi)
+    {
+        // Mark the NMI as services
+        g_nmi=FALSE;
+        // FIXME: cycle
+        //mProcessingInterrupt++;
+
+        // Push processor status
+        CPU_POKE(0x0100+mSP,mPC>>8); // DEC4?!
+        mSP--;
+        CPU_POKE(0x0100+mSP,mPC&0x00ff);
+        mSP--;
+        mI = TRUE; // FIXME: MERGE
+        CPU_POKE(0x0100+mSP,PS());
+        mSP--;
+
+        // Pick up the new PC
+        mPC=CPU_PEEKW(NMI_VECTOR);
+    }
+
+    if (g_irq && !mI) {
+        TRACE_CPU1("Update() IRQ taken at PC=%04x", mPC);
+        // IRQ signal clearance is handled by CMikie::Update() as this
+        // is the only source of interrupts
+
+        // Push processor status
+        PUSH(mPC >> 8);
+        PUSH(mPC & 0xff);
+        mB = FALSE; // MERGE
+        PUSH(PS()/* & 0xef*/);      // Clear B flag on stack
+
+        mI = TRUE;              // Stop further interrupts
+        mD = FALSE;             // Clear decimal mode
+
+        // Pick up the new PC
+        mPC = CPU_PEEKW(IRQ_VECTOR);
+
+        // Save the sleep state as an irq has possibly woken the processor
+        g_wai_saved = g_wai;
+        g_wai = FALSE;
+
+        // Log the irq entry time
+        // FIXME: cc800 wakeup IRQ
+        //gIRQEntryCycle = gSystemCycleCount;
+
+        // Clear the interrupt status line
+        g_irq = FALSE;
+    }
+
 #ifdef _LYNXDBG
 
     // Trigger breakpoint if required
@@ -1488,3 +1544,5 @@ DWORD CpuExecute(void)
 #endif
     return cycle;
 }
+
+#endif
