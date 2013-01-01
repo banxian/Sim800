@@ -30,11 +30,6 @@ void LoadAppSettings( void )
 
     GlobalSetting.AutoCrop = settings.value("Global/AutoCrop", true).toBool();
     GlobalSetting.AutoExposure = settings.value("Global/AutoCrop", true).toBool();
-    //GlobalSetting.SplitPage = MangaDoublePageMode(settings.value("Global/SplitPage", mdpmAutoNippon).toInt());
-    GlobalSetting.PageSorting = PageSortingMethod(settings.value("Global/PageSorting", psmAutomatic).toInt());
-    GlobalSetting.EnhanceLevel = FilterMode(settings.value("Global/EnhanceLevel", fmHigh).toInt());
-    GlobalSetting.OutputFormat = CodecMode(settings.value("Global/OutputFormat", cmJPEGVeryHigh).toInt());
-    GlobalSetting.OutputResolution = ResizeMode(settings.value("Global/OutputResolution", rmFullScreen).toInt());
     GlobalSetting.UseSurfaceBlur = settings.value("Global/UseSurfaceBlur", false).toBool();
     GlobalSetting.RemoveJPEGArtifacts = settings.value("Global/RemoveJPEGArtifacts", false).toBool();
     GlobalSetting.SPDC1016Frequency = settings.value("Global/SPDC1016Frequency", 3686400).toUInt();
@@ -68,11 +63,6 @@ void SaveAppSettings( void )
     settings.beginGroup("Global");
     settings.setValue("AutoCrop", GlobalSetting.AutoCrop);
     settings.setValue("AutoExposure", GlobalSetting.AutoExposure);
-    //settings.setValue("SplitPage", GlobalSetting.SplitPage);
-    settings.setValue("PageSorting", GlobalSetting.PageSorting);
-    settings.setValue("EnhanceLevel", GlobalSetting.EnhanceLevel);
-    settings.setValue("OutputFormat", GlobalSetting.OutputFormat);
-    settings.setValue("OutputResolution", GlobalSetting.OutputResolution);
     settings.setValue("UseSurfaceBlur", GlobalSetting.UseSurfaceBlur);
     settings.setValue("RemoveJPEGArtifacts", GlobalSetting.RemoveJPEGArtifacts);
     settings.setValue("SPDC1016Frequency", GlobalSetting.SPDC1016Frequency);
@@ -85,16 +75,16 @@ void SaveAppSettings( void )
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Project IO Helper
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-QDataStream & operator<<( QDataStream &out, const TStreamCodec &codec )
-{
-    out << quint32(codec);
-    return out;
-}
-
-QDataStream & operator>>( QDataStream &in, TStreamCodec &codec )
-{
-    quint32 dummy;
-    in >> dummy;
-    codec = TStreamCodec(dummy);
-    return in;
-}
+// QDataStream & operator<<( QDataStream &out, const TStreamCodec &codec )
+// {
+//     out << quint32(codec);
+//     return out;
+// }
+// 
+// QDataStream & operator>>( QDataStream &in, TStreamCodec &codec )
+// {
+//     quint32 dummy;
+//     in >> dummy;
+//     codec = TStreamCodec(dummy);
+//     return in;
+// }

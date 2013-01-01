@@ -224,7 +224,7 @@ void EmulatorThread::run()
             unsigned int dummynow = GetTickCount();
             nmicount++;
 #ifdef FAKENMI
-            if (nmicount % 400000 == 0){
+            if (nmicount % (3686400 /2) == 0){
 #else
             if (dummynow - nmistart >= 500){
 #endif
@@ -385,7 +385,8 @@ void EmulatorThread::run()
                 }
             }
             if (totalcycle % spdc1016freq > 10 && totalcycle > spdc1016freq) {
-                measured = false;
+                // FIXME: re-measure
+                //measured = false;
             }
 
             if (batchlimiter != 0) {

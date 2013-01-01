@@ -876,26 +876,6 @@ void TMainFrm::initLcdStripe()
     fLCDStripes[71].top = 310;
 }
 
-QString LogTypeToString( TLogType logtype )
-{
-    switch (logtype)
-    {
-    case ltHint:
-        return "Hint";
-        break;
-    case ltDebug:
-        return "Debug";
-        break;
-    case ltMessage:
-        return "Message";
-        break;
-    case ltError:
-        return "Error";
-        break;
-    }
-    return "Unknown";
-}
-
 QString localLanguage() {
     QLocale locale = QLocale::system();
 

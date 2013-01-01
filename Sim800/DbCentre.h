@@ -1,12 +1,9 @@
 #ifndef _DBCENTRE_H
 #define _DBCENTRE_H
 
-//#include <QtSql/QSqlDatabase>
 #include <QtCore/QString>
 #include <QtCore/QVariant>
 #include <QtCore/QDataStream>
-//#include "NekoDriverUnt.h" // enum
-#include "MainUnt.h" // enum
 
 
 typedef struct tagPathRecItem {
@@ -34,22 +31,9 @@ typedef struct tagGlobalRecItem {
     bool RemoveJPEGArtifacts;
     bool AutoCrop;
     bool UseSurfaceBlur;
-    ResizeMode OutputResolution;
-    CodecMode OutputFormat;
-    FilterMode EnhanceLevel;
-    //MangaDoublePageMode SplitPage;
-    PageSortingMethod PageSorting;
     int SPDC1016Frequency;
 } TGlobalRecItem;
 
-//class CacheStore {
-//private:
-//public:
-//    CacheStore();
-//    ~CacheStore();
-//private:
-//public:
-//}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Project IO Helper
@@ -59,8 +43,8 @@ typedef struct tagGlobalRecItem {
 //QDataStream &operator>>(QDataStream &in, MangaDoublePageMode &mode);
 //QDataStream &operator<<(QDataStream &out, const ScaleFilter &filter);
 //QDataStream &operator>>(QDataStream &in, ScaleFilter &filter);
-QDataStream &operator<<(QDataStream &out, const TStreamCodec &codec);
-QDataStream &operator>>(QDataStream &in, TStreamCodec &codec);
+//QDataStream &operator<<(QDataStream &out, const TStreamCodec &codec);
+//QDataStream &operator>>(QDataStream &in, TStreamCodec &codec);
 
 // structural
 //QDataStream &operator<<(QDataStream &out, const TBookBundleRec &book);

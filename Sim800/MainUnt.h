@@ -6,7 +6,6 @@
 #include <QtCore/QMimeData>
 #include <QtCore/QDateTime>
 #include <QtGui/QTreeWidgetItem>
-#include "Common.h"
 #include <QtGui/QLabel>
 #include <QtGui/QProgressbar>
 #include <QtGui/QImage>
@@ -85,6 +84,5 @@ public slots:
 
 };
 
-QString LogTypeToString( TLogType logtype );
 QString localLanguage();
 #endif // MAINUNT_H
