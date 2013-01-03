@@ -22,7 +22,7 @@ extern "C" {
 TMainFrm::TMainFrm(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::TMainFrm)
-    , fDiscardRenameCheck(false)
+    //, fDiscardRenameCheck(false)
     , fLCDStripes(NULL)
 {
     ui->setupUi(this);
@@ -50,8 +50,8 @@ TMainFrm::TMainFrm(QWidget *parent)
     theNekoDriver = new TNekoDriver();
     connect(theNekoDriver, SIGNAL(lcdBufferChanged(QByteArray*)), 
             this, SLOT(onLCDBufferChanged(QByteArray*)));
-    connect(theNekoDriver, SIGNAL(stepFinished(quint16)), 
-        this, SLOT(onStepFinished(quint16)));
+    //connect(theNekoDriver, SIGNAL(stepFinished(quint16)), 
+    //    this, SLOT(onStepFinished(quint16)));
 
     FILTERKEYS oldfilterkeys;
     oldfilterkeys.cbSize = sizeof FILTERKEYS;
@@ -196,18 +196,6 @@ void TMainFrm::onEmulationTestClicked()
     }
     PathSetting.LastSourceFolder = QFileInfo(binname).path();
     theNekoDriver->RunDemoBin(binname);
-}
-
-void TMainFrm::onStepFinished( quint16 pc )
-{
-    if (action == NULL) {
-        action = new QLabel(tr("PC:0000"));
-        action->setMinimumSize(120, 14);
-        action->setMaximumSize(200, 18);
-        action->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
-        ui->statusBar->addWidget(action);
-    }
-    //action->setText(QString(tr("PC:%1")).arg(ushort(pc), 4, 16, QLatin1Char('0')));
 }
 
 extern bool lcdoffshift0flag;

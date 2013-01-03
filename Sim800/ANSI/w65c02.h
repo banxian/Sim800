@@ -58,6 +58,18 @@ void    MemReset();
 unsigned char GetByte(unsigned short address);
 unsigned short GetWord(unsigned short address);
 
+//
+// Status Register Bits
+//
+#define  AF_SIGN       0x80
+#define  AF_OVERFLOW   0x40
+#define  AF_RESERVED   0x20
+#define  AF_BREAK      0x10
+#define  AF_DECIMAL    0x08
+#define  AF_INTERRUPT  0x04
+#define  AF_ZERO       0x02
+#define  AF_CARRY      0x01
+
 // Handy
 
 #ifdef TRACE_CPU
@@ -99,6 +111,7 @@ unsigned short GetWord(unsigned short address);
 //#define CPU_PEEKW(m)            (((m<0xfc00)?(mRamPointer[m]+(mRamPointer[m+1]<<8)):mSystem.PeekW_CPU(m)))
 //#define CPU_POKE(m1,m2)         {if(m1<0xfc00) mRamPointer[m1]=m2; else mSystem.Poke_CPU(m1,m2);}
 
+// Don't use ++/-- in addr, or will be execute multi time
 #define CPU_PEEK(addr)      ((addr < iorange)                           \
                             ? ioread[addr & 0xFF]((BYTE)(addr & 0xff))  \
                             : *(pmemmap[(addr >> 0xD)] + (addr & 0x1FFF)))
@@ -109,8 +122,9 @@ unsigned short GetWord(unsigned short address);
                                 } else { \
                                     checkflashprogram(addr, (BYTE)(a)); \
                                 } \
-                            }  else                                                     \
-                                iowrite[addr & 0xFF]((BYTE)(addr & 0xff),(BYTE)(a));   \
+                              }  else { \
+                                iowrite[addr & 0xFF]((BYTE)(addr & 0xff),(BYTE)(a)); \
+                              } \
                             }
 
 enum {  illegal = 0,
@@ -132,22 +146,22 @@ enum {  illegal = 0,
         ind
      };
 
-typedef struct {
-    int PS;     // Processor status register   8 bits
-    int A;      // Accumulator                 8 bits
-    int X;      // X index register            8 bits
-    int Y;      // Y index register            8 bits
-    int SP;     // Stack Pointer               8 bits
-    int Opcode; // Instruction opcode          8 bits
-    int Operand;// Instructions operand       16 bits
-    int PC;     // Program Counter            16 bits
-    bool NMI;
-    bool IRQ;
-    bool WAIT;
-#ifdef _LYNXDBG
-    int cpuBreakpoints[MAX_CPU_BREAKPOINTS];
-#endif
-} C6502_REGS;
+//typedef struct {
+//    int PS;     // Processor status register   8 bits
+//    int A;      // Accumulator                 8 bits
+//    int X;      // X index register            8 bits
+//    int Y;      // Y index register            8 bits
+//    int SP;     // Stack Pointer               8 bits
+//    int Opcode; // Instruction opcode          8 bits
+//    int Operand;// Instructions operand       16 bits
+//    int PC;     // Program Counter            16 bits
+//    bool NMI;
+//    bool IRQ;
+//    bool WAIT;
+//#ifdef _LYNXDBG
+//    int cpuBreakpoints[MAX_CPU_BREAKPOINTS];
+//#endif
+//} C6502_REGS;
 
 //CSystemBase   &mSystem;
 

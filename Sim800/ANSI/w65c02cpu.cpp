@@ -75,41 +75,41 @@ void CpuInitialize()
     g_wai_saved = FALSE;
 }
 
-void SetRegs(C6502_REGS &regs)
-{
-    setPS(regs.PS);
-    mA = regs.A;
-    mX = regs.X;
-    mY = regs.Y;
-    mSP = regs.SP;
-    mOpcode = regs.Opcode;
-    mOperand = regs.Operand;
-    mPC = regs.PC;
-    g_wai = regs.WAIT;
-#ifdef _LYNXDBG
-    for (int loop = 0; loop < MAX_CPU_BREAKPOINTS; loop++) mPcBreakpoints[loop] = regs.cpuBreakpoints[loop];
-#endif
-    g_nmi = regs.NMI; // MERGE
-    g_irq = regs.IRQ; // MERGE
-}
+//void SetRegs(C6502_REGS &regs)
+//{
+//    setPS(regs.PS);
+//    mA = regs.A;
+//    mX = regs.X;
+//    mY = regs.Y;
+//    mSP = regs.SP;
+//    mOpcode = regs.Opcode;
+//    mOperand = regs.Operand;
+//    mPC = regs.PC;
+//    g_wai = regs.WAIT;
+//#ifdef _LYNXDBG
+//    for (int loop = 0; loop < MAX_CPU_BREAKPOINTS; loop++) mPcBreakpoints[loop] = regs.cpuBreakpoints[loop];
+//#endif
+//    g_nmi = regs.NMI; // MERGE
+//    g_irq = regs.IRQ; // MERGE
+//}
 
-void GetRegs(C6502_REGS &regs)
-{
-    regs.PS = PS();
-    regs.A = mA;
-    regs.X = mX;
-    regs.Y = mY;
-    regs.SP = mSP;
-    regs.Opcode = mOpcode;
-    regs.Operand = mOperand;
-    regs.PC = mPC;
-    regs.WAIT = (g_wai) ? true : false;
-#ifdef _LYNXDBG
-    for (int loop = 0; loop < MAX_CPU_BREAKPOINTS; loop++) regs.cpuBreakpoints[loop] = mPcBreakpoints[loop];
-#endif
-    regs.NMI = (g_nmi) ? true : false;
-    regs.IRQ = (g_irq) ? true : false;
-}
+//void GetRegs(C6502_REGS &regs)
+//{
+//    regs.PS = PS();
+//    regs.A = mA;
+//    regs.X = mX;
+//    regs.Y = mY;
+//    regs.SP = mSP;
+//    regs.Opcode = mOpcode;
+//    regs.Operand = mOperand;
+//    regs.PC = mPC;
+//    regs.WAIT = (g_wai) ? true : false;
+//#ifdef _LYNXDBG
+//    for (int loop = 0; loop < MAX_CPU_BREAKPOINTS; loop++) regs.cpuBreakpoints[loop] = mPcBreakpoints[loop];
+//#endif
+//    regs.NMI = (g_nmi) ? true : false;
+//    regs.IRQ = (g_irq) ? true : false;
+//}
 
 int GetPC(void)
 {

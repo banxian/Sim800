@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     
     QTranslator translator;
-    translator.load(QString("MangaBook_") + localLanguage(), app.applicationDirPath() + "/Language");
+    translator.load(QString("Sim800_") + localLanguage(), app.applicationDirPath() + "/Language");
     //translator.load("MPack_chs", app.applicationDirPath() + "/Language");
 #ifdef __GNUC__
     QStringList matchlist = QString::fromUtf16((ushort*)L"Tahoma;宋体;微软雅黑;ＭＳ ゴシック").split(";", QString::KeepEmptyParts, Qt::CaseInsensitive);

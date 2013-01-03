@@ -92,3 +92,15 @@ void    MemReset ();
 
 unsigned char GetByte( unsigned short address );
 unsigned short GetWord( unsigned short address );
+
+//
+// Status Register Bits
+//
+#define  AF_SIGN       0x80
+#define  AF_OVERFLOW   0x40
+#define  AF_RESERVED   0x20
+#define  AF_BREAK      0x10
+#define  AF_DECIMAL    0x08
+#define  AF_INTERRUPT  0x04
+#define  AF_ZERO       0x02
+#define  AF_CARRY      0x01

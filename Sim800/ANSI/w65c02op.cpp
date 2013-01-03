@@ -7,15 +7,15 @@ extern "C" {
 
 
 // Read/Write Cycle definitions
-#define CPU_RDWR_CYC	5
-#define DMA_RDWR_CYC	4
-#define SPR_RDWR_CYC	3
+#define CPU_RDWR_CYC    5
+#define DMA_RDWR_CYC    4
+#define SPR_RDWR_CYC    3
 
 void xILLEGAL(void);
 
 DWORD CpuExecute(void)
 {
-	DWORD cycle = 0;
+    DWORD cycle = 0;
 //
 // NMI is currently unused by the lynx so lets save some time
 //
@@ -26,40 +26,40 @@ DWORD CpuExecute(void)
 //         g_nmi=FALSE;
 //         // FIXME: cycle
 //         //mProcessingInterrupt++;
-// 
+//
 //         // Push processor status
 //         CPU_POKE(0x0100+mSP--,mPC>>8);
 //         CPU_POKE(0x0100+mSP--,mPC&0x00ff);
 //         CPU_POKE(0x0100+mSP--,PS());
-// 
+//
 //         // Pick up the new PC
 //         mPC=CPU_PEEKW(NMI_VECTOR);
 //     }
-// 
+//
 //     if (g_irq && !mI) {
 //         TRACE_CPU1("Update() IRQ taken at PC=%04x", mPC);
 //         // IRQ signal clearance is handled by CMikie::Update() as this
 //         // is the only source of interrupts
-// 
+//
 //         // Push processor status
 //         PUSH(mPC >> 8);
 //         PUSH(mPC & 0xff);
 //         PUSH(PS() & 0xef);      // Clear B flag on stack
-// 
+//
 //         mI = TRUE;              // Stop further interrupts
 //         mD = FALSE;             // Clear decimal mode
-// 
+//
 //         // Pick up the new PC
 //         mPC = CPU_PEEKW(IRQ_VECTOR);
-// 
+//
 //         // Save the sleep state as an irq has possibly woken the processor
 //         g_wai_saved = g_wai;
 //         g_wai = FALSE;
-// 
+//
 //         // Log the irq entry time
 //         // FIXME: cc800 wakeup IRQ
 //         //gIRQEntryCycle = gSystemCycleCount;
-// 
+//
 //         // Clear the interrupt status line
 //         g_irq = FALSE;
 //     }
@@ -1458,24 +1458,26 @@ DWORD CpuExecute(void)
 
 
     // FIXME: GET Latest GGV Simulator
-    if(g_nmi)
-    {
+    // NC3000 have same behavior
+    if (g_nmi) {
         // Mark the NMI as services
-        g_nmi=FALSE;
-        // FIXME: cycle
+        g_nmi = FALSE;
+        // FIXME: cycle++?
         //mProcessingInterrupt++;
 
         // Push processor status
-        CPU_POKE(0x0100+mSP,mPC>>8); // DEC4?!
+        CPU_POKE(0x0100 + mSP, mPC >> 8); // DEC4?!
         mSP--;
-        CPU_POKE(0x0100+mSP,mPC&0x00ff);
+        CPU_POKE(0x0100 + mSP, mPC & 0x00ff);
         mSP--;
+#ifdef MERGEGGVSIM
         mI = TRUE; // FIXME: MERGE
-        CPU_POKE(0x0100+mSP,PS());
+#endif
+        CPU_POKE(0x0100 + mSP, PS());
         mSP--;
 
         // Pick up the new PC
-        mPC=CPU_PEEKW(NMI_VECTOR);
+        mPC = CPU_PEEKW(NMI_VECTOR);
     }
 
     if (g_irq && !mI) {
@@ -1486,7 +1488,9 @@ DWORD CpuExecute(void)
         // Push processor status
         PUSH(mPC >> 8);
         PUSH(mPC & 0xff);
+#ifdef MERGEGGVSIM
         mB = FALSE; // MERGE
+#endif
         PUSH(PS()/* & 0xef*/);      // Clear B flag on stack
 
         mI = TRUE;              // Stop further interrupts

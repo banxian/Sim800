@@ -46,10 +46,10 @@ public:
 
 public slots:
     void onLCDBufferChanged(QByteArray* buffer);
-    void onStepFinished(quint16 pc);
+    //void onStepFinished(quint16 pc);
 signals:
     void lcdBufferChanged(QByteArray* buffer);
-    void stepFinished(quint16 pc);
+    //void stepFinished(quint16 pc);
 };
 
 class EmulatorThread : public QThread
@@ -87,7 +87,7 @@ public:
     void StopKeeping();
 signals:
     void lcdBufferChanged(QByteArray* buffer);
-    void stepFinished(quint16 pc);
+    //void stepFinished(quint16 pc);
 };
 
 typedef TNekoDriver* PNekoDriver;
@@ -96,5 +96,10 @@ extern PNekoDriver theNekoDriver;
 extern unsigned short lcdbuffaddr; // unused
 
 extern unsigned keypadmatrix[8][8]; // char -> uint32
+
+#define TF_STACKOVERFLOW 0x1
+#define TF_NMIFLAG 0x8
+#define TF_IRQFLAG 0x10
+#define TF_WATCHDOG 0x80
 
 #endif

@@ -37,11 +37,6 @@ private:
     Ui::TMainFrm *ui;
     QFileDialog OpenSaveFileDialog;
     QString fLastSavedProjectFilename;
-    QLabel *action;
-    QProgressBar *progress;
-    QTime fPrepareBufferStartTime;
-    bool fDiscardRenameCheck;
-    QString fBookfilename;
     QTranslator* fTranslator;
     QString fLastLangCode;
     QSet<Qt::Key> fPressedKeys;
@@ -49,9 +44,6 @@ private:
     TLCDStripe* fLCDStripes;
     QImage fLCDEmpty, fLCDPixel;
 private:
-    //void TryAcceptDrop( QFileInfo &info, int maxdepth, int &bypasscount, int &acceptcount );
-    //void TryAcceptPages( QFileInfo &info, int maxdepth, int chapterindex, int &bypasscount, int &acceptcount );
-    //void TryAcceptXmlFolder( QFileInfo &info, OpenBookWriter* writer, int baselen, int maxdepth, int &bypasscount, int &acceptcount );
     void initKeypad();
     void repaintKeypad();
     void updateKeypadMatrix();
@@ -78,8 +70,6 @@ private slots:
     void onMouseUp(int x, int y);
     
 public slots:
-    //void writeLog(QString content, TLogType logtype = ltMessage);
-    void onStepFinished(quint16 pc);
     void onLCDBufferChanged(QByteArray* buffer);
 
 };
