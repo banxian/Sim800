@@ -323,15 +323,15 @@ instrec instruction[257] = { {"BRK",ADDR_ABS},              // 00h
 
 FILE* logfile = NULL;
 
-const char* GetSymbol (WORD address, int bytes);
-const char *byte_to_binary ( unsigned char c, char* b );
+const char* GetSymbol(WORD address, int bytes);
+const char* byte_to_binary(unsigned char c, char* b);
 
 
 unsigned logpos = 0;
 
-char logbuff [102400*50]; // 5M buffer. no need initialize
+char logbuff [102400 * 50]; // 5M buffer. no need initialize
 
-WORD LogDisassembly ( WORD offset, char* text )
+WORD LogDisassembly(WORD offset, char* text)
 {
     if (logfile == NULL) {
         wchar_t* filepath = new wchar_t[MAX_PATH];
@@ -362,42 +362,42 @@ WORD LogDisassembly ( WORD offset, char* text )
     // Build a string containing the target address or symbol
     if (addressmode[addrmode].format[0]) {
 
-        WORD address = GetWord((offset+1) & 0xffff);
+        WORD address = GetWord((offset + 1) & 0xffff);
 
         if (bytes == 2)
             address &= 0xFF;
 
         if (addrmode == ADDR_IMM) {
-            WORD address = GetWord((offset+1) & 0xffff) & 0xFF;
+            WORD address = GetWord((offset + 1) & 0xffff) & 0xFF;
             sprintf(addresstext,
-                addressmode[addrmode].format,
-                (unsigned)address);
+                    addressmode[addrmode].format,
+                    (unsigned)address);
         }
         if (addrmode == ADDR_REL) {
-            address = (offset+2+(int)(signed char)address) & 0xffff;
+            address = (offset + 2 + (int)(signed char)address) & 0xffff;
             sprintf(addresstext,
-                addressmode[addrmode].format,
-                (LPSTR)GetSymbol(address,bytes));
+                    addressmode[addrmode].format,
+                    (LPSTR)GetSymbol(address, bytes));
         }
         if (addrmode == ADDR_BBREL) {
             address &= 0xFF;
             WORD zpaddr = address;
-            address = GetWord((offset+2) & 0xffff); //*(LPWORD)(mem+((offset+2) & 0xffff));
+            address = GetWord((offset + 2) & 0xffff); //*(LPWORD)(mem+((offset+2) & 0xffff));
             address &= 0xFF;
-            address = (offset+3+(int)(signed char)address) & 0xffff;
+            address = (offset + 3 + (int)(signed char)address) & 0xffff;
 
             char zptxt[14];
-            sprintf(zptxt,"%s",(LPSTR)GetSymbol(zpaddr,2));
+            sprintf(zptxt, "%s", (LPSTR)GetSymbol(zpaddr, 2));
             sprintf(addresstext,
-                addressmode[addrmode].format,
-                zptxt,
-                (LPSTR)GetSymbol(address,3));
+                    addressmode[addrmode].format,
+                    zptxt,
+                    (LPSTR)GetSymbol(address, 3));
         }
 
         if (addresstext[0] == 0) {//else
             sprintf(addresstext,
-            addressmode[addrmode].format,
-            (LPSTR)GetSymbol(address,bytes));
+                    addressmode[addrmode].format,
+                    (LPSTR)GetSymbol(address, bytes));
         }
     }
 
@@ -406,11 +406,11 @@ WORD LogDisassembly ( WORD offset, char* text )
     {
         int loop = 0;
         while (loop < bytes)
-            sprintf(bytestext+strlen(bytestext),
-            "%02X",
-            GetByte(offset+(loop++)));
+            sprintf(bytestext + strlen(bytestext),
+                    "%02X",
+                    GetByte(offset + (loop++)));
         while (strlen(bytestext) < 6)
-            strcat(bytestext," ");
+            strcat(bytestext, " ");
     }
 
 
@@ -422,7 +422,7 @@ WORD LogDisassembly ( WORD offset, char* text )
     //    // Reset
     //    logpos = 0;
     //}
-    if (logpos > 102400*50 - 80) {
+    if (logpos > 102400 * 50 - 80) {
         fwrite(logbuff, logpos, 1, logfile);
         fflush(logfile);
         logpos = 0;
@@ -434,26 +434,26 @@ WORD LogDisassembly ( WORD offset, char* text )
     byte_to_binary(regs.ps, psbin);
 #endif
     logpos += sprintf(&logbuff[logpos],
-    //sprintf(fulltext,
-        "%04X  %s  %-4s %-8s  %02X %02X %02X %04X %s\n",
-        (unsigned)offset,                   // 4000
-        bytestext,                          // 0149__
-        //(LPSTR)GetSymbol(offset,0),       // 
-        instruction[inst].mnemonic,         // ORA_
-        addresstext, //);                   // ($49,X)
+                      //sprintf(fulltext,
+                      "%04X  %s  %-4s %-8s  %02X %02X %02X %04X %s\n",
+                      (unsigned)offset,                   // 4000
+                      bytestext,                          // 0149__
+                      //(LPSTR)GetSymbol(offset,0),       //
+                      instruction[inst].mnemonic,         // ORA_
+                      addresstext, //);                   // ($49,X)
 #ifdef HANDYPSP
-        mA,
-        mX,
-        mY,
-        mSP | 0x100,
+                      mA,
+                      mX,
+                      mY,
+                      mSP | 0x100,
 #else
-        regs.a,
-        regs.x,
-        regs.y,
-        regs.sp,
+                      regs.a,
+                      regs.x,
+                      regs.y,
+                      regs.sp,
 #endif
-        psbin
-        );
+                      psbin
+                     );
     //if (text)
     //    strcpy(text,fulltext);
     //qDebug("%s", fulltext);
@@ -461,16 +461,17 @@ WORD LogDisassembly ( WORD offset, char* text )
     return bytes;
 }
 
-const char* GetSymbol (WORD address, int bytes) {
+const char* GetSymbol(WORD address, int bytes)
+{
     // If there is no symbol for this address, then just return a string
     // containing the address number
     static char buffer[8];
     switch (bytes) {
-    case 2:   
-        sprintf(buffer,"$%02X",(unsigned)address);
+    case 2:
+        sprintf(buffer, "$%02X", (unsigned)address);
         break;
     case 3:
-        sprintf(buffer,"$%04X",(unsigned)address);
+        sprintf(buffer, "$%04X", (unsigned)address);
         break;
     default:
         buffer[0] = 0;
@@ -479,7 +480,7 @@ const char* GetSymbol (WORD address, int bytes) {
     return buffer;
 }
 
-const char *byte_to_binary ( unsigned char c, char* b )
+const char* byte_to_binary(unsigned char c, char* b)
 {
     //static char b[9]; // TODO: threadsafe
 
@@ -495,7 +496,7 @@ const char *byte_to_binary ( unsigned char c, char* b )
 
 void AppendLog(const char* text)
 {
-    if (logpos > 102400*50 - 50) {
+    if (logpos > 102400 * 50 - 50) {
         fwrite(logbuff, logpos, 1, logfile);
         fflush(logfile);
         logpos = 0;

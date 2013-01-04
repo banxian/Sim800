@@ -114,11 +114,11 @@ unsigned short GetWord(unsigned short address);
 // Don't use ++/-- in addr, or will be execute multi time
 #define CPU_PEEK(addr)      ((addr < iorange)                           \
                             ? ioread[addr & 0xFF]((BYTE)(addr & 0xff))  \
-                            : *(pmemmap[(addr >> 0xD)] + (addr & 0x1FFF)))
+                            : *(pmemmap[unsigned(addr) >> 0xD] + (addr & 0x1FFF)))
 #define CPU_PEEKW(addr)     (CPU_PEEK((addr)) + (CPU_PEEK((addr + 1)) << 8))
 #define CPU_POKE(addr, a)   { if ((addr >= iorange)) { \
                                 if ((addr < 0x4000)) { \
-                                    *(pmemmap[(addr >> 0xD)] + (addr & 0x1FFF)) = (BYTE)(a); \
+                                  *(pmemmap[unsigned(addr) >> 0xD] + (addr & 0x1FFF)) = (BYTE)(a); \
                                 } else { \
                                     checkflashprogram(addr, (BYTE)(a)); \
                                 } \

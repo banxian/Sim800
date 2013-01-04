@@ -1466,7 +1466,7 @@ DWORD CpuExecute(void)
         //mProcessingInterrupt++;
 
         // Push processor status
-        CPU_POKE(0x0100 + mSP, mPC >> 8); // DEC4?!
+        CPU_POKE(0x0100 + mSP, mPC >> 8); // don't use ++ in poke or will inc/dec 4 times
         mSP--;
         CPU_POKE(0x0100 + mSP, mPC & 0x00ff);
         mSP--;
@@ -1490,8 +1490,10 @@ DWORD CpuExecute(void)
         PUSH(mPC & 0xff);
 #ifdef MERGEGGVSIM
         mB = FALSE; // MERGE
+        PUSH(PS());
+#else
+        PUSH(PS() & 0xef);      // Clear B flag on stack
 #endif
-        PUSH(PS()/* & 0xef*/);      // Clear B flag on stack
 
         mI = TRUE;              // Stop further interrupts
         mD = FALSE;             // Clear decimal mode

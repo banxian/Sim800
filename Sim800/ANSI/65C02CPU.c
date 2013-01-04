@@ -117,11 +117,11 @@
 
 // optimized?
 #define IZPG     if (GetByte(regs.pc) == 0xFF) {                                \
-                    addr = *(fixedram0000+0xFF) + (*(fixedram0000)*256);                        \
-                    regs.pc++;                                              \
-                    }                                                       \
-                 else                                                       \
-                    addr = GetWord(GetByte(regs.pc++));
+                   addr = *(fixedram0000+0xFF) + (*(fixedram0000)*256);                        \
+                   regs.pc++;                                              \
+                 } else {                                                      \
+                   addr = GetWord(GetByte(regs.pc++)); \
+                 }
 
 
 

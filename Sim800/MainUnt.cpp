@@ -365,7 +365,7 @@ void TMainFrm::repaintKeypad()
     ui->keypadView->setPixmap(QPixmap::fromImage(image));
 }
 
-extern void CheckLCDOffShift0AndEnableWatchDog();
+extern void CheckLCDOffShift0HotkeyAndEnableWatchDog();
 extern void AppendLog(const char* text);
 
 void TMainFrm::updateKeypadMatrix()
@@ -379,7 +379,8 @@ void TMainFrm::updateKeypadMatrix()
         }
     }
     // TODO: Check
-    CheckLCDOffShift0AndEnableWatchDog();
+    // FIXME: ON/OFF detection?
+    CheckLCDOffShift0HotkeyAndEnableWatchDog();
     //AppendLog("keypadmatrix updated.");
 }
 
